@@ -1,26 +1,377 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   KICKSTART — design tokens
+   Theme: "the production floor". Monochrome, drenched black, one motif (the cut).
+   Palette is the client's committed spec; the only change is splitting the
+   muted grey by ground, because #A0A0A0 scores 2.5:1 on white and fails AA.
+   ========================================================================== */
+
+@theme {
+  /* --- colour ---------------------------------------------------------- */
+  --color-ink: oklch(0.145 0 0); /* #050505 */
+  --color-ink-raised: oklch(0.205 0 0); /* #151515 */
+  --color-ink-lift: oklch(0.26 0 0);
+  --color-paper: oklch(1 0 0); /* #FFFFFF */
+  --color-paper-warm: oklch(0.968 0.001 106); /* #F5F5F3 */
+  --color-muted-dark: oklch(0.715 0 0); /* #A0A0A0 — on ink only, 7.9:1 */
+  --color-muted-light: oklch(0.475 0 0); /* #5A5A5A — on paper only, 7.0:1 */
+
+  /* --- type ------------------------------------------------------------ */
+  --font-display: var(--font-archivo), "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-martian), "Martian Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --text-display: clamp(2.25rem, 9.4vw, 6rem);
+  --text-display--line-height: 0.9;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-h1: clamp(2.125rem, 5.6vw, 4.5rem);
+  --text-h1--line-height: 0.95;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-h2: clamp(1.625rem, 3.8vw, 3rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: -0.025em;
+
+  --text-h3: clamp(1.125rem, 2.1vw, 1.75rem);
+  --text-h3--line-height: 1.15;
+  --text-h3--letter-spacing: -0.015em;
+
+  --text-body: clamp(1rem, 1.1vw, 1.125rem);
+  --text-body--line-height: 1.6;
+
+  --text-meta: 0.6875rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.16em;
+
+  /* --- rhythm ----------------------------------------------------------- */
+  --spacing-gutter: clamp(1.25rem, 5vw, 6rem);
+  --spacing-section: clamp(5rem, 12vh, 9rem);
+  --spacing-section-lg: clamp(8rem, 18vh, 14rem);
+
+  /* --- motion ----------------------------------------------------------- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Semantic z-index scale — never arbitrary values. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --z-base: 0;
+  --z-media: 1;
+  --z-content: 2;
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 30;
+  --z-menu: 40;
+  --z-loader: 50;
+
+  /* The cut: the diagonal taken from the KS monogram's bolt. */
+  --cut-angle: 12deg;
+  /* Absolute length: clip-path % resolves against element height, margin %
+     against parent width, so a shared % value overlaps by wildly different
+     amounts. One length keeps the diagonal and the overlap in agreement. */
+  --cut-drop: clamp(1.75rem, 3.6vw, 4.5rem);
+  --cut-skew: 8%;
+
+  --rule-on-dark: oklch(1 0 0 / 0.14);
+  --rule-on-light: oklch(0.145 0 0 / 0.14);
+
+  color-scheme: dark;
+  /* Lets <details> animate to/from height:auto without JS. */
+  interpolate-size: allow-keywords;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+/* Lenis owns scrolling when it is active; native smooth would fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+  scroll-behavior: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  text-wrap: balance;
+  font-weight: 800;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* ==========================================================================
+   Type utilities
+   ========================================================================== */
+
+/* The width axis is an expressive instrument here, not a fallback:
+   headlines gain scale from width, not from oversized font-size. */
+.u-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" calc(var(--wdth, 112) * var(--wdth-scale, 1));
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.u-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.u-measure {
+  max-width: 62ch;
+}
+
+/* Narrow grades of the same headline, so long words fit without shrinking the
+   type into insignificance. Composed per size, not shrunk. */
+@media (max-width: 900px) {
+  :root { --wdth-scale: 0.92; }
+}
+@media (max-width: 620px) {
+  :root { --wdth-scale: 0.8; }
+}
+@media (max-width: 420px) {
+  :root { --wdth-scale: 0.72; }
+}
+
+/* Light type on black reads lighter — give it more air. */
+.on-ink p,
+.on-ink .u-measure {
+  line-height: 1.65;
+}
+
+/* ==========================================================================
+   The cut — one motif, five uses
+   ========================================================================== */
+
+/* 1 + 2: reveal along the cut. --p: 0 hidden → 1 revealed. */
+.cut-reveal {
+  --p: 1;
+  clip-path: polygon(
+    0% 101%,
+    100% 101%,
+    100% calc(101% - var(--p) * 130%),
+    0% calc(101% - var(--p) * 130% + var(--cut-skew))
+  );
+}
+
+/* 4: link underline sweeping in at the cut angle. */
+.cut-link {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.cut-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0) skewX(calc(var(--cut-angle) * -1));
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.cut-link:hover::after,
+.cut-link:focus-visible::after {
+  transform: scaleX(1) skewX(calc(var(--cut-angle) * -1));
+}
+
+/* A hairline rule carrying the cut angle. Used as a section divider. */
+.cut-rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--rule-on-dark);
+}
+.on-paper .cut-rule {
+  background: var(--rule-on-light);
+}
+
+/* ==========================================================================
+   Film grain — part of the "accent", since the palette has no colour
+   ========================================================================== */
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  z-index: var(--z-overlay);
+  opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 0.6s steps(4) infinite;
+  will-change: transform;
+}
+
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); }
+  75% { transform: translate(-2%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ==========================================================================
+   Photography treatment — graded in CSS so a colour source can be swapped in
+   without re-editing files.
+   ========================================================================== */
+
+.plate img,
+img.plate {
+  filter: grayscale(1) contrast(1.08) brightness(0.96);
+}
+
+/* ==========================================================================
+   Reduced motion — a designed variant, not a kill switch.
+   The page must stay complete and readable.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Everything resolves to its end state rather than disappearing. */
+  .cut-reveal {
+    --p: 1 !important;
+    clip-path: none !important;
+  }
+
+  .grain::after {
+    animation: none;
+    opacity: 0.1;
+  }
+}
+
+/* ==========================================================================
+   FAQ — native <details> animating to/from height:auto, no JS accordion.
+   Unsupported browsers simply open instantly, which is a fine floor.
+   ========================================================================== */
+
+.ks-faq::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 480ms var(--ease-out-expo),
+    content-visibility 480ms allow-discrete;
+}
+
+.ks-faq[open]::details-content {
+  block-size: auto;
+}
+
+/* SplitText's masked lines need the overflow clip to hide the rise. */
+.ks-line {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ks-faq::details-content {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Section transitions — the cut, applied where a light ground meets a dark one
+   ========================================================================== */
+
+.cut-top {
+  clip-path: polygon(0 var(--cut-drop), 100% 0, 100% 100%, 0 100%);
+  margin-top: calc(var(--cut-drop) * -1);
+  padding-top: var(--cut-drop);
+}
+
+/* The hero needs ground under its type: the plates are bright in the middle,
+   and white-on-haze is the one place this palette can fail legibility. */
+.hero-scrim {
+  background: linear-gradient(
+    to top,
+    oklch(0.145 0 0 / 0.92) 0%,
+    oklch(0.145 0 0 / 0.72) 26%,
+    oklch(0.145 0 0 / 0.28) 52%,
+    transparent 78%
+  );
 }
