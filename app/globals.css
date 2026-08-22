@@ -265,6 +265,15 @@ button {
    Film grain — part of the "accent", since the palette has no colour
    ========================================================================== */
 
+/* The overlay is inset -50% so the drift never exposes an edge — which means
+   it also hangs half a section-height BELOW the page. Absolutely positioned
+   boxes still contribute scrollable overflow, and because the drift is animated
+   the document height changed every frame, so smooth scroll had a moving bottom
+   to settle against. Clip it: the grain stays, the overflow stops. */
+.grain {
+  overflow: clip;
+}
+
 .grain::after {
   content: "";
   position: absolute;

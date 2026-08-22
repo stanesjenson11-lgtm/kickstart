@@ -6,7 +6,7 @@ export default function Footer() {
       {/* The bolt, oversized and cut by the viewport edge. */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -right-[6%] -bottom-[18%] block h-[130%] w-auto text-paper/[0.045]"
+        className="pointer-events-none absolute -right-[6%] -bottom-[10%] block h-[118%] w-auto text-paper/[0.045]"
         style={{ aspectRatio: "100 / 160" }}
       >
         <svg viewBox="0 0 100 160" className="h-full w-full" fill="currentColor">
@@ -14,7 +14,7 @@ export default function Footer() {
         </svg>
       </span>
 
-      <div className="relative z-[var(--z-content)] px-gutter py-section">
+      <div className="relative z-[var(--z-content)] px-gutter pt-section pb-10">
         <div className="grid gap-12 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-12 lg:col-span-5">
             <p className="u-display text-h2" style={{ ["--wdth" as string]: 116 }}>
@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="mt-section u-meta text-muted-dark">{footer.copyright}</p>
+        <p className="mt-20 u-meta text-muted-dark">{footer.copyright}</p>
       </div>
     </footer>
   );

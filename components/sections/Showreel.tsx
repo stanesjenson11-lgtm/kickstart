@@ -27,7 +27,15 @@ export default function Showreel() {
     if (!frame) return;
 
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: self, start: "top top", end: "+=120%", pin: true, scrub: 0.6 },
+      scrollTrigger: {
+        trigger: self,
+        start: "top top",
+        end: "+=120%",
+        pin: true,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+      },
     });
 
     tl.fromTo(
@@ -37,19 +45,24 @@ export default function Showreel() {
       0,
     ).to(meta, { opacity: 0, duration: 0.35 }, 0);
 
-    // The frame counter runs with scroll progress, like a scrub bar.
+    // The frame counter runs with scroll progress, like a scrub bar. It rides
+    // the same timeline rather than a second trigger over the pinned range.
     if (counter) {
       const obj = { f: 0 };
-      gsap.to(obj, {
-        f: 1152,
-        ease: "none",
-        scrollTrigger: { trigger: self, start: "top top", end: "+=120%", scrub: 0.6 },
-        onUpdate: () => {
-          const total = Math.round(obj.f);
-          const s = Math.floor(total / 24);
-          counter.textContent = `00:00:${String(s).padStart(2, "0")}:${String(total % 24).padStart(2, "0")}`;
+      tl.to(
+        obj,
+        {
+          f: 1152,
+          ease: "none",
+          duration: 1,
+          onUpdate: () => {
+            const total = Math.round(obj.f);
+            const s = Math.floor(total / 24);
+            counter.textContent = `00:00:${String(s).padStart(2, "0")}:${String(total % 24).padStart(2, "0")}`;
+          },
         },
-      });
+        0,
+      );
     }
   }, []);
 

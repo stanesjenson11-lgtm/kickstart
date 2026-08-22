@@ -17,9 +17,7 @@ export const site = {
   title: "Kickstart Creative Studio | Media Production & Social Media",
   description:
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
-  url: "kickstartcreativestudio.com",
-  founded: "August 2025",
-  incorporated: "March 2026",
+  url: "https://kickstartcreativestudio.com",
   email: "hello@kickstartcreative.studio",
   phone: "+91 00000 00000",
   whatsapp: "910000000000",
@@ -115,7 +113,7 @@ export const work: { label: string; headline: string; projects: Project[] } = {
       index: "03",
       category: "Advertising",
       client: "Fieldwork Athletic",
-      services: ["Product photography", "Commercial", "Paid social"],
+      services: ["Commercial", "Campaign content", "Paid social"],
       blurb:
         "A product campaign built to survive being cropped to a square, a story and a thumbnail.",
       src: IMG("photo-1542291026-7eec264c27ff", 1800),
@@ -180,7 +178,6 @@ export const services = {
       items: [
         "Commercials",
         "Advertising films",
-        "Product photography",
         "Campaign content",
         "Creative production",
         "Social ads",
@@ -229,8 +226,7 @@ export const why = {
 export const headshots = {
   headline: "Your people are part of your brand.",
   body: "Professional portraits for founders, executives and teams who want to look as credible as the businesses they represent.",
-  tags: ["Founders", "Executives", "Teams", "Corporate headshots"],
-  cta: { label: "Book a corporate shoot", href: "#contact" },
+  tags: ["Founders", "Executives", "Teams", "Leadership portraits"],
   src: IMG("photo-1519085360753-af0119f7cbe7", 1600),
   alt: "An executive portrait lit hard from one side against near-black, arms folded",
 } as const;
@@ -317,12 +313,8 @@ export const testimonials: {
 /* 13 — ABOUT ------------------------------------------------------------- */
 export const about = {
   label: "About Kickstart",
-  headline: "A small studio. A big ambition.",
+  headline: "Every frame has to earn its place.",
   body: "Kickstart Creative Studio is a creative production studio built for ambitious brands. We combine visual production, advertising and social media to help businesses communicate with clarity, confidence and impact.",
-  facts: [
-    { key: "Started", value: site.founded },
-    { key: "Incorporated", value: site.incorporated },
-  ],
   src: IMG("photo-1531058020387-3be344556be6", 1400),
   alt: "A full hall under arched windows, mid-keynote, shot from the back",
 } as const;
@@ -347,7 +339,7 @@ export const faq = [
   },
   {
     q: "How do we start a project?",
-    a: "Send a project brief using the form below. Tell us what you need, when you need it and roughly what you have budgeted, and you will get a considered reply rather than a discovery call.",
+    a: "Send a project brief using the form below. Tell us what you need and when you need it, and you will get a considered reply rather than a discovery call.",
   },
 ] as const;
 
@@ -361,7 +353,6 @@ export const finalCta = {
 export const form = {
   needs: [
     "Corporate photography",
-    "Corporate headshots",
     "Event coverage",
     "Advertising",
     "Brand film",
@@ -369,7 +360,6 @@ export const form = {
     "Other",
   ],
   timelines: ["ASAP", "This month", "1-3 months", "Just exploring"],
-  budgets: ["₹25K-₹50K", "₹50K-₹1L", "₹1L-₹3L", "₹3L+"],
   submit: "Send project brief",
 } as const;
 

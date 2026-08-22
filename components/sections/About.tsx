@@ -5,9 +5,8 @@ import Plate from "@/components/ui/Plate";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
- * Restrained by design: this is the one section where the brief asks for the
- * registration detail to stay secondary, so the facts are set as slate metadata
- * in mono and the headline keeps the weight.
+ * Restrained by design: the headline carries the weight and the copy stays
+ * short, so the section reads as a statement rather than a company profile.
  */
 export default function About() {
   const scope = useGsap<HTMLElement>(({ self }) => {
@@ -34,15 +33,6 @@ export default function About() {
             {about.headline}
           </h2>
           <p className="ab-fade u-measure mt-8 text-body text-muted-light">{about.body}</p>
-
-          <dl className="ab-fade mt-12 flex flex-wrap gap-x-14 gap-y-4">
-            {about.facts.map((f) => (
-              <div key={f.key}>
-                <dt className="u-meta text-muted-light">{f.key}</dt>
-                <dd className="u-meta mt-2 text-ink">{f.value}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
         <Plate

@@ -127,7 +127,6 @@ export default function Contact() {
       needs: fd.getAll("needs").map(String),
       details: String(fd.get("details") ?? ""),
       timeline: String(fd.get("timeline") ?? ""),
-      budget: (String(fd.get("budget") ?? "") || undefined) as string | undefined,
       website: String(fd.get("website") ?? ""),
     };
 
@@ -263,18 +262,6 @@ export default function Contact() {
                   ))}
                 </div>
                 {errors.timeline && <p className="mt-3 u-meta text-paper">{errors.timeline}</p>}
-              </fieldset>
-
-              <fieldset>
-                <legend className="u-meta text-muted-dark">
-                  Approximate budget
-                  <span className="ml-2 normal-case tracking-normal opacity-60">optional</span>
-                </legend>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {form.budgets.map((b) => (
-                    <Chip key={b} name="budget" value={b} type="radio" />
-                  ))}
-                </div>
               </fieldset>
 
               {/* Honeypot — off-screen, not display:none, and never announced. */}

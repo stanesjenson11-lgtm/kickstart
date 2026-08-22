@@ -24,6 +24,18 @@ export default function SmoothScroll() {
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    // Pinned sections cache their start/end when they are created. Web fonts
+    // land after that and reflow every headline, so those cached values go
+    // stale — and at the bottom of the page Lenis ends up settling against a
+    // boundary that keeps moving, which reads as the scroll juddering up and
+    // down. Recompute once the page has genuinely finished laying out.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    const refresh = () => ScrollTrigger.refresh();
+    if (document.readyState === "complete") refresh();
+    else window.addEventListener("load", refresh);
+    document.fonts?.ready.then(refresh).catch(() => {});
+
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
@@ -42,6 +54,7 @@ export default function SmoothScroll() {
     document.addEventListener("click", onClick);
 
     return () => {
+      window.removeEventListener("load", refresh);
       document.removeEventListener("click", onClick);
       gsap.ticker.remove(tick);
       lenis.destroy();

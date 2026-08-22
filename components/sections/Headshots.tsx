@@ -2,7 +2,6 @@
 
 import { headshots } from "@/lib/content";
 import Plate from "@/components/ui/Plate";
-import MagneticButton from "@/components/ui/MagneticButton";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
@@ -48,12 +47,6 @@ export default function Headshots() {
               </li>
             ))}
           </ul>
-
-          <div className="hs-fade mt-10">
-            <MagneticButton href={headshots.cta.href} variant="ghost">
-              {headshots.cta.label}
-            </MagneticButton>
-          </div>
         </div>
       </div>
     </section>

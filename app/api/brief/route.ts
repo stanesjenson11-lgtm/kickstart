@@ -42,7 +42,6 @@ export async function POST(req: Request) {
     ["Phone", brief.phone || "—"],
     ["Needs", brief.needs.join(", ")],
     ["Timeline", brief.timeline],
-    ["Budget", brief.budget || "Not stated"],
   ];
 
   const html = `

@@ -19,8 +19,20 @@ export default function Events() {
     const img = self.querySelector<HTMLElement>(".ev-img");
 
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: self, start: "top top", end: "+=180%", pin: true, scrub: 0.6 },
+      scrollTrigger: {
+        trigger: self,
+        start: "top top",
+        end: "+=180%",
+        pin: true,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+      },
     });
+
+    // Everything here rides the pinned timeline. A second ScrollTrigger over the
+    // same range would measure the layout the pin itself changed.
+    if (img) tl.fromTo(img, { scale: 1.2 }, { scale: 1, ease: "none", duration: 4.6 }, 0);
 
     // Stack the categories and bring them forward one at a time.
     gsap.set(items, { position: "absolute", opacity: 0, yPercent: 60 });
@@ -31,18 +43,6 @@ export default function Events() {
         i * 0.9 + 1,
       );
     });
-
-    if (img) {
-      gsap.fromTo(
-        img,
-        { scale: 1.2 },
-        {
-          scale: 1,
-          ease: "none",
-          scrollTrigger: { trigger: self, start: "top top", end: "+=180%", scrub: 0.6 },
-        },
-      );
-    }
   }, []);
 
   return (

@@ -11,7 +11,6 @@ export const briefSchema = z.object({
   needs: z.array(z.enum(form.needs)).min(1, "Pick at least one thing you need."),
   details: z.string().trim().min(10, "A sentence or two is plenty.").max(4000),
   timeline: z.enum(form.timelines, { message: "Pick a timeline." }),
-  budget: z.enum(form.budgets).optional(),
   /** Honeypot. Deliberately permissive: the route accepts a tripped honeypot
       with a 200 so the bot learns nothing. Rejecting it here would 422 and
       tell the bot exactly which field caught it. */
