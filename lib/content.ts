@@ -17,7 +17,7 @@ export const site = {
   title: "Kickstart Creative Studio | Media Production & Social Media",
   description:
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
-  url: "https://kickstartcreative.studio",
+  url: "kickstartcreativestudio.com",
   founded: "August 2025",
   incorporated: "March 2026",
   email: "hello@kickstartcreative.studio",
