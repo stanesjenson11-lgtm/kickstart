@@ -4,6 +4,7 @@ import { useState } from "react";
 import { finalCta, form, site } from "@/lib/content";
 import { briefSchema } from "@/lib/brief-schema";
 import MagneticButton from "@/components/ui/MagneticButton";
+import MetaBalls from "@/components/gl/MetaBalls";
 import { useGsap, gsap } from "@/lib/motion";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -162,7 +163,12 @@ export default function Contact() {
   return (
     <section ref={scope} id="contact" className="grain relative bg-ink">
       {/* Final CTA */}
-      <div className="px-gutter pt-section-lg pb-section">
+      <div className="relative px-gutter pt-section-lg pb-section">
+        {/* Ink pooling behind the headline. Renders only while on screen. */}
+        <div className="pointer-events-none absolute inset-0 opacity-60">
+          <MetaBalls count={9} scale={32} />
+        </div>
+        <div className="relative">
         <h2 className="u-display text-display max-w-[14ch]">
           {finalCta.headline.split(" ").reduce<string[][]>((rows, word, i) => {
             const r = Math.floor(i / 2);
@@ -175,6 +181,7 @@ export default function Contact() {
           ))}
         </h2>
         <p className="u-measure mt-8 text-body text-muted-dark">{finalCta.support}</p>
+        </div>
       </div>
 
       {/* Brief */}

@@ -1,8 +1,27 @@
 import { footer, nav, site } from "@/lib/content";
+import Marquee from "@/components/ui/Marquee";
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-[var(--rule-on-dark)] bg-ink">
+      {/* The page signs off out loud. Decorative — every word here is also real
+          text in the lists below, so nothing is lost if it never runs. */}
+      <div className="border-b border-[var(--rule-on-dark)] py-7">
+        <Marquee
+          items={footer.marquee.map((s) => (
+            <span
+              key={s}
+              className="u-display text-h2 text-paper/45 transition-colors duration-500 hover:text-paper"
+              style={{ ["--wdth" as string]: 92 }}
+            >
+              {s}
+            </span>
+          ))}
+          speed={42}
+          hoverSpeed={10}
+          gap={20}
+        />
+      </div>
       {/* The bolt, oversized and cut by the viewport edge. */}
       <span
         aria-hidden="true"

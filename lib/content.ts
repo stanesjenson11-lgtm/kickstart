@@ -11,6 +11,16 @@
 export const IMG = (id: string, w = 1600, q = 80) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=${q}`;
 
+/**
+ * Same image, desaturated by the CDN rather than by a CSS filter.
+ *
+ * Used where the picture is in constant motion: a `filter` on a moving element
+ * repaints it every frame, and forty of those cost more than half the hero's
+ * frame budget. Imgix does it once, at the edge, for free.
+ */
+export const MONO = (id: string, w = 700, q = 75) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&sat=-100&w=${w}&q=${q}`;
+
 export const site = {
   name: "Kickstart Creative Studio",
   legalName: "Kickstart Creative Studio Pvt Ltd",
@@ -54,6 +64,28 @@ export const hero = {
     IMG("photo-1516035069371-29a1b244cc32", 2000),
   ],
   alt: "A studio light cutting a hard beam through haze on a Kickstart set",
+
+  /**
+   * The hero's contact sheet: the frames that tile infinitely behind the
+   * headline. Deliberately the same work that appears in the sections below —
+   * a contact sheet shows the studio's actual output, not a separate set.
+   * Twelve unique frames tile to fill any viewport, so this is twelve requests
+   * however far the visitor drags.
+   */
+  sheet: [
+    MONO("photo-1519085360753-af0119f7cbe7", 700),
+    MONO("photo-1531058020387-3be344556be6", 700),
+    MONO("photo-1542291026-7eec264c27ff", 700),
+    MONO("photo-1505236858219-8359eb29e329", 700),
+    MONO("photo-1516035069371-29a1b244cc32", 700),
+    MONO("photo-1573164713988-8665fc963095", 700),
+    MONO("photo-1585951237318-9ea5e175b891", 700),
+    MONO("photo-1493225457124-a3eb161ffa5f", 700),
+    MONO("photo-1592878904946-b3cd8ae243d0", 700),
+    MONO("photo-1478737270239-2f02b77fc618", 700),
+    MONO("photo-1511795409834-ef04bbd61622", 700),
+    MONO("photo-1478720568477-152d9b164e26", 700),
+  ],
 } as const;
 
 /* 02 — BRAND STATEMENT --------------------------------------------------- */
@@ -366,6 +398,17 @@ export const form = {
 /* FOOTER ----------------------------------------------------------------- */
 export const footer = {
   services: ["Media production", "Advertising", "Social media"],
+  /** The closing marquee. Same words as the footer lists, said out loud. */
+  marquee: [
+    "Media production",
+    "Advertising",
+    "Social media",
+    "Corporate film",
+    "Event coverage",
+    "Executive portraits",
+    "Brand films",
+    "Reels",
+  ],
   socials: [
     { label: "Instagram", href: site.instagram },
     { label: "LinkedIn", href: site.linkedin },

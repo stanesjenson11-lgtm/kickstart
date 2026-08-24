@@ -384,3 +384,157 @@ img.plate {
     transparent 78%
   );
 }
+
+/* ==========================================================================
+   Glass surface — refractive panel for the floating nav.
+   Tuned for a permanently dark ground; no light-dark() switching here because
+   the site has one theme.
+   ========================================================================== */
+
+.ks-glass {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+.ks-glass__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ks-glass__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: inherit;
+}
+
+/* Chrome: the rim actually bends what is behind it. */
+.ks-glass--refract {
+  background: oklch(1 0 0 / var(--glass-frost, 0.06));
+  backdrop-filter: var(--glass-filter) saturate(var(--glass-sat, 1));
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.1),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.16),
+    0 10px 40px oklch(0 0 0 / 0.5);
+}
+
+/* Safari / Firefox: a plain pane. Same affordance, no refraction. */
+.ks-glass--pane {
+  background: oklch(0.145 0 0 / 0.55);
+  backdrop-filter: blur(11px) saturate(1.1);
+  -webkit-backdrop-filter: blur(11px) saturate(1.1);
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.1),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.14),
+    0 10px 40px oklch(0 0 0 / 0.5);
+}
+
+@supports not (backdrop-filter: blur(4px)) {
+  .ks-glass--pane {
+    background: oklch(0.145 0 0 / 0.92);
+  }
+}
+
+/* ==========================================================================
+   Gooey nav indicator — the active pill and its burst.
+   Monochrome by necessity: the usual rainbow particles would be the only
+   colour on the entire site.
+   ========================================================================== */
+
+.ks-goo__pill {
+  position: absolute;
+  border-radius: 999px;
+  background: var(--color-paper);
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    left 0.5s var(--ease-out-expo),
+    width 0.5s var(--ease-out-expo),
+    opacity 0.3s ease;
+}
+
+.ks-goo__burst {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  /* The gooey merge: blur then crush contrast, so overlapping dots fuse. */
+  filter: blur(6px) contrast(28) blur(0);
+  mix-blend-mode: screen;
+}
+
+.ks-goo__burst::before {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  background: #000;
+  z-index: -1;
+}
+
+.ks-goo__dot {
+  position: absolute;
+  top: calc(50% - 5px);
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-paper);
+  animation: ks-goo-fly var(--t, 700ms) var(--ease-out-quart) forwards;
+}
+
+@keyframes ks-goo-fly {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  35% { transform: translate(calc(var(--dx) * 0.55), calc(var(--dy) * 0.55)) scale(var(--s, 1)); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ks-goo__pill { transition: none; }
+  .ks-goo__burst { display: none; }
+}
+
+/* ==========================================================================
+   Magnet lines — a field of hairlines that turn to face the pointer.
+   ========================================================================== */
+
+.ks-lines i {
+  display: block;
+  /* Brighter than a section rule: these have to read as a field, not as a
+     border that lost its way. */
+  background: oklch(1 0 0 / 0.22);
+  transform: rotate(var(--rotate, -12deg));
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Marquee — edges fade into the section rather than being cut off.
+   ========================================================================== */
+
+.ks-marquee::before,
+.ks-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(48px, 12%, 200px);
+  pointer-events: none;
+  z-index: 2;
+}
+.ks-marquee::before {
+  left: 0;
+  background: linear-gradient(to right, var(--marquee-fade, var(--color-ink)), transparent);
+}
+.ks-marquee::after {
+  right: 0;
+  background: linear-gradient(to left, var(--marquee-fade, var(--color-ink)), transparent);
+}
