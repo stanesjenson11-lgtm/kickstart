@@ -300,8 +300,72 @@ button {
    ========================================================================== */
 
 .plate img,
-img.plate {
+.plate video,
+img.plate,
+video.plate {
   filter: grayscale(1) contrast(1.08) brightness(0.96);
+}
+
+/* ==========================================================================
+   Media carousel — Swiper coverflow (Skiper UI skiper49), re-themed mono.
+   Drag/swipe gallery for event photos + video; arrows and bullets carry the
+   same tokens as everything else instead of Swiper's defaults.
+   ========================================================================== */
+
+.media-carousel .swiper {
+  width: 100%;
+  height: clamp(320px, 40vw, 460px);
+  padding-bottom: 3.5rem; /* room for the pagination row below the slides */
+}
+
+.media-carousel .swiper-slide {
+  width: clamp(230px, 30vw, 340px);
+  overflow: hidden;
+  background: var(--color-ink-raised);
+}
+
+.media-carousel .swiper-pagination-bullet {
+  background: var(--color-muted-dark);
+  opacity: 0.5;
+}
+.media-carousel .swiper-pagination-bullet-active {
+  background: var(--color-paper);
+  opacity: 1;
+}
+
+.media-carousel .mc-prev,
+.media-carousel .mc-next {
+  position: absolute;
+  top: 45%;
+  z-index: var(--z-content);
+  display: flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--rule-on-dark);
+  color: var(--color-paper);
+  transition: background-color 0.3s, color 0.3s;
+}
+.media-carousel .mc-prev:hover,
+.media-carousel .mc-next:hover {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+.media-carousel .mc-prev {
+  left: -0.5rem;
+}
+.media-carousel .mc-next {
+  right: -0.5rem;
+}
+@media (min-width: 640px) {
+  .media-carousel .mc-prev {
+    left: -1.25rem;
+  }
+  .media-carousel .mc-next {
+    right: -1.25rem;
+  }
 }
 
 /* ==========================================================================
@@ -383,4 +447,110 @@ img.plate {
     oklch(0.145 0 0 / 0.28) 52%,
     transparent 78%
   );
+}
+
+/* ==========================================================================
+   Magnet lines — a field of hairlines that turn to face the pointer.
+   ========================================================================== */
+
+.ks-lines i {
+  display: block;
+  /* Brighter than a section rule: these have to read as a field, not as a
+     border that lost its way. */
+  background: oklch(1 0 0 / 0.22);
+  transform: rotate(var(--rotate, -12deg));
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Marquee — edges fade into the section rather than being cut off.
+   ========================================================================== */
+
+.ks-marquee::before,
+.ks-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(48px, 12%, 200px);
+  pointer-events: none;
+  z-index: 2;
+}
+.ks-marquee::before {
+  left: 0;
+  background: linear-gradient(to right, var(--marquee-fade, var(--color-ink)), transparent);
+}
+.ks-marquee::after {
+  right: 0;
+  background: linear-gradient(to left, var(--marquee-fade, var(--color-ink)), transparent);
+}
+
+/* ==========================================================================
+   Electric border — animated glow wrapper (footer). Colour comes in per
+   instance via --electric-border-color; kept white/paper everywhere it is
+   used, same as the rest of the palette.
+   ========================================================================== */
+
+.electric-border {
+  --electric-light-color: oklch(from var(--electric-border-color) l c h);
+  position: relative;
+  border-radius: inherit;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.eb-canvas-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.eb-canvas {
+  display: block;
+}
+
+.eb-content {
+  position: relative;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.eb-layers {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.eb-glow-1,
+.eb-glow-2,
+.eb-background-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.eb-glow-1 {
+  border: 1px solid oklch(from var(--electric-border-color) l c h / 0.5);
+  filter: blur(1px);
+}
+
+.eb-glow-2 {
+  border: 1px solid var(--electric-light-color);
+  filter: blur(4px);
+}
+
+.eb-background-glow {
+  z-index: -1;
+  transform: scale(1.05);
+  filter: blur(28px);
+  opacity: 0.14;
+  background: var(--electric-light-color);
 }

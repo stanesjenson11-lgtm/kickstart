@@ -11,6 +11,16 @@
 export const IMG = (id: string, w = 1600, q = 80) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=${q}`;
 
+/**
+ * Same image, desaturated by the CDN rather than by a CSS filter.
+ *
+ * Used where the picture is in constant motion: a `filter` on a moving element
+ * repaints it every frame, and forty of those cost more than half the hero's
+ * frame budget. The CDN does it once, at the edge, for free.
+ */
+export const MONO = (id: string, w = 700, q = 75) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&sat=-100&w=${w}&q=${q}`;
+
 export const site = {
   name: "Kickstart Creative Studio",
   legalName: "Kickstart Creative Studio Pvt Ltd",
@@ -43,9 +53,10 @@ export const hero = {
   secondary: { label: "Start a project", href: "#contact" },
   disciplines: ["Media production", "Advertising", "Social"],
   /**
-   * The hero renders these as a slow WebGL cross-dissolve montage with film
+   * The showreel renders these as a slow WebGL cross-dissolve montage with film
    * grain, halation and cursor displacement — cinematic motion without a video
    * asset. Set `showreel.src` to a real MP4 and the reel takes over there.
+   * `plates[0]` alone also grounds the hero, behind the contact sheet below.
    */
   plates: [
     IMG("photo-1478720568477-152d9b164e26", 2000),
@@ -54,12 +65,34 @@ export const hero = {
     IMG("photo-1516035069371-29a1b244cc32", 2000),
   ],
   alt: "A studio light cutting a hard beam through haze on a Kickstart set",
+
+  /**
+   * The hero's contact sheet: the frames that tile infinitely behind the
+   * headline. Deliberately the same work that appears in the sections below —
+   * a contact sheet shows the studio's actual output, not a separate set.
+   * Twelve unique frames tile to fill any viewport, so this is twelve requests
+   * however far the visitor drags.
+   */
+  sheet: [
+    MONO("photo-1519085360753-af0119f7cbe7", 700),
+    MONO("photo-1531058020387-3be344556be6", 700),
+    MONO("photo-1542291026-7eec264c27ff", 700),
+    MONO("photo-1505236858219-8359eb29e329", 700),
+    MONO("photo-1516035069371-29a1b244cc32", 700),
+    MONO("photo-1573164713988-8665fc963095", 700),
+    MONO("photo-1585951237318-9ea5e175b891", 700),
+    MONO("photo-1493225457124-a3eb161ffa5f", 700),
+    MONO("photo-1592878904946-b3cd8ae243d0", 700),
+    MONO("photo-1478737270239-2f02b77fc618", 700),
+    MONO("photo-1511795409834-ef04bbd61622", 700),
+    MONO("photo-1478720568477-152d9b164e26", 700),
+  ],
 } as const;
 
 /* 02 — BRAND STATEMENT --------------------------------------------------- */
 export const statement = {
   headline: "Your business deserves more than ordinary content.",
-  body: "We create powerful visual content and social experiences that help ambitious companies look sharper, communicate better and stay impossible to ignore.",
+  body: "Visual content and social experiences that make ambitious brands impossible to ignore.",
 } as const;
 
 /* 03 — SHOWREEL ---------------------------------------------------------- */
@@ -67,7 +100,6 @@ export const showreel = {
   label: "Showreel",
   headline: "Watch the work.",
   poster: IMG("photo-1585951237318-9ea5e175b891", 2000),
-  posterAlt: "A clapperboard held up to mark the top of a take",
   /** Drop a real 30-60s monochrome reel at /public/showreel.mp4 and set this. */
   src: "" as string,
   runtime: "00:00:48:00",
@@ -94,8 +126,7 @@ export const work: { label: string; headline: string; projects: Project[] } = {
       category: "Corporate",
       client: "Meridian Group",
       services: ["Brand film", "Corporate photography", "Social content"],
-      blurb:
-        "A brand film shot across three floors in a single day, cut for the AGM and re-cut nine ways for social.",
+      blurb: "Shot across three floors in a day, cut for the AGM and nine ways for social.",
       src: IMG("photo-1573164713988-8665fc963095", 1800),
       alt: "An executive walking a corridor, lit hard from one side, shot for a brand film",
     },
@@ -124,8 +155,7 @@ export const work: { label: string; headline: string; projects: Project[] } = {
       category: "Headshots",
       client: "Aster Capital",
       services: ["Executive headshots", "Team photography"],
-      blurb:
-        "Forty-one portraits in one afternoon, one lighting setup, no one looking like they had been kept waiting.",
+      blurb: "Forty-one portraits, one afternoon, one lighting setup — no one kept waiting.",
       src: IMG("photo-1592878904946-b3cd8ae243d0", 1800),
       alt: "A tailored suit and watch, cropped close, from an executive portrait session",
     },
@@ -134,8 +164,7 @@ export const work: { label: string; headline: string; projects: Project[] } = {
       category: "Brand",
       client: "Halden and Co.",
       services: ["Event coverage", "Reels", "Campaign content"],
-      blurb:
-        "A launch party covered as a campaign shoot, so the content outlived the night by a quarter.",
+      blurb: "A launch covered like a campaign shoot — content that outlived the night.",
       src: IMG("photo-1505236858219-8359eb29e329", 1800),
       alt: "Confetti bursting over a crowd with hands raised at a launch party",
     },
@@ -225,31 +254,58 @@ export const why = {
 /* 07 — CORPORATE HEADSHOTS ----------------------------------------------- */
 export const headshots = {
   headline: "Your people are part of your brand.",
-  body: "Professional portraits for founders, executives and teams who want to look as credible as the businesses they represent.",
+  body: "Portraits for founders, executives and teams — as credible as the business they run.",
   tags: ["Founders", "Executives", "Teams", "Leadership portraits"],
   src: IMG("photo-1519085360753-af0119f7cbe7", 1600),
   alt: "An executive portrait lit hard from one side against near-black, arms folded",
 } as const;
 
 /* 08 — EVENTS ------------------------------------------------------------ */
+export type EventMedia = { src: string; alt: string; video?: string };
+
 export const events = {
   headline: ["The moment ends.", "The content lives on."],
-  categories: [
-    "Corporate events",
-    "Conferences",
-    "Launches",
-    "Award nights",
-    "Corporate parties",
-  ],
+  categories: ["Corporate events", "Conferences", "Launches", "Award nights", "Corporate parties"],
   cta: { label: "Plan event coverage", href: "#contact" },
-  src: IMG("photo-1493225457124-a3eb161ffa5f", 2000),
-  alt: "A figure on stage with arms raised, backlit through smoke at a live event",
+  /**
+   * Swipeable gallery — real coverage, not one placeholder frame. Drop a real
+   * clip's URL into `video` on any item (poster stays `src`) and that slide
+   * plays footage instead of a photo; empty until then, same convention as
+   * `showreel.src` above.
+   */
+  gallery: [
+    {
+      src: IMG("photo-1493225457124-a3eb161ffa5f", 900),
+      alt: "A figure on stage with arms raised, backlit through smoke at a live event",
+      video: "",
+    },
+    {
+      src: IMG("photo-1531058020387-3be344556be6", 900),
+      alt: "A full conference hall under arched windows during a keynote",
+    },
+    {
+      src: IMG("photo-1560439514-4e9645039924", 900),
+      alt: "A stage set for a corporate award night",
+    },
+    {
+      src: IMG("photo-1519671482749-fd09be7ccebf", 900),
+      alt: "Glasses raised in a toast at a corporate evening",
+    },
+    {
+      src: IMG("photo-1505236858219-8359eb29e329", 900),
+      alt: "Confetti bursting over a crowd with hands raised at a launch party",
+    },
+    {
+      src: IMG("photo-1511795409834-ef04bbd61622", 900),
+      alt: "A long banquet table dressed for an awards dinner",
+    },
+  ] satisfies EventMedia[],
 } as const;
 
 /* 09 — SOCIAL MEDIA ------------------------------------------------------ */
 export const social = {
   headline: "Do not let your brand disappear between campaigns.",
-  body: "We build consistent content systems that keep brands visible, relevant and recognisable.",
+  body: "Consistent content systems that keep your brand visible, relevant and recognisable.",
   cta: { label: "Build our social presence", href: "#contact" },
   formats: [
     {
@@ -314,7 +370,7 @@ export const testimonials: {
 export const about = {
   label: "About Kickstart",
   headline: "Every frame has to earn its place.",
-  body: "Kickstart Creative Studio is a creative production studio built for ambitious brands. We combine visual production, advertising and social media to help businesses communicate with clarity, confidence and impact.",
+  body: "A creative production studio for ambitious brands — visual production, advertising and social media, working as one.",
   src: IMG("photo-1531058020387-3be344556be6", 1400),
   alt: "A full hall under arched windows, mid-keynote, shot from the back",
 } as const;
@@ -323,33 +379,27 @@ export const about = {
 export const faq = [
   {
     q: "What type of companies do you work with?",
-    a: "Corporates, funded startups, agencies and established consumer brands — anyone who needs their visual output to look as considered as the rest of their business. We work with teams of five and teams of five thousand.",
+    a: "Corporates, funded startups, agencies and consumer brands — teams of five or five thousand.",
   },
   {
     q: "Do you travel for shoots and events?",
-    a: "Yes. We cover multi-city shoots and events regularly, and we budget travel transparently in the quote rather than surfacing it afterwards.",
+    a: "Yes — multi-city shoots and events, with travel budgeted transparently upfront.",
   },
   {
     q: "Do you offer monthly social media packages?",
-    a: "Yes. Monthly retainers cover strategy, content planning, production days, editing and scheduling. Most partners start with a single production day per month and scale from there.",
+    a: "Yes — retainers covering strategy, production and editing, starting from one production day a month.",
   },
   {
     q: "Can you handle both production and social media?",
-    a: "That is the point of the studio. The same team shooting your brand film cuts the reels from it, so the campaign and the feed come out of one production rather than two briefs.",
+    a: "Yes — the same team that shoots your brand film cuts the reels, so campaign and feed come from one shoot.",
   },
   {
     q: "How do we start a project?",
-    a: "Send a project brief using the form below. Tell us what you need and when you need it, and you will get a considered reply rather than a discovery call.",
+    a: "Send a brief below with what you need and when — you'll get a considered reply, not a discovery call.",
   },
 ] as const;
 
-/* 15 — FINAL CTA + CONTACT ----------------------------------------------- */
-export const finalCta = {
-  headline: "Let's make something worth seeing.",
-  support: "Have a brand, campaign, event or idea that deserves better?",
-  cta: { label: "Start a project", href: "#contact" },
-} as const;
-
+/* 15 — CONTACT ------------------------------------------------------------ */
 export const form = {
   needs: [
     "Corporate photography",
@@ -366,6 +416,17 @@ export const form = {
 /* FOOTER ----------------------------------------------------------------- */
 export const footer = {
   services: ["Media production", "Advertising", "Social media"],
+  /** The closing marquee. Same words as the footer lists, said out loud. */
+  marquee: [
+    "Media production",
+    "Advertising",
+    "Social media",
+    "Corporate film",
+    "Event coverage",
+    "Executive portraits",
+    "Brand films",
+    "Reels",
+  ],
   socials: [
     { label: "Instagram", href: site.instagram },
     { label: "LinkedIn", href: site.linkedin },

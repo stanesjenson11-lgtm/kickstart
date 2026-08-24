@@ -1,8 +1,29 @@
 import { footer, nav, site } from "@/lib/content";
+import Marquee from "@/components/ui/Marquee";
+import ElectricBorder from "@/components/ui/ElectricBorder";
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-[var(--rule-on-dark)] bg-ink">
+      {/* The page signs off out loud. Decorative — every word here is also real
+          text in the lists below, so nothing is lost if it never runs. */}
+      <div className="border-b border-[var(--rule-on-dark)] py-7">
+        <Marquee
+          items={footer.marquee.map((s) => (
+            <span
+              key={s}
+              className="u-display text-h2 text-paper/45 transition-colors duration-500 hover:text-paper"
+              style={{ ["--wdth" as string]: 92 }}
+            >
+              {s}
+            </span>
+          ))}
+          speed={42}
+          hoverSpeed={10}
+          gap={20}
+        />
+      </div>
+
       {/* The bolt, oversized and cut by the viewport edge. */}
       <span
         aria-hidden="true"
@@ -42,33 +63,41 @@ export default function Footer() {
             </ul>
           </nav>
 
-          <div className="md:col-span-4 lg:col-span-2">
-            <h2 className="u-meta text-muted-dark">Services</h2>
-            <ul className="mt-5 flex flex-col gap-3">
-              {footer.services.map((s) => (
-                <li key={s} className="u-meta text-muted-dark">
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="md:col-span-8 lg:col-span-4">
+            {/* The one place the footer moves on its own — everything else
+                here is static text, same as the rest of the site's chrome. */}
+            <ElectricBorder color="#ffffff" speed={0.6} chaos={0.08} borderRadius={0} className="p-6">
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h2 className="u-meta text-muted-dark">Services</h2>
+                  <ul className="mt-5 flex flex-col gap-3">
+                    {footer.services.map((s) => (
+                      <li key={s} className="u-meta text-muted-dark">
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-          <div className="md:col-span-4 lg:col-span-2">
-            <h2 className="u-meta text-muted-dark">Follow</h2>
-            <ul className="mt-5 flex flex-col gap-3">
-              {footer.socials.map((s) => (
-                <li key={s.label}>
-                  <a
-                    href={s.href}
-                    className="cut-link u-meta"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {s.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+                <div>
+                  <h2 className="u-meta text-muted-dark">Follow</h2>
+                  <ul className="mt-5 flex flex-col gap-3">
+                    {footer.socials.map((s) => (
+                      <li key={s.label}>
+                        <a
+                          href={s.href}
+                          className="cut-link u-meta"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {s.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </ElectricBorder>
           </div>
         </div>
 

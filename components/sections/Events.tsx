@@ -1,83 +1,61 @@
 "use client";
 
-import Image from "next/image";
 import { events } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
+import MediaCarousel from "@/components/ui/MediaCarousel";
+import MetaBalls from "@/components/gl/MetaBalls";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
- * Full-bleed and pinned: the frame holds while the categories cycle through it
- * one at a time, which is the section's argument made structurally — the moment
- * stops, the content keeps going.
- *
- * Every category is in the markup as a list, so with no JS, no scroll, or
- * reduced motion the visitor reads all five at once.
+ * The gallery carries the section, not a paragraph about it: a swipeable
+ * coverflow of real event coverage under one short headline. See Why.tsx for
+ * the same line-reveal this borrows.
  */
 export default function Events() {
   const scope = useGsap<HTMLElement>(({ self }) => {
-    const items = self.querySelectorAll<HTMLElement>(".ev-cat");
-    const img = self.querySelector<HTMLElement>(".ev-img");
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: self,
-        start: "top top",
-        end: "+=180%",
-        pin: true,
-        scrub: 0.6,
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-      },
+    gsap.from(self.querySelectorAll<HTMLElement>(".ev-line"), {
+      yPercent: 110,
+      duration: 1.1,
+      ease: "expo.out",
+      stagger: 0.08,
+      scrollTrigger: { trigger: self, start: "top 70%" },
     });
-
-    // Everything here rides the pinned timeline. A second ScrollTrigger over the
-    // same range would measure the layout the pin itself changed.
-    if (img) tl.fromTo(img, { scale: 1.2 }, { scale: 1, ease: "none", duration: 4.6 }, 0);
-
-    // Stack the categories and bring them forward one at a time.
-    gsap.set(items, { position: "absolute", opacity: 0, yPercent: 60 });
-    items.forEach((item, i) => {
-      tl.to(item, { opacity: 1, yPercent: 0, duration: 1 }, i * 0.9).to(
-        item,
-        { opacity: 0, yPercent: -60, duration: 1 },
-        i * 0.9 + 1,
-      );
+    gsap.from(self.querySelector(".ev-gallery"), {
+      opacity: 0,
+      y: 24,
+      duration: 0.9,
+      ease: "power2.out",
+      scrollTrigger: { trigger: self, start: "top 55%" },
     });
   }, []);
 
   return (
-    <section ref={scope} className="grain relative h-[100svh] overflow-hidden">
-      <div className="absolute inset-0">
-        <Image
-          src={events.src}
-          alt={events.alt}
-          fill
-          priority={false}
-          sizes="100vw"
-          className="ev-img object-cover"
-          style={{ filter: "grayscale(1) contrast(1.18) brightness(0.72)" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70" />
+    <section ref={scope} className="grain relative overflow-hidden bg-ink px-gutter py-section">
+      {/* Ink pooling behind the headline. Renders only while on screen. */}
+      <div className="pointer-events-none absolute inset-0 opacity-50">
+        <MetaBalls count={7} scale={30} />
       </div>
 
-      <div className="relative z-[var(--z-content)] flex h-full flex-col justify-end px-gutter pb-16">
+      <div className="relative">
         <h2 className="u-display text-h1 max-w-[15ch]" style={{ ["--wdth" as string]: 108 }}>
-          {events.headline.map((l) => (
-            <span key={l} className="block">
-              {l}
+          {events.headline.map((line) => (
+            <span key={line} className="block overflow-hidden pb-[0.06em]">
+              <span className="ev-line block">{line}</span>
             </span>
           ))}
         </h2>
 
-        <ul className="relative mt-10 h-16 u-meta text-muted-dark">
+        <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-1 u-meta text-muted-dark">
           {events.categories.map((c) => (
-            <li key={c} className="ev-cat text-h3 u-display text-paper" style={{ ["--wdth" as string]: 94 }}>
-              {c}
-            </li>
+            <li key={c}>{c}</li>
           ))}
         </ul>
 
-        <div className="mt-4">
+        <div className="ev-gallery mt-14">
+          <MediaCarousel items={[...events.gallery]} />
+        </div>
+
+        <div className="mt-6">
           <MagneticButton href={events.cta.href} variant="solid">
             {events.cta.label}
           </MagneticButton>

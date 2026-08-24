@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
-import { showreel } from "@/lib/content";
+import { showreel, hero } from "@/lib/content";
+import HeroCanvas from "@/components/gl/HeroCanvas";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
@@ -88,14 +88,11 @@ export default function Showreel() {
             <source src={showreel.src} type="video/mp4" />
           </video>
         ) : (
-          <Image
-            src={showreel.poster}
-            alt={showreel.posterAlt}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={{ filter: "grayscale(1) contrast(1.14) brightness(0.78)" }}
-          />
+          /* No reel yet, so the frame carries a live montage instead: the same
+             WebGL grade — halation, grain, cursor displacement — full-bleed
+             with nothing layered over it. It reads as footage, and it steps
+             aside the moment `showreel.src` points at a real cut. */
+          <HeroCanvas plates={hero.plates} />
         )}
       </div>
 

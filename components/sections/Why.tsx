@@ -1,6 +1,7 @@
 "use client";
 
 import { why } from "@/lib/content";
+import MagnetLines from "@/components/ui/MagnetLines";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
@@ -44,26 +45,32 @@ export default function Why() {
   }, []);
 
   return (
-    <section ref={scope} className="bg-ink px-gutter py-section">
-      <h2 className="u-display text-h1 max-w-[18ch]" style={{ ["--wdth" as string]: 106 }}>
-        {why.headline.map((line) => (
-          <span key={line} className="block overflow-hidden pb-[0.06em]">
-            <span className="why-line block">{line}</span>
-          </span>
-        ))}
-      </h2>
+    <section ref={scope} className="relative overflow-hidden bg-ink px-gutter py-section">
+      {/* A lighting grid, turning to follow the pointer. */}
+      <div className="pointer-events-none absolute inset-0">
+        <MagnetLines rows={7} columns={13} lineHeight="26px" lineWidth="2px" />
+      </div>
+      <div className="relative">
+        <h2 className="u-display text-h1 max-w-[18ch]" style={{ ["--wdth" as string]: 106 }}>
+          {why.headline.map((line) => (
+            <span key={line} className="block overflow-hidden pb-[0.06em]">
+              <span className="why-line block">{line}</span>
+            </span>
+          ))}
+        </h2>
 
-      <ol className="mt-section grid gap-14 md:grid-cols-3 md:gap-10">
-        {why.principles.map((p) => (
-          <li key={p.index} className="why-item border-t border-[var(--rule-on-dark)] pt-6">
-            <div className="u-meta text-muted-dark">{p.index}</div>
-            <h3 className="u-display mt-4 text-h3" style={{ ["--wdth" as string]: 98 }}>
-              {p.title}
-            </h3>
-            <p className="mt-3 text-body text-muted-dark">{p.body}</p>
-          </li>
-        ))}
-      </ol>
+        <ol className="mt-section grid gap-14 md:grid-cols-3 md:gap-10">
+          {why.principles.map((p) => (
+            <li key={p.index} className="why-item border-t border-[var(--rule-on-dark)] pt-6">
+              <div className="u-meta text-muted-dark">{p.index}</div>
+              <h3 className="u-display mt-4 text-h3" style={{ ["--wdth" as string]: 98 }}>
+                {p.title}
+              </h3>
+              <p className="mt-3 text-body text-muted-dark">{p.body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   );
 }

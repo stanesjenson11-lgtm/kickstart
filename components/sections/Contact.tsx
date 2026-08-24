@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { finalCta, form, site } from "@/lib/content";
+import { form, site } from "@/lib/content";
 import { briefSchema } from "@/lib/brief-schema";
 import MagneticButton from "@/components/ui/MagneticButton";
+import Marquee from "@/components/ui/Marquee";
 import { useGsap, gsap } from "@/lib/motion";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -104,11 +105,11 @@ export default function Contact() {
   const [formError, setFormError] = useState("");
 
   const scope = useGsap<HTMLElement>(({ self }) => {
-    gsap.from(self.querySelectorAll<HTMLElement>(".cta-line"), {
-      yPercent: 110,
-      duration: 1.2,
-      ease: "expo.out",
-      stagger: 0.08,
+    gsap.from(self.querySelector(".brief-intro"), {
+      opacity: 0,
+      y: 24,
+      duration: 0.9,
+      ease: "power3.out",
       scrollTrigger: { trigger: self, start: "top 70%" },
     });
   }, []);
@@ -161,24 +162,8 @@ export default function Contact() {
 
   return (
     <section ref={scope} id="contact" className="grain relative bg-ink">
-      {/* Final CTA */}
-      <div className="px-gutter pt-section-lg pb-section">
-        <h2 className="u-display text-display max-w-[14ch]">
-          {finalCta.headline.split(" ").reduce<string[][]>((rows, word, i) => {
-            const r = Math.floor(i / 2);
-            (rows[r] ??= []).push(word);
-            return rows;
-          }, []).map((row, i) => (
-            <span key={i} className="block overflow-hidden pb-[0.06em]">
-              <span className="cta-line block">{row.join(" ")}</span>
-            </span>
-          ))}
-        </h2>
-        <p className="u-measure mt-8 text-body text-muted-dark">{finalCta.support}</p>
-      </div>
-
       {/* Brief */}
-      <div className="border-t border-[var(--rule-on-dark)] px-gutter py-section">
+      <div className="px-gutter pt-section-lg pb-section">
         {status === "sent" ? (
           <div role="status" className="max-w-[52ch]">
             <h3 className="u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
@@ -197,13 +182,29 @@ export default function Contact() {
           </div>
         ) : (
           <form onSubmit={onSubmit} noValidate className="grid gap-12 md:grid-cols-12 md:gap-x-8">
-            <div className="md:col-span-5">
+            <div className="brief-intro md:col-span-5">
               <h3 className="u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
                 Send a project brief.
               </h3>
               <p className="u-measure mt-5 text-body text-muted-dark">
                 The more you tell us here, the more useful the first reply is.
               </p>
+
+              {/* What used to be a headline is now this: the brief itself,
+                  moving. Same categories the checkboxes below offer. */}
+              <div className="mt-8 border-y border-[var(--rule-on-dark)] py-3">
+                <Marquee
+                  items={form.needs.map((n) => (
+                    <span key={n} className="u-meta text-muted-dark">
+                      {n}
+                    </span>
+                  ))}
+                  speed={30}
+                  hoverSpeed={8}
+                  gap={28}
+                />
+              </div>
+
               <ul className="mt-10 flex flex-col gap-3 u-meta text-muted-dark">
                 <li>
                   <a
