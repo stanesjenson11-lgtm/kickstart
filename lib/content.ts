@@ -38,10 +38,10 @@ export const nav = {
 /* 01 — HERO ------------------------------------------------------------- */
 export const hero = {
   headline: ["We make brands", "look remarkable."],
-  support: "Creative production & social media for ambitious businesses.",
+  support: "Premium visual storytelling, media production & social media for ambitious brands.",
   primary: { label: "View our work", href: "#work" },
   secondary: { label: "Start a project", href: "#contact" },
-  disciplines: ["Media production", "Advertising", "Social"],
+  disciplines: ["Media production", "Corporate", "Advertising", "Events", "Social"],
   /**
    * The hero renders these as a slow WebGL cross-dissolve montage with film
    * grain, halation and cursor displacement — cinematic motion without a video
@@ -59,7 +59,7 @@ export const hero = {
 /* 02 — BRAND STATEMENT --------------------------------------------------- */
 export const statement = {
   headline: "Your business deserves more than ordinary content.",
-  body: "We create powerful visual content and social experiences that help ambitious companies look sharper, communicate better and stay impossible to ignore.",
+  body: "We create refined visual experiences that elevate brands, connect with audiences and leave a lasting impression.",
 } as const;
 
 /* 03 — SHOWREEL ---------------------------------------------------------- */
@@ -144,80 +144,35 @@ export const work: { label: string; headline: string; projects: Project[] } = {
 
 /* 05 — SERVICES ---------------------------------------------------------- */
 export const services = {
-  label: "What we do",
-  headline: "From one frame to an entire campaign.",
+  label: "What we create",
+  headline: "From first idea to final frame.",
   groups: [
     {
       title: "Corporate visuals",
-      items: [
-        "Corporate photography",
-        "Executive headshots",
-        "Team photography",
-        "Office photography",
-        "Corporate films",
-        "Brand films",
-      ],
+      items: ["Executive/founder portraits", "Corporate headshots", "Team photography"],
       src: IMG("photo-1516035069371-29a1b244cc32", 1400),
     },
     {
       title: "Events",
-      items: [
-        "Corporate events",
-        "Conferences",
-        "Award nights",
-        "Launch events",
-        "Corporate parties",
-        "Event photography",
-        "Event videography",
-        "Aftermovies",
-      ],
+      items: ["Corporate events", "Conferences", "Launches", "Award nights", "Corporate parties"],
       src: IMG("photo-1560439514-4e9645039924", 1400),
     },
     {
       title: "Advertising",
-      items: [
-        "Commercials",
-        "Advertising films",
-        "Campaign content",
-        "Creative production",
-        "Social ads",
-      ],
+      items: ["Campaign films", "Commercials", "Product content", "Brand films"],
       src: IMG("photo-1546435770-a3e426bf472b", 1400),
     },
     {
       title: "Social media",
       items: [
-        "Social media strategy",
-        "Content planning",
-        "Reels",
-        "Photography",
-        "Short-form video",
+        "Content strategy",
         "Monthly content production",
+        "Reels & short-form video",
+        "Social campaigns",
         "Social media management",
+        "Paid ads management",
       ],
       src: IMG("photo-1478737270239-2f02b77fc618", 1400),
-    },
-  ],
-} as const;
-
-/* 06 — WHY KICKSTART ----------------------------------------------------- */
-export const why = {
-  headline: ["We do not just create content.", "We create perception."],
-  principles: [
-    {
-      index: "01",
-      title: "Strategy",
-      body: "We understand what the content needs to achieve before we create it.",
-    },
-    {
-      index: "02",
-      title: "Craft",
-      body: "We care about lighting, composition, cinematography, editing and detail.",
-    },
-    {
-      index: "03",
-      title: "Consistency",
-      body: "We create content systems that keep your brand looking strong everywhere.",
     },
   ],
 } as const;
@@ -314,9 +269,9 @@ export const testimonials: {
 export const about = {
   label: "About Kickstart",
   headline: "Every frame has to earn its place.",
-  body: "Kickstart Creative Studio is a creative production studio built for ambitious brands. We combine visual production, advertising and social media to help businesses communicate with clarity, confidence and impact.",
-  src: IMG("photo-1531058020387-3be344556be6", 1400),
-  alt: "A full hall under arched windows, mid-keynote, shot from the back",
+  body: "Founded by Jerry Joshan, Kickstart Creative Studio was built on a simple belief: great businesses deserve to look as remarkable as the work they do. Bridging strategy and creativity, we bring together premium visual storytelling, media production and social media to create refined, purposeful brand experiences that command attention and leave a lasting impression.",
+  src: "/jerry-joshan.png",
+  alt: "Jerry Joshan, founder of Kickstart Creative Studio, arms folded in a tailored suit",
 } as const;
 
 /* 14 — FAQ --------------------------------------------------------------- */

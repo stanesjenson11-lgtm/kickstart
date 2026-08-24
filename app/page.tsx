@@ -8,7 +8,6 @@ import Statement from "@/components/sections/Statement";
 import Showreel from "@/components/sections/Showreel";
 import Work from "@/components/sections/Work";
 import Services from "@/components/sections/Services";
-import Why from "@/components/sections/Why";
 import Headshots from "@/components/sections/Headshots";
 import Events from "@/components/sections/Events";
 import Social from "@/components/sections/Social";
@@ -36,7 +35,6 @@ export default function Home() {
         <Showreel />
         <Work />
         <Services />
-        <Why />
         <Headshots />
         <Events />
         <Social />
