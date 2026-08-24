@@ -298,12 +298,7 @@ export const faq = [
   },
 ] as const;
 
-/* 15 — FINAL CTA + CONTACT ----------------------------------------------- */
-export const finalCta = {
-  headline: "Let's make something worth seeing.",
-  support: "Have a brand, campaign, event or idea that deserves better?",
-  cta: { label: "Start a project", href: "#contact" },
-} as const;
+/* 15 — CONTACT ------------------------------------------------------------ */
 
 export const form = {
   needs: [

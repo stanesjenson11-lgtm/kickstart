@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { finalCta, form, site } from "@/lib/content";
+import { form, site } from "@/lib/content";
 import { briefSchema } from "@/lib/brief-schema";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { useGsap, gsap } from "@/lib/motion";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -103,16 +102,6 @@ export default function Contact() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
 
-  const scope = useGsap<HTMLElement>(({ self }) => {
-    gsap.from(self.querySelectorAll<HTMLElement>(".cta-line"), {
-      yPercent: 110,
-      duration: 1.2,
-      ease: "expo.out",
-      stagger: 0.08,
-      scrollTrigger: { trigger: self, start: "top 70%" },
-    });
-  }, []);
-
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrors({});
@@ -160,25 +149,9 @@ export default function Contact() {
   }
 
   return (
-    <section ref={scope} id="contact" className="grain relative bg-ink">
-      {/* Final CTA */}
-      <div className="px-gutter pt-section-lg pb-section">
-        <h2 className="u-display text-display max-w-[14ch]">
-          {finalCta.headline.split(" ").reduce<string[][]>((rows, word, i) => {
-            const r = Math.floor(i / 2);
-            (rows[r] ??= []).push(word);
-            return rows;
-          }, []).map((row, i) => (
-            <span key={i} className="block overflow-hidden pb-[0.06em]">
-              <span className="cta-line block">{row.join(" ")}</span>
-            </span>
-          ))}
-        </h2>
-        <p className="u-measure mt-8 text-body text-muted-dark">{finalCta.support}</p>
-      </div>
-
+    <section id="contact" className="grain relative bg-ink">
       {/* Brief */}
-      <div className="border-t border-[var(--rule-on-dark)] px-gutter py-section">
+      <div className="px-gutter py-section">
         {status === "sent" ? (
           <div role="status" className="max-w-[52ch]">
             <h3 className="u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
