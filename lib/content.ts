@@ -300,6 +300,13 @@ export const faq = [
 
 /* 15 — CONTACT ------------------------------------------------------------ */
 
+export const contact = {
+  headline: "Send a project brief.",
+  body: "Tell us what you need and when you need it. We read every brief properly and reply within two working days — with a considered answer, not a calendar link.",
+  bg: IMG("photo-1531058020387-3be344556be6", 2400),
+  alt: "",
+} as const;
+
 export const form = {
   needs: [
     "Corporate photography",

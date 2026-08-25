@@ -11,6 +11,8 @@ type Props = {
   className?: string;
   type?: "button" | "submit";
   disabled?: boolean;
+  /** Stretch to the container. The magnet still tracks, it just cannot slide far. */
+  fullWidth?: boolean;
 };
 
 /**
@@ -27,6 +29,7 @@ export default function MagneticButton({
   className = "",
   type = "button",
   disabled,
+  fullWidth = false,
 }: Props) {
   const shell = useRef<HTMLSpanElement>(null);
   const label = useRef<HTMLSpanElement>(null);
@@ -50,8 +53,7 @@ export default function MagneticButton({
     });
   };
 
-  const base =
-    "relative inline-flex items-center justify-center gap-3 px-7 py-4 u-meta whitespace-nowrap transition-colors duration-300";
+  const base = `relative ${fullWidth ? "flex w-full" : "inline-flex"} items-center justify-center gap-3 px-7 py-4 u-meta whitespace-nowrap transition-colors duration-300`;
   const skin =
     variant === "solid"
       ? "bg-paper text-ink hover:bg-muted-dark"
@@ -68,7 +70,7 @@ export default function MagneticButton({
 
   // The padded wrapper is the magnet's catchment area — larger than the button
   // itself, so the pull starts before the cursor arrives.
-  const magnet = "inline-block p-3 -m-3";
+  const magnet = `${fullWidth ? "block w-full" : "inline-block"} p-3 -m-3`;
 
   if (href) {
     return (

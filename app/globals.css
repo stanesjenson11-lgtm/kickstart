@@ -17,6 +17,12 @@
   --color-muted-dark: oklch(0.715 0 0); /* #A0A0A0 — on ink only, 7.9:1 */
   --color-muted-light: oklch(0.475 0 0); /* #5A5A5A — on paper only, 7.0:1 */
 
+  /* shadcn token names, aliased onto the palette above so drop-in shadcn
+     components resolve without a second colour system. */
+  --color-card: oklch(0.145 0 0);
+  --color-muted: oklch(0.26 0 0);
+  --color-muted-foreground: oklch(0.715 0 0);
+
   /* --- type ------------------------------------------------------------ */
   --font-display: var(--font-archivo), "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-martian), "Martian Mono", ui-monospace, "SFMono-Regular", monospace;
