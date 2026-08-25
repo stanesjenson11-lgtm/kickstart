@@ -431,6 +431,44 @@ img.plate {
   background: linear-gradient(180deg, oklch(1 0 0 / 0.45), transparent 46%);
 }
 
+/* Wordmark: two exports cross-fading on the same schedule as the link colour.
+   Not one image inverted in CSS — the mark is pure black and pure white, and
+   filter: invert() on a soft-edged PNG frays the antialiasing on the serifs of
+   "CREATIVE STUDIO". The two files are cropped to their own ink bounds, so at a
+   shared height they register against each other. */
+.ks-logo {
+  position: relative;
+  display: block;
+  height: clamp(1.5rem, 3.4vw, 1.9rem);
+}
+
+.ks-logo img {
+  height: 100%;
+  width: auto;
+  transition: opacity 400ms linear;
+}
+
+.ks-logo img[data-logo="black"] {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  opacity: 0;
+}
+
+[data-ground="light"] .ks-logo img[data-logo="white"] {
+  opacity: 0;
+}
+
+[data-ground="light"] .ks-logo img[data-logo="black"] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ks-logo img {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ks-nav,
   .ks-nav::before {

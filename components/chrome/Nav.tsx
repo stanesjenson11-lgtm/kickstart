@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { nav, site } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
 
@@ -64,13 +65,26 @@ export default function Nav() {
           ref={bar}
           className="ks-nav pointer-events-auto flex items-center justify-between"
         >
-          <a
-            href="#top"
-            className="u-display text-[1.05rem] leading-none"
-            style={{ ["--wdth" as string]: 118 }}
-            aria-label={`${site.name} — back to top`}
-          >
-            Kickstart
+          {/* Both marks ship and cross-fade; the link carries the name, so the
+              images are decorative and stay out of the accessibility tree. */}
+          <a href="#top" className="ks-logo" aria-label={`${site.name} — back to top`}>
+            <Image
+              src="/logo-white.png"
+              alt=""
+              width={1000}
+              height={182}
+              sizes="180px"
+              priority
+              data-logo="white"
+            />
+            <Image
+              src="/logo-black.png"
+              alt=""
+              width={1000}
+              height={184}
+              sizes="180px"
+              data-logo="black"
+            />
           </a>
 
           <nav aria-label="Primary" className="hidden items-center gap-10 md:flex">
