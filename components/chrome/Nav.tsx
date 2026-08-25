@@ -1,18 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { nav, site } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [onLight, setOnLight] = useState(false);
   const [open, setOpen] = useState(false);
+  const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    // The light sections already announce themselves with .on-paper — reuse
+    // that rather than adding a second marker that can drift out of step.
+    const paper = Array.from(document.querySelectorAll<HTMLElement>(".on-paper"));
+
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+
+      // Probe the bar's own midline, so this stays right as the bar collapses
+      // into the pill and its height changes.
+      const r = bar.current?.getBoundingClientRect();
+      const y = r ? r.top + r.height / 2 : 40;
+      setOnLight(
+        paper.some((el) => {
+          const s = el.getBoundingClientRect();
+          return s.top <= y && s.bottom >= y;
+        }),
+      );
+    };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   // Trap the page behind the mobile sheet, and let Escape close it.
@@ -30,13 +54,16 @@ export default function Nav() {
   return (
     <>
       <header
-        className="fixed inset-x-0 top-0 z-[var(--z-nav)] transition-[background-color,border-color] duration-500"
-        style={{
-          backgroundColor: scrolled ? "oklch(0.145 0 0 / 0.92)" : "transparent",
-          borderBottom: `1px solid ${scrolled ? "var(--rule-on-dark)" : "transparent"}`,
-        }}
+        className="pointer-events-none fixed inset-x-0 top-0 z-[var(--z-nav)] px-gutter"
+        data-scrolled={scrolled}
+        data-ground={onLight ? "light" : "dark"}
       >
-        <div className="flex items-center justify-between px-gutter py-5">
+        {/* Only the bar itself takes clicks — once it collapses to a pill the
+            rest of the header strip is over page content. */}
+        <div
+          ref={bar}
+          className="ks-nav pointer-events-auto flex items-center justify-between"
+        >
           <a
             href="#top"
             className="u-display text-[1.05rem] leading-none"
@@ -52,9 +79,6 @@ export default function Nav() {
                 {l.label}
               </a>
             ))}
-            <MagneticButton href={nav.cta.href} variant="ghost" className="!py-3 !px-5">
-              {nav.cta.label}
-            </MagneticButton>
           </nav>
 
           <button

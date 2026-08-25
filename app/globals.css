@@ -342,6 +342,103 @@ img.plate {
 }
 
 /* ==========================================================================
+   Nav — a flat bar over the hero, a floating liquid-glass pill once scrolled.
+   ========================================================================== */
+
+/* Both states are the same box; only the numbers move, so the collapse is one
+   transition rather than a swap between two elements.
+   100% rather than a big rem value: max-width only animates over the range it
+   actually binds, so a fixed start wide enough for any display would spend the
+   first half of the transition doing nothing visible. <length-percentage>
+   interpolates through calc(), so 100% → 62rem is a clean blend.
+   Alpha-zero white, not `transparent`, so the fade in does not pass through
+   grey on the way. */
+.ks-nav {
+  position: relative;
+  margin-inline: auto;
+  margin-top: 0;
+  max-width: 100%;
+  padding: 1.25rem 0;
+  border: 1px solid oklch(1 0 0 / 0);
+  border-radius: 0;
+  background-color: oklch(1 0 0 / 0);
+  color: var(--color-paper);
+  transition:
+    max-width 800ms var(--ease-out-expo),
+    padding 800ms var(--ease-out-expo),
+    border-radius 800ms var(--ease-out-expo),
+    margin-top 800ms var(--ease-out-expo),
+    color 400ms linear,
+    background-color 450ms linear,
+    border-color 450ms linear,
+    box-shadow 450ms linear;
+}
+
+/* The backdrop-filter is deliberately absent above: over the hero it would
+   composite the WebGL canvas every frame, which measured a ~36% FPS cost. By
+   the time it switches on, that canvas is off-screen. */
+[data-scrolled="true"] .ks-nav {
+  margin-top: 0.75rem;
+  max-width: 62rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 999px;
+  border-color: oklch(1 0 0 / 0.16);
+  background-color: oklch(1 0 0 / 0.06);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  /* Top highlight + bottom bounce = the convex read. Without the insets this
+     is just a blurred rectangle, not glass. */
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.3),
+    inset 0 -1px 0 oklch(1 0 0 / 0.08),
+    0 14px 40px oklch(0 0 0 / 0.5);
+}
+
+/* Specular sheen across the upper half — the "liquid" part of liquid glass. */
+.ks-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.14), transparent 46%);
+  transition: opacity 450ms linear;
+}
+
+[data-scrolled="true"] .ks-nav::before {
+  opacity: 1;
+}
+
+/* Over a paper section the bar flips to ink. Everything inside draws from
+   currentColor — the wordmark, the links, their cut underline, the burger
+   rules — so this one declaration carries the lot. The glass has to flip with
+   it: a white tint with white highlights is invisible on white. */
+[data-ground="light"] .ks-nav {
+  color: var(--color-ink);
+}
+
+[data-ground="light"][data-scrolled="true"] .ks-nav {
+  border-color: oklch(0.145 0 0 / 0.14);
+  background-color: oklch(0.145 0 0 / 0.05);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.55),
+    inset 0 -1px 0 oklch(0.145 0 0 / 0.06),
+    0 14px 40px oklch(0 0 0 / 0.14);
+}
+
+[data-ground="light"] .ks-nav::before {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.45), transparent 46%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ks-nav,
+  .ks-nav::before {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
    FAQ — native <details> animating to/from height:auto, no JS accordion.
    Unsupported browsers simply open instantly, which is a fine floor.
    ========================================================================== */
