@@ -70,7 +70,7 @@ export default function MagneticButton({
 
   // The padded wrapper is the magnet's catchment area — larger than the button
   // itself, so the pull starts before the cursor arrives.
-  const magnet = `${fullWidth ? "block w-full" : "inline-block"} p-3 -m-3`;
+  const magnet = fullWidth ? "block w-full" : "inline-block p-3 -m-3";
 
   if (href) {
     return (

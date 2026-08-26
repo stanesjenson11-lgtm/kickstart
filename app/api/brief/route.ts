@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     ["Company", brief.company || "—"],
     ["Email", brief.email],
     ["Phone", brief.phone || "—"],
-    ["Needs", brief.needs.join(", ")],
+    ["Needs", brief.needs],
     ["Timeline", brief.timeline],
   ];
 
