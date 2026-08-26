@@ -9,6 +9,9 @@ import Plate from "@/components/ui/Plate";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+const CARD =
+  "rounded-xl border border-paper/20 bg-ink/50 p-6 shadow-2xl shadow-black/70 sm:p-8 backdrop-blur-xl";
+
 /**
  * Label is visually hidden and the placeholder carries it, so the card stays as
  * dense as the reference without leaving the field unnamed to a screen reader.
@@ -34,7 +37,7 @@ function Field({
 }) {
   const id = `f-${name}`;
   const cls =
-    "w-full rounded-lg border border-paper/15 bg-paper/[0.04] px-4 py-3 text-body text-paper placeholder:text-muted-dark/70 transition-colors duration-300 focus:border-paper focus:bg-paper/[0.07] focus:outline-none aria-invalid:border-paper";
+    "w-full rounded-md border border-paper/15 bg-paper/[0.04] px-3.5 py-2.5 text-sm text-paper placeholder:text-muted-dark/70 transition-colors duration-300 focus:border-paper focus:bg-paper/[0.07] focus:outline-none aria-invalid:border-paper";
 
   return (
     <p className="flex flex-col gap-1.5">
@@ -142,27 +145,30 @@ export default function Contact() {
       </div>
 
       <div className="relative mx-auto w-full max-w-2xl px-gutter py-10 sm:py-12">
-        <h2 className="u-display text-center text-h3" style={{ ["--wdth" as string]: 104 }}>
+        <h2 className="u-display text-center text-h2" style={{ ["--wdth" as string]: 104 }}>
           {contact.headline}
         </h2>
 
-        <div className="relative mt-4 rounded-2xl border border-paper/20 bg-ink/50 p-6 shadow-2xl shadow-black/70 backdrop-blur-xl sm:p-7">
+        <div className="relative mt-6">
           {/* Registration marks — the card is a plate on the production floor. */}
-          <PlusIcon aria-hidden="true" className="absolute -top-3 -left-3 h-6 w-6" />
-          <PlusIcon aria-hidden="true" className="absolute -top-3 -right-3 h-6 w-6" />
-          <PlusIcon aria-hidden="true" className="absolute -bottom-3 -left-3 h-6 w-6" />
-          <PlusIcon aria-hidden="true" className="absolute -right-3 -bottom-3 h-6 w-6" />
+          <PlusIcon aria-hidden="true" className="absolute -top-2.5 -left-2.5 h-5 w-5" />
+          <PlusIcon aria-hidden="true" className="absolute -top-2.5 -right-2.5 h-5 w-5" />
+          <PlusIcon aria-hidden="true" className="absolute -bottom-2.5 -left-2.5 h-5 w-5" />
+          <PlusIcon aria-hidden="true" className="absolute -right-2.5 -bottom-2.5 h-5 w-5" />
 
           {status === "sent" ? (
-            <div role="status" className="py-6 text-center">
+            <div
+              role="status"
+              className={`${CARD} py-6 text-center`}
+            >
               <h3 className="u-display text-h3" style={{ ["--wdth" as string]: 100 }}>
                 Brief received.
               </h3>
-              <p className="mt-5 text-body text-muted-dark">
+              <p className="mt-4 text-base text-muted-dark">
                 We read every one properly. Expect a considered reply within two working
                 days — not a calendar link.
               </p>
-              <p className="mt-8 u-meta text-muted-dark">
+              <p className="mt-5 u-meta text-muted-dark">
                 Something urgent?{" "}
                 <a href={`https://wa.me/${site.whatsapp}`} className="cut-link text-paper">
                   WhatsApp us
@@ -170,62 +176,82 @@ export default function Contact() {
               </p>
             </div>
           ) : (
-            <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
-              <Field
-                label="Your name"
-                name="name"
-                placeholder="Jane Doe"
-                required
-                autoComplete="name"
-                error={errors.name}
-              />
-              <Field
-                label="Company (optional)"
-                name="company"
-                placeholder="Where you work"
-                autoComplete="organization"
-              />
-              <Field
-                label="Your email"
-                name="email"
-                type="email"
-                placeholder="you@company.com"
-                required
-                autoComplete="email"
-                error={errors.email}
-              />
-              <Field
-                label="Phone / WhatsApp (optional)"
-                name="phone"
-                type="tel"
-                placeholder="+91 00000 00000"
-                autoComplete="tel"
-              />
+            <form onSubmit={onSubmit} noValidate className={CARD}>
+              {/* Fields pair up two to a row so the card stays short; the
+                  textarea and the button run the full width. */}
+              <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
+                <Field
+                  label="Your name"
+                  name="name"
+                  placeholder="Jane Doe"
+                  required
+                  autoComplete="name"
+                  error={errors.name}
+                />
+                <Field
+                  label="Company"
+                  name="company"
+                  placeholder="Where you work"
+                  autoComplete="organization"
+                />
+                <Field
+                  label="Your email"
+                  name="email"
+                  type="email"
+                  placeholder="you@company.com"
+                  required
+                  autoComplete="email"
+                  error={errors.email}
+                />
+                <Field
+                  label="Phone / WhatsApp"
+                  name="phone"
+                  type="tel"
+                  placeholder="+91 00000 00000"
+                  autoComplete="tel"
+                />
+                <Field
+                  label="What do you need?"
+                  name="needs"
+                  placeholder="Brand film, event coverage, social…"
+                  required
+                  error={errors.needs}
+                />
+                <Field
+                  label="Timeline"
+                  name="timeline"
+                  placeholder="ASAP, this month, still exploring…"
+                  required
+                  error={errors.timeline}
+                />
+                <div className="sm:col-span-2">
+                  <Field
+                    label="Project details"
+                    name="details"
+                    textarea
+                    placeholder="What are we making, and where does it need to run?"
+                    required
+                    error={errors.details}
+                  />
+                </div>
+              </div>
 
-              <Field
-                label="What do you need?"
-                name="needs"
-                placeholder="Brand film, event coverage, social…"
-                required
-                error={errors.needs}
-              />
+              {formError && (
+                <p role="alert" className="mt-3 u-meta text-paper">
+                  {formError}
+                </p>
+              )}
 
-              <Field
-                label="Project details"
-                name="details"
-                textarea
-                placeholder="What are we making, and where does it need to run?"
-                required
-                error={errors.details}
-              />
-
-              <Field
-                label="Timeline"
-                name="timeline"
-                placeholder="ASAP, this month, still exploring…"
-                required
-                error={errors.timeline}
-              />
+              <div className="mt-7">
+                <MagneticButton
+                  type="submit"
+                  fullWidth
+                  className="rounded-md px-5! py-4!"
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" ? "Sending" : form.submit}
+                </MagneticButton>
+              </div>
 
               {/* Honeypot — off-screen, not display:none, and never announced. */}
               <input
@@ -236,27 +262,9 @@ export default function Contact() {
                 aria-hidden="true"
                 className="absolute left-[-9999px] h-px w-px"
               />
-
-              {formError && (
-                <p role="alert" className="u-meta text-paper">
-                  {formError}
-                </p>
-              )}
-
-              <div className="mt-2">
-                <MagneticButton
-                  type="submit"
-                  fullWidth
-                  className="rounded-lg"
-                  disabled={status === "sending"}
-                >
-                  {status === "sending" ? "Sending" : form.submit}
-                </MagneticButton>
-              </div>
             </form>
           )}
         </div>
-
       </div>
     </section>
   );
