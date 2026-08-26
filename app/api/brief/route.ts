@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { briefSchema } from "@/lib/brief-schema";
-
-const esc = (s: string) =>
-  s.replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
-  );
+import { briefEmail } from "@/lib/brief-email";
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -29,51 +25,28 @@ export async function POST(req: Request) {
   if (brief.website) return NextResponse.json({ ok: true });
 
   const key = process.env.RESEND_API_KEY;
-  const to = process.env.LEAD_TO_EMAIL;
-  if (!key || !to) {
+  // Comma-separated so extra recipients are an env change, not a deploy.
+  const to = (process.env.LEAD_TO_EMAIL ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+  if (!key || !to.length) {
     console.error("[brief] RESEND_API_KEY or LEAD_TO_EMAIL is not set.");
     return NextResponse.json({ error: "Mail is not configured." }, { status: 500 });
   }
 
-  const rows: [string, string][] = [
-    ["Name", brief.name],
-    ["Company", brief.company || "—"],
-    ["Email", brief.email],
-    ["Phone", brief.phone || "—"],
-    ["Needs", brief.needs],
-    ["Timeline", brief.timeline],
-  ];
-
-  const html = `
-    <div style="font-family:ui-sans-serif,system-ui,sans-serif;max-width:640px">
-      <p style="font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:#666">
-        New project brief
-      </p>
-      <h1 style="font-size:22px;margin:8px 0 20px">${esc(brief.name)}${
-        brief.company ? ` &middot; ${esc(brief.company)}` : ""
-      }</h1>
-      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
-        ${rows
-          .map(
-            ([k, v]) => `<tr>
-              <td style="padding:9px 0;border-bottom:1px solid #eee;color:#666;width:150px;font-size:13px">${esc(k)}</td>
-              <td style="padding:9px 0;border-bottom:1px solid #eee;font-size:14px">${esc(v)}</td>
-            </tr>`,
-          )
-          .join("")}
-      </table>
-      <p style="margin:22px 0 6px;color:#666;font-size:13px">Project details</p>
-      <p style="white-space:pre-wrap;line-height:1.6;font-size:14px">${esc(brief.details)}</p>
-    </div>`;
+  const { subject, html, text, attachments } = await briefEmail(brief);
 
   try {
     const resend = new Resend(key);
     const { error } = await resend.emails.send({
       from: process.env.LEAD_FROM_EMAIL ?? "Kickstart <onboarding@resend.dev>",
-      to: [to],
+      to,
       replyTo: brief.email,
-      subject: `Project brief — ${brief.name}${brief.company ? ` (${brief.company})` : ""}`,
+      subject,
       html,
+      text,
+      attachments,
     });
     if (error) throw new Error(error.message);
   } catch (err) {
