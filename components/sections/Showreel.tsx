@@ -14,6 +14,9 @@ import { useGsap, gsap } from "@/lib/motion";
  * muted, so the file carries no audio track at all. It stays at
  * `preload="metadata"` and an observer starts it a viewport early, so the
  * homepage never pays for the file before the section is in reach.
+ *
+ * Two encodes exist: a 1920 plate for desktop and a 1280 one everything else
+ * gets, so a phone never pulls 16MB over mobile data.
  */
 export default function Showreel() {
   const video = useRef<HTMLVideoElement>(null);
@@ -21,6 +24,14 @@ export default function Showreel() {
   useEffect(() => {
     const el = video.current;
     if (!el) return;
+
+    // Source is picked here rather than with `<source media>`, which browsers
+    // evaluate once at parse time and never re-check. Set before observing, so
+    // the first intersection can never call play() on an empty element.
+    el.src = window.matchMedia("(min-width: 1024px)").matches
+      ? showreel.src
+      : showreel.srcSmall;
+
     const io = new IntersectionObserver(
       ([entry]) => {
         // play() pulls the media down; pausing offscreen keeps a decoder off
@@ -93,9 +104,7 @@ export default function Showreel() {
           aria-hidden="true"
           className="h-full w-full object-cover"
           style={{ filter: "contrast(1.1) brightness(0.82)" }}
-        >
-          <source src={showreel.src} type="video/mp4" />
-        </video>
+        />
       </div>
 
       <div className="relative z-[var(--z-content)] flex h-full flex-col justify-between px-gutter py-24">
