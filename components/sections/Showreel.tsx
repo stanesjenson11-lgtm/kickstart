@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { showreel } from "@/lib/content";
 import { useGsap, gsap } from "@/lib/motion";
 
@@ -10,9 +11,29 @@ import { useGsap, gsap } from "@/lib/motion";
  * the whole section on every scroll tick.
  *
  * The reel runs muted on a loop as ambient footage — autoplay only survives
- * muted, so the file carries no audio track at all.
+ * muted, so the file carries no audio track at all. It stays at
+ * `preload="metadata"` and an observer starts it a viewport early, so the
+ * homepage never pays for the file before the section is in reach.
  */
 export default function Showreel() {
+  const video = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = video.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        // play() pulls the media down; pausing offscreen keeps a decoder off
+        // the main thread for the rest of the page.
+        if (entry.isIntersecting) void el.play().catch(() => {});
+        else el.pause();
+      },
+      { rootMargin: "100% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const scope = useGsap<HTMLElement>(({ self }) => {
     const frame = self.querySelector<HTMLElement>(".reel-frame");
     const meta = self.querySelectorAll<HTMLElement>(".reel-meta");
@@ -60,15 +81,15 @@ export default function Showreel() {
   }, []);
 
   return (
-    <section ref={scope} className="relative h-[100svh] overflow-hidden bg-ink">
+    <section ref={scope} className="relative h-[100svh] overflow-hidden bg-black">
       {/* Full-bleed plate, revealed by the opening inset. */}
       <div className="reel-frame absolute inset-0" style={{ clipPath: "inset(21% 19% 21% 19%)" }}>
         <video
-          autoPlay
+          ref={video}
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
           className="h-full w-full object-cover"
           style={{ filter: "contrast(1.1) brightness(0.82)" }}
