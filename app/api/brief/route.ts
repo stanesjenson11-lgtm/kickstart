@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { briefSchema } from "@/lib/brief-schema";
-import { briefEmail } from "@/lib/brief-email";
+import { ackEmail, briefRef, leadEmail } from "@/lib/brief-email";
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -35,23 +35,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Mail is not configured." }, { status: 500 });
   }
 
-  const { subject, html, text, attachments } = await briefEmail(brief);
+  const ref = briefRef();
+  const from = process.env.LEAD_FROM_EMAIL ?? "Kickstart <onboarding@resend.dev>";
+  const resend = new Resend(key);
 
   try {
-    const resend = new Resend(key);
-    const { error } = await resend.emails.send({
-      from: process.env.LEAD_FROM_EMAIL ?? "Kickstart <onboarding@resend.dev>",
+    const lead = await leadEmail(brief, ref);
+    const { data, error } = await resend.emails.send({
+      from,
       to,
       replyTo: brief.email,
-      subject,
-      html,
-      text,
-      attachments,
+      subject: lead.subject,
+      html: lead.html,
+      text: lead.text,
+      attachments: lead.attachments,
     });
     if (error) throw new Error(error.message);
+    // Resend only reports acceptance here — bounces land minutes later, and
+    // this id is the only handle for finding the send in the dashboard.
+    console.log(`[brief] ${ref} accepted ${data?.id} -> ${to.join(", ")}`);
   } catch (err) {
-    console.error("[brief] send failed", err);
+    console.error(`[brief] ${ref} send failed`, err);
     return NextResponse.json({ error: "Could not send." }, { status: 502 });
+  }
+
+  // The acknowledgement is a courtesy; the lead is the thing that matters and
+  // it has already gone. A failure here is logged, never surfaced.
+  try {
+    const ack = await ackEmail(brief, ref);
+    await resend.emails.send({
+      from,
+      to: [brief.email],
+      replyTo: to[0],
+      subject: ack.subject,
+      html: ack.html,
+      text: ack.text,
+      attachments: ack.attachments,
+    });
+  } catch (err) {
+    console.error(`[brief] ${ref} acknowledgement failed`, err);
   }
 
   return NextResponse.json({ ok: true });

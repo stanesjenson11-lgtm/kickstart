@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
 import { showreel } from "@/lib/content";
 import { useGsap, gsap } from "@/lib/motion";
 
@@ -11,15 +9,10 @@ import { useGsap, gsap } from "@/lib/motion";
  * room going dark. Insets composite; animating width/height here would reflow
  * the whole section on every scroll tick.
  *
- * `showreel.src` is empty until a real reel lands; the poster then carries the
- * section and no play control is offered, so nothing pretends to be footage
- * that does not exist.
+ * The reel runs muted on a loop as ambient footage — autoplay only survives
+ * muted, so the file carries no audio track at all.
  */
 export default function Showreel() {
-  const video = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const hasReel = Boolean(showreel.src);
-
   const scope = useGsap<HTMLElement>(({ self }) => {
     const frame = self.querySelector<HTMLElement>(".reel-frame");
     const meta = self.querySelectorAll<HTMLElement>(".reel-meta");
@@ -66,37 +59,22 @@ export default function Showreel() {
     }
   }, []);
 
-  const play = () => {
-    setPlaying(true);
-    video.current?.play();
-  };
-
   return (
     <section ref={scope} className="relative h-[100svh] overflow-hidden bg-ink">
       {/* Full-bleed plate, revealed by the opening inset. */}
       <div className="reel-frame absolute inset-0" style={{ clipPath: "inset(21% 19% 21% 19%)" }}>
-        {hasReel ? (
-          <video
-            ref={video}
-            poster={showreel.poster}
-            preload="none"
-            playsInline
-            controls={playing}
-            className="h-full w-full object-cover"
-            style={{ filter: "grayscale(1) contrast(1.1) brightness(0.82)" }}
-          >
-            <source src={showreel.src} type="video/mp4" />
-          </video>
-        ) : (
-          <Image
-            src={showreel.poster}
-            alt={showreel.posterAlt}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={{ filter: "grayscale(1) contrast(1.14) brightness(0.78)" }}
-          />
-        )}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          className="h-full w-full object-cover"
+          style={{ filter: "contrast(1.1) brightness(0.82)" }}
+        >
+          <source src={showreel.src} type="video/mp4" />
+        </video>
       </div>
 
       <div className="relative z-[var(--z-content)] flex h-full flex-col justify-between px-gutter py-24">
@@ -106,15 +84,6 @@ export default function Showreel() {
           </h2>
           <span className="u-meta hidden shrink-0 text-muted-dark sm:block">{showreel.roll}</span>
         </div>
-
-        {hasReel && !playing && (
-          <button
-            onClick={play}
-            className="mx-auto u-meta border border-paper px-8 py-5 transition-colors duration-300 hover:bg-paper hover:text-ink"
-          >
-            Play reel
-          </button>
-        )}
 
         <div className="flex items-center justify-between u-meta text-muted-dark">
           <span className="reel-counter tabular-nums">00:00:00:00</span>

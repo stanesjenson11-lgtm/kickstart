@@ -66,11 +66,8 @@ export const statement = {
 export const showreel = {
   label: "Showreel",
   headline: "Watch the work.",
-  poster: IMG("photo-1585951237318-9ea5e175b891", 2000),
-  posterAlt: "A clapperboard held up to mark the top of a take",
-  /** Drop a real 30-60s monochrome reel at /public/showreel.mp4 and set this. */
-  src: "" as string,
-  runtime: "00:00:48:00",
+  src: "/showreel.mp4" as string,
+  runtime: "00:00:33:00",
   roll: "A001_KS_REEL",
 } as const;
 
