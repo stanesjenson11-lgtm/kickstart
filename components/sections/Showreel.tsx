@@ -15,8 +15,13 @@ import { useGsap, gsap } from "@/lib/motion";
  * `preload="metadata"` and an observer starts it a viewport early, so the
  * homepage never pays for the file before the section is in reach.
  *
- * Two encodes exist: a 1920 plate for desktop and a 1280 one everything else
- * gets, so a phone never pulls 16MB over mobile data.
+ * Two encodes exist: a 1920 plate from `md:` up, a 1280 one below it.
+ *
+ * Phones letterbox rather than cover. The footage is 16:9 and a portrait
+ * viewport is not, so covering it would crop the sides off every shot and
+ * upscale what survives by ~3.5x — the montage is composed wide, and both
+ * guitarists have to stay in frame. Contained against the black ground the
+ * whole composition reads, and the video renders near 1:1 instead.
  */
 export default function Showreel() {
   const video = useRef<HTMLVideoElement>(null);
@@ -28,7 +33,9 @@ export default function Showreel() {
     // Source is picked here rather than with `<source media>`, which browsers
     // evaluate once at parse time and never re-check. Set before observing, so
     // the first intersection can never call play() on an empty element.
-    el.src = window.matchMedia("(min-width: 1024px)").matches
+    // 768px matches the `md:` breakpoint the object-fit switch below uses, so
+    // tablets get the full plate at the same moment they start cover-cropping.
+    el.src = window.matchMedia("(min-width: 768px)").matches
       ? showreel.src
       : showreel.srcSmall;
 
@@ -102,7 +109,7 @@ export default function Showreel() {
           playsInline
           preload="metadata"
           aria-hidden="true"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain md:object-cover"
           style={{ filter: "contrast(1.1) brightness(0.82)" }}
         />
       </div>
