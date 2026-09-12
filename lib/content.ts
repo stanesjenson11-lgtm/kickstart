@@ -258,8 +258,36 @@ export const gallery = {
 } as const;
 
 /* 11 — CLIENTS ----------------------------------------------------------- */
-/** Real clients only. While this is empty the section does not render. */
-export const clients: { name: string; logo?: string }[] = [];
+/**
+ * Real clients only. While this is empty the section does not render.
+ *
+ * Logos are normalised to flat-white silhouettes in `public/clients/` — the
+ * originals in `Logos/` are a mix of transparent marks, white plates and one
+ * purple gradient lockup, which on an ink ground either vanish or show as
+ * bright rectangles. Ordered strongest-first, not alphabetically.
+ */
+export const clients: { name: string; logo?: string }[] = [
+  { name: "Swiggy", logo: "/clients/swiggy.png" },
+  { name: "CRED", logo: "/clients/cred.png" },
+  { name: "Hilton", logo: "/clients/hilton.png" },
+  { name: "WeWork", logo: "/clients/wework.png" },
+  { name: "Micron", logo: "/clients/micron.png" },
+  { name: "Absolut", logo: "/clients/absolut.png" },
+  { name: "CGI", logo: "/clients/cgi.png" },
+  { name: "Toast", logo: "/clients/toast.png" },
+  { name: "Cushman & Wakefield", logo: "/clients/cushman-wakefield.png" },
+  { name: "Embassy", logo: "/clients/embassy.png" },
+  { name: "Kennametal", logo: "/clients/kennametal.png" },
+  { name: "Sattva", logo: "/clients/sattva.png" },
+  { name: "Sigmoid", logo: "/clients/sigmoid.png" },
+  { name: "Spark by Hilton", logo: "/clients/spark-by-hilton.png" },
+  { name: "Stonehill", logo: "/clients/stonehill.png" },
+  { name: "Superhealth", logo: "/clients/superhealth.png" },
+  { name: "Vizipa", logo: "/clients/vizipa.png" },
+  { name: "WSA", logo: "/clients/wsa.png" },
+  { name: "Internal Auditors", logo: "/clients/iia.png" },
+  { name: "080 Lounges", logo: "/clients/080lounges.png" },
+];
 
 /* 12 — TESTIMONIALS ------------------------------------------------------ */
 /** Real testimonials only. While this is empty the section does not render. */

@@ -31,9 +31,9 @@ export default function Home() {
         <Showreel />
         <Services />
         <Events />
-        <Clients />
         <Testimonials />
         <Gallery />
+        <Clients />
         <About />
         <Faq />
         <Contact />
