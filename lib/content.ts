@@ -72,74 +72,6 @@ export const showreel = {
   roll: "A001_KS_REEL",
 } as const;
 
-/* 04 — SELECTED WORK ----------------------------------------------------- */
-export type Project = {
-  index: string;
-  category: string;
-  client: string;
-  services: string[];
-  blurb: string;
-  src: string;
-  alt: string;
-};
-
-export const work: { label: string; headline: string; projects: Project[] } = {
-  label: "Selected work",
-  headline: "A few things we have made.",
-  projects: [
-    {
-      index: "01",
-      category: "Corporate",
-      client: "Meridian Group",
-      services: ["Brand film", "Corporate photography", "Social content"],
-      blurb:
-        "A brand film shot across three floors in a single day, cut for the AGM and re-cut nine ways for social.",
-      src: IMG("photo-1573164713988-8665fc963095", 1800),
-      alt: "An executive walking a corridor, lit hard from one side, shot for a brand film",
-    },
-    {
-      index: "02",
-      category: "Events",
-      client: "Northline Summit",
-      services: ["Event photography", "Videography", "Aftermovie"],
-      blurb:
-        "Two days, four halls, 1,400 delegates. Stills delivered same-night, aftermovie inside a week.",
-      src: IMG("photo-1531058020387-3be344556be6", 1800),
-      alt: "A full conference hall under arched windows during a keynote",
-    },
-    {
-      index: "03",
-      category: "Advertising",
-      client: "Fieldwork Athletic",
-      services: ["Commercial", "Campaign content", "Paid social"],
-      blurb:
-        "A product campaign built to survive being cropped to a square, a story and a thumbnail.",
-      src: IMG("photo-1542291026-7eec264c27ff", 1800),
-      alt: "A single running shoe lit against a seamless backdrop for a product campaign",
-    },
-    {
-      index: "04",
-      category: "Headshots",
-      client: "Aster Capital",
-      services: ["Executive headshots", "Team photography"],
-      blurb:
-        "Forty-one portraits in one afternoon, one lighting setup, no one looking like they had been kept waiting.",
-      src: IMG("photo-1592878904946-b3cd8ae243d0", 1800),
-      alt: "A tailored suit and watch, cropped close, from an executive portrait session",
-    },
-    {
-      index: "05",
-      category: "Brand",
-      client: "Halden and Co.",
-      services: ["Event coverage", "Reels", "Campaign content"],
-      blurb:
-        "A launch party covered as a campaign shoot, so the content outlived the night by a quarter.",
-      src: IMG("photo-1505236858219-8359eb29e329", 1800),
-      alt: "Confetti bursting over a crowd with hands raised at a launch party",
-    },
-  ],
-};
-
 /* 05 — SERVICES ---------------------------------------------------------- */
 export const services = {
   label: "What we create",
@@ -175,15 +107,6 @@ export const services = {
   ],
 } as const;
 
-/* 07 — CORPORATE HEADSHOTS ----------------------------------------------- */
-export const headshots = {
-  headline: "Your people are part of your brand.",
-  body: "Professional portraits for founders, executives and teams who want to look as credible as the businesses they represent.",
-  tags: ["Founders", "Executives", "Teams", "Leadership portraits"],
-  src: IMG("photo-1519085360753-af0119f7cbe7", 1600),
-  alt: "An executive portrait lit hard from one side against near-black, arms folded",
-} as const;
-
 /* 08 — EVENTS ------------------------------------------------------------ */
 export const events = {
   headline: ["The moment ends.", "The content lives on."],
@@ -197,57 +120,6 @@ export const events = {
   cta: { label: "Plan event coverage", href: "#contact" },
   src: IMG("photo-1493225457124-a3eb161ffa5f", 2000),
   alt: "A figure on stage with arms raised, backlit through smoke at a live event",
-} as const;
-
-/* 09 — SOCIAL MEDIA ------------------------------------------------------ */
-export const social = {
-  headline: "Do not let your brand disappear between campaigns.",
-  body: "We build consistent content systems that keep brands visible, relevant and recognisable.",
-  cta: { label: "Build our social presence", href: "#contact" },
-  formats: [
-    {
-      label: "Reels",
-      src: IMG("photo-1502920917128-1aa500764cbd", 900),
-      alt: "A camera body on a clean seamless backdrop, shot for a carousel",
-    },
-    {
-      label: "Stories",
-      src: IMG("photo-1519671482749-fd09be7ccebf", 900),
-      alt: "Glasses raised in a toast at a corporate evening",
-    },
-    {
-      label: "Carousels",
-      src: IMG("photo-1572635196237-14b3f281503f", 900),
-      alt: "Sunglasses shot flat against a bright seamless backdrop",
-    },
-    {
-      label: "Photography",
-      src: IMG("photo-1511795409834-ef04bbd61622", 900),
-      alt: "A long banquet table dressed for an awards dinner",
-    },
-    {
-      label: "Campaigns",
-      src: IMG("photo-1523275335684-37898b6baf30", 900),
-      alt: "Two watches arranged for a product campaign",
-    },
-    {
-      label: "Short-form",
-      src: IMG("photo-1485846234645-a62644f84728", 900),
-      alt: "A clapperboard marking the top of a take on location",
-    },
-  ],
-} as const;
-
-/* 10 — PROCESS ----------------------------------------------------------- */
-export const process = {
-  headline: "How we kickstart.",
-  steps: [
-    { index: "01", title: "Discover", body: "Understand the brand, audience and objective." },
-    { index: "02", title: "Define", body: "Create the creative direction." },
-    { index: "03", title: "Create", body: "Production, photography, filming and editing." },
-    { index: "04", title: "Amplify", body: "Adapt content for social and digital channels." },
-    { index: "05", title: "Grow", body: "Analyse, learn and improve." },
-  ],
 } as const;
 
 /* 11 — CLIENTS ----------------------------------------------------------- */
