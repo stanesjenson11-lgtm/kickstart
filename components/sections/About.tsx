@@ -28,7 +28,10 @@ export default function About() {
       className="cut-top on-paper relative bg-paper-warm text-ink"
     >
       <div className="grid gap-12 px-gutter py-section md:grid-cols-12 md:gap-8">
-        <div className="md:col-span-7">
+        {/* Indented from md up so the heading and body sit in off the gutter.
+            Padding, not margin — the column keeps its track width, and the body
+            is capped at 45ch so only the heading sees the narrower space. */}
+        <div className="md:col-span-7 md:pl-10">
           <h2 className="ab-fade u-display text-h1" style={{ ["--wdth" as string]: 104 }}>
             {about.headline}{" "}
             {/* Height in em, not a clamp: it tracks the heading's own fluid
@@ -63,11 +66,15 @@ export default function About() {
           </p>
         </div>
 
+        {/* Back to a 5-column track but held at 88% of it, which lands between
+            the old 5-column and 4-column sizes. Setting an explicit width also
+            drops justify-self from stretch to start, so the plate shifts left off
+            the right edge by the 12% it gives up — one change, both effects. */}
         <Plate
           src={about.src}
           alt={about.alt}
-          sizes="(max-width: 768px) 100vw, 34vw"
-          className="plate-colour aspect-4/5 md:col-span-5"
+          sizes="(max-width: 768px) 100vw, 30vw"
+          className="plate-colour aspect-4/5 md:col-span-5 md:w-[88%]"
         />
       </div>
     </section>
