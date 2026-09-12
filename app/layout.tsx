@@ -54,6 +54,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#050505",
   colorScheme: "dark",
+  /* Pinch-zoom off. iOS Safari has ignored userScalable since iOS 10, so
+     maximumScale is what actually holds there. Desktop browser zoom is a user
+     setting and stays reachable. */
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const jsonLd = {
