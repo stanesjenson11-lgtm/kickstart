@@ -17,7 +17,7 @@ type Props = { plates: readonly string[]; className?: string };
  * weight.
  *
  * Falls back to a static graded still if WebGL is unavailable or the visitor
- * prefers reduced motion. The <picture> underneath is always rendered, so the
+ * prefers reduced motion. The <img> underneath is always rendered, so the
  * hero is never empty while textures load.
  */
 export default function HeroCanvas({ plates, className = "" }: Props) {

@@ -11,6 +11,7 @@
 export const IMG = (id: string, w = 1600, q = 80) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=${q}`;
 
+
 export const site = {
   name: "Kickstart Creative Studio",
   legalName: "Kickstart Creative Studio Pvt Ltd",
@@ -47,11 +48,15 @@ export const hero = {
    * grain, halation and cursor displacement — cinematic motion without a video
    * asset. Set `showreel.src` to a real MP4 and the reel takes over there.
    */
-  plates: [
-    IMG("photo-1478720568477-152d9b164e26", 2000),
-    IMG("photo-1493225457124-a3eb161ffa5f", 2000),
-    IMG("photo-1516035069371-29a1b244cc32", 2000),
-  ],
+  /**
+   * One plate: the projector cutting its beam through haze.
+   *
+   * HeroCanvas still runs its cross-dissolve, which resolves to a no-op at this
+   * length — tA and tB land on the same texture — so the frame holds still while
+   * the grain, halation, drifting bolt and cursor displacement carry the motion.
+   * Add entries here and the montage starts cycling again on its own.
+   */
+  plates: [IMG("photo-1478720568477-152d9b164e26", 2000)],
   alt: "A studio light cutting a hard beam through haze on a Kickstart set",
 } as const;
 

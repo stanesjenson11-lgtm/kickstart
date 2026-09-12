@@ -35,6 +35,18 @@ export const fragment = /* glsl */ `
   uniform float uMouseAmt;
   uniform float uScroll;
 
+  /* How far the smoke is pushed, in uv. The previous 0.024 worked out to about
+     five pixels of travel on a phone over ten seconds, which is invisible —
+     this is the one number to turn if the plume wants more or less life. */
+  const float SMOKE = 0.085;
+
+  /* Where the fog is allowed to move, in texture x. The projector body runs to
+     about 0.53 in this frame and the beam leaves the lens at roughly 0.55, so
+     the warp ramps in past that and the machine is never displaced at all —
+     masking on brightness alone caught the lit casing and the lens with it. */
+  const float FOG_START = 0.56;
+  const float FOG_FULL = 0.70;
+
   varying vec2 vUv;
 
   vec2 cover(vec2 uv, vec2 s) {
@@ -47,6 +59,19 @@ export const fragment = /* glsl */ `
 
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+  }
+
+  // Value noise off the same hash, smoothstepped at the cell edges so the field
+  // is continuous — a raw hash per cell would read as flicker, not as drift.
+  float vnoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
   }
 
   // Sample both plates at one uv and blend them. Full colour — luma survives
@@ -87,16 +112,41 @@ export const fragment = /* glsl */ `
     float pull = exp(-dist * 5.5) * uMouseAmt;
     uv -= normalize(d + 1e-6) * pull * 0.045;
 
-    vec3 base = plate(uv);
+    /* Only the fog past the lens moves.
+
+       Masked in texture space, not screen space, so the boundary stays on the
+       lens whatever the crop: FOG_START/FOG_FULL gate it by x, and brightness
+       gates it again so the dark surround to the right of the beam stays still
+       too. The projector, its casing and the lens fall entirely outside the
+       mask and render exactly as before. */
+    vec2 tc = cover(uv, uCoverA);
+    float lit = luma(texture2D(tA, tc).rgb);
+    float fog = smoothstep(FOG_START, FOG_FULL, tc.x) * smoothstep(0.18, 0.62, lit);
+
+    /* Left to right: subtracting time from the x argument translates the noise
+       field in +x, so its features march away from the lens. Two octaves at
+       different scales and speeds keep it from sliding as one sheet.
+
+       The push is mostly horizontal — a little y keeps it from looking like a
+       sideways wipe, but the travel is along the beam. */
+    float n1 = vnoise(vec2(tc.x * 2.4 - uTime * 0.050, tc.y * 3.6));
+    float n2 = vnoise(vec2(tc.x * 5.0 - uTime * 0.085, tc.y * 6.4 + 3.7));
+    vec2 push = vec2((n1 - 0.5) + (n2 - 0.5) * 0.5, (n2 - 0.5) * 0.28);
+
+    vec2 huv = uv + push * SMOKE * fog;
+
+    vec3 base = plate(huv);
 
     // Halation: highlights bleed outward, the way film shoulders roll off. The
     // bleed is driven by the blurred sample's brightness, so it reads off luma
-    // while the colour it lifts stays the plate's own.
+    // while the colour it lifts stays the plate's own. Sampled off the warped
+    // uv so the bloom travels with the fog; past the mask huv equals uv, so the
+    // projector's own highlights bloom exactly where they did.
     vec3 halo = vec3(0.0);
     for (int i = 0; i < 4; i++) {
       float a = float(i) * 1.5707963 + uTime * 0.05;
       vec2 o = vec2(cos(a), sin(a)) * 0.014 * vec2(1.0, aspect);
-      halo += plate(uv + o);
+      halo += plate(huv + o);
     }
     halo *= 0.25;
     float lift = smoothstep(0.55, 1.0, luma(halo));
