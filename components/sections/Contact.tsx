@@ -128,8 +128,14 @@ export default function Contact() {
     }
   }
 
+  // min-h, not h: the card grows when validation errors appear, and the
+  // section has to grow with it rather than clip.
   return (
-    <section id="contact" className="grain relative bg-ink">
+    <section
+      id="contact"
+      data-frame
+      className="grain relative flex min-h-[100svh] items-center bg-ink"
+    >
       {/* Stock plate behind the glass. Flat scrim, then edge fades only — a
           single top-to-bottom gradient buries the plate where the card sits. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -144,7 +150,7 @@ export default function Contact() {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,var(--color-ink),transparent_10%,transparent_90%,var(--color-ink))]" />
       </div>
 
-      <div className="relative mx-auto w-full max-w-2xl px-gutter py-10 sm:py-12">
+      <div className="relative mx-auto w-full max-w-2xl px-gutter py-14 sm:py-16">
         <h2 className="u-display text-center text-h2" style={{ ["--wdth" as string]: 104 }}>
           {contact.headline}
         </h2>

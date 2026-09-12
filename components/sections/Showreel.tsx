@@ -81,10 +81,10 @@ export default function Showreel() {
     <section
       ref={scope}
       id="work"
-      // Flush, not the usual 8px of breathing room: this section is pinned from
-      // `top top`, so landing even a few pixels short leaves a white sliver of
-      // the Statement above it and the pin not yet engaged.
-      data-anchor-flush
+      // data-frame lands anchors flush at 0 rather than the usual -8px: this
+      // section is pinned from `top top`, so stopping a few pixels short leaves
+      // a sliver of the Statement above it and the pin not yet engaged.
+      data-frame
       className="relative h-[100svh] overflow-hidden bg-black"
     >
       {/* Full-bleed plate, revealed by the opening inset. */}

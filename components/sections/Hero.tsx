@@ -40,6 +40,7 @@ export default function Hero() {
     <section
       ref={scope}
       id="top"
+      data-frame
       className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
     >
       <HeroCanvas plates={hero.plates} />

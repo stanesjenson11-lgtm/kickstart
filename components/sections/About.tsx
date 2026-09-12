@@ -25,9 +25,15 @@ export default function About() {
     <section
       ref={scope}
       id="about"
-      className="cut-top on-paper relative bg-paper-warm text-ink"
+      data-frame
+      // 100svh PLUS the cut, because a frame lands below the diagonal: the
+      // visible frame is then exactly 100svh of clean section with none of the
+      // next one showing. items-center resolves against the content box, which
+      // cut-top's padding has already reduced to precisely that frame.
+      className="cut-top on-paper relative flex min-h-[calc(100svh+var(--cut-drop))] items-center bg-paper-warm text-ink"
     >
-      <div className="grid gap-12 px-gutter py-section md:grid-cols-12 md:gap-8">
+      {/* w-full: as a flex child the grid would otherwise shrink to its content. */}
+      <div className="grid w-full gap-12 px-gutter py-section md:grid-cols-12 md:gap-8">
         {/* Indented from md up so the heading and body sit in off the gutter.
             Padding, not margin — the column keeps its track width, and the body
             is capped at 45ch so only the heading sees the narrower space. */}

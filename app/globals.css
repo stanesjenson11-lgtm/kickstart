@@ -76,8 +76,10 @@
   /* Absolute length: clip-path % resolves against element height, margin %
      against parent width, so a shared % value overlaps by wildly different
      amounts. One length keeps the diagonal and the overlap in agreement. */
-  --cut-drop: clamp(1.75rem, 3.6vw, 4.5rem);
   --cut-skew: 8%;
+  /* How far a .cut-top section rides up over the one above it, and therefore
+     how deep its clipped diagonal is. Frame sections land past this. */
+  --cut-drop: clamp(1.75rem, 3.6vw, 4.5rem);
 
   --rule-on-dark: oklch(1 0 0 / 0.14);
   --rule-on-light: oklch(0.145 0 0 / 0.14);
@@ -519,11 +521,16 @@ img.plate {
    Section transitions — the cut, applied where a light ground meets a dark one
    ========================================================================== */
 
+/* Rides up over the section above and clips a diagonal through its own first
+   --cut-drop pixels. The padding puts the content back below that diagonal, so
+   the padding box is the section's clean edge — which is what a frame snaps to
+   and what a full-height .cut-top frame measures its 100svh from. */
 .cut-top {
   clip-path: polygon(0 var(--cut-drop), 100% 0, 100% 100%, 0 100%);
   margin-top: calc(var(--cut-drop) * -1);
   padding-top: var(--cut-drop);
 }
+
 
 /* The hero needs ground under its type: the plates are bright in the middle,
    and white-on-haze is the one place this palette can fail legibility. */

@@ -31,7 +31,12 @@ export default function Services() {
   }, []);
 
   return (
-    <section ref={scope} id="services" className="on-paper relative overflow-hidden bg-paper text-ink">
+    <section
+      ref={scope}
+      id="services"
+      data-frame
+      className="on-paper relative min-h-[100svh] overflow-hidden bg-paper text-ink"
+    >
       {/* Bleed layer — one image per group, cross-faded. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         {services.groups.map((g, i) => (
