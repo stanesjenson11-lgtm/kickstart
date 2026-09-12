@@ -50,13 +50,10 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
 
   return (
     <div className="gal-band">
-      <div className="gal-head flex items-baseline justify-between gap-6 border-t border-[var(--rule-on-dark)] pt-5">
+      <div className="gal-head border-t border-[var(--rule-on-dark)] pt-5">
         <h3 className="u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
           <TextRoll>{name}</TextRoll>
         </h3>
-        <span className="u-meta shrink-0 text-muted-dark">
-          {String(photos.length).padStart(2, "0")}
-        </span>
       </div>
 
       {/* The drift runs inside this track. Its padding is the clearance the

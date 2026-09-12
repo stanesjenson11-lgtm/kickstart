@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { footer, nav, site } from "@/lib/content";
-import CrowdCanvas from "@/components/ui/crowd-canvas";
 
 export default function Footer() {
   return (
@@ -16,19 +15,7 @@ export default function Footer() {
         </svg>
       </span>
 
-      {/* The sheet is black line art on transparent, so it inverts to white
-          strokes on the ink — the white fill goes to near-black and drops out.
-          At 0.2 a peep is ~48x65 and the 130px band holds it with its cropped
-          edge tucked under the floor. 100 over 37 sprites is about three deep
-          across a desktop width. scale / count / opacity are the knobs. */}
-      <CrowdCanvas
-        src="/images/peeps/all-peeps.png"
-        scale={0.2}
-        count={100}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[130px] w-full opacity-30 invert"
-      />
-
-      <div className="relative z-[var(--z-content)] px-gutter pt-section pb-10">
+      <div className="relative z-[var(--z-content)] px-gutter pt-[clamp(2rem,5vh,3.5rem)] pb-8">
         <div className="grid gap-grid md:grid-cols-12">
           <div className="md:col-span-12 lg:col-span-5">
             {/* White mark — the footer is always on ink. Height clamp tracks
@@ -44,13 +31,13 @@ export default function Footer() {
             <p className="u-meta mt-3 text-muted-dark">Creative Studio Pvt Ltd</p>
             <a
               href={`mailto:${site.email}`}
-              className="cut-link mt-8 inline-block u-meta tracking-[0.06em] break-words text-muted-dark"
+              className="cut-link mt-6 inline-block u-meta tracking-[0.06em] break-words text-muted-dark"
             >
               {site.email}
             </a>
           </div>
 
-          <nav aria-label="Footer" className="md:col-span-4 lg:col-span-3">
+          <nav aria-label="Footer" className="md:col-span-6 lg:col-span-4">
             <h2 className="u-meta text-muted-dark">Site</h2>
             <ul className="mt-5 flex flex-col gap-3">
               {nav.links.map((l) => (
@@ -63,18 +50,7 @@ export default function Footer() {
             </ul>
           </nav>
 
-          <div className="md:col-span-4 lg:col-span-2">
-            <h2 className="u-meta text-muted-dark">Services</h2>
-            <ul className="mt-5 flex flex-col gap-3">
-              {footer.services.map((s) => (
-                <li key={s} className="u-meta text-muted-dark">
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-4 lg:col-span-2">
+          <div className="md:col-span-6 lg:col-span-3">
             <h2 className="u-meta text-muted-dark">Follow</h2>
             <ul className="mt-5 flex flex-col gap-3">
               {footer.socials.map((s) => (
@@ -93,7 +69,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="mt-20 u-meta text-muted-dark">{footer.copyright}</p>
+        <p className="mt-10 u-meta text-muted-dark">{footer.copyright}</p>
       </div>
     </footer>
   );

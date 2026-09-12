@@ -54,19 +54,23 @@ export default function Services() {
       </div>
 
       <div className="relative z-[var(--z-content)] px-gutter py-section">
-        <div className="lg:flex lg:gap-[clamp(1rem,4.4vw,4rem)]">
-          <div className="lg:sticky lg:top-28 lg:h-fit lg:w-[38%] lg:shrink-0">
+        {/* Phone: heading across the top, groups in a 2x2 grid beneath it.
+            From `bar` up it is the original sticky sidebar beside a single
+            column of groups — `lg:` could not carry that any more, since the lg
+            breakpoint is effectively always on. */}
+        <div className="bar:flex bar:gap-[clamp(1rem,4.4vw,4rem)]">
+          <div className="bar:sticky bar:top-28 bar:h-fit bar:w-[38%] bar:shrink-0">
             <h2 className="u-display text-h1" style={{ ["--wdth" as string]: 106 }}>
               {services.headline}
             </h2>
             <p className="u-meta mt-6">{services.label}</p>
           </div>
 
-          <div className="mt-14 flex-1 lg:mt-0">
+          <div className="mt-10 grid grid-cols-2 gap-x-grid bar:mt-0 bar:block bar:flex-1">
             {services.groups.map((g, i) => (
               <div
                 key={g.title}
-                className="svc-group border-t border-[var(--rule-on-light)] py-8 last:border-b"
+                className="svc-group border-t border-[var(--rule-on-light)] py-6 bar:py-8 bar:last:border-b"
                 onPointerEnter={() => setActive(i)}
                 onPointerLeave={() => setActive(null)}
                 onFocusCapture={() => setActive(i)}
@@ -81,7 +85,7 @@ export default function Services() {
                 >
                   {g.title}
                 </h3>
-                <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-body">
+                <ul className="mt-4 flex flex-col gap-y-2 text-body bar:flex-row bar:flex-wrap bar:gap-x-6">
                   {g.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}

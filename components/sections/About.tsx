@@ -32,15 +32,17 @@ export default function About() {
       // cut-top's padding has already reduced to precisely that frame.
       className="cut-top on-paper relative flex min-h-[calc(100svh+var(--cut-drop))] items-center bg-paper-warm text-ink"
     >
-      {/* Newspaper set: one text column with the photograph floated into it, so
-          the body runs beside the picture and then on underneath it rather than
-          stopping short in a column of its own.
-
-          max-w caps the measure — the body would otherwise set to the full
-          content width on a desktop and run well past a readable line. */}
-      <div className="w-full px-gutter py-section after:block after:clear-both after:content-['']">
+      {/* Two layouts, one tree.
+          Phone keeps the newspaper set: the photograph is floated and the body
+          runs beside it and then on underneath.
+          From `bar` up it is the original 12-column grid again — heading and
+          body in columns 1-7, picture in 8-12 — reached by turning the float off
+          and placing all three children explicitly, so source order can serve
+          the float without disturbing the desktop arrangement.
+          The clearfix is a grid item from `bar` up, so it is hidden there. */}
+      <div className="w-full px-gutter py-section after:block after:clear-both after:content-[''] bar:grid bar:grid-cols-12 bar:gap-grid bar:after:hidden">
         <h2
-          className="ab-fade u-display text-h1 max-w-[64rem]"
+          className="ab-fade u-display text-h1 max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pl-10"
           style={{ ["--wdth" as string]: 104 }}
         >
           {about.headline}{" "}
@@ -58,20 +60,22 @@ export default function About() {
           />
         </h2>
 
-        {/* Floated, and before the paragraph in source order — a float only
-            wraps the content that follows it. The section's own max-w-[64rem]
-            measure lives on both children so the picture cannot drift away
-            from the text on a wide screen. */}
+        {/* Before the paragraph in source order, because a float only wraps the
+            content that follows it. From `bar` up the float is off and it spans
+            both text rows, which is what made the picture match the text column
+            height in the original layout. */}
         <Plate
           src={about.src}
           alt={about.alt}
-          sizes="(min-width: 64rem) 26rem, 42vw"
-          className="ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem]"
+          sizes="(min-width: 48rem) 30vw, 42vw"
+          className="ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem] bar:col-span-5 bar:col-start-8 bar:row-span-2 bar:row-start-1 bar:m-0 bar:float-none bar:w-[88%] bar:max-w-none"
         />
 
+        {/* Margin as classes rather than an inline style so it can differ by
+            width: tight under the heading in the newspaper set, and back to the
+            original ~86px on the desktop grid. */}
         <p
-          className="ab-fade hyphens-auto text-body text-justify text-muted-light max-w-[64rem]"
-          style={{ marginTop: "clamp(1.25rem, 2.4vw, 2.25rem)" }}
+          className="ab-fade mt-[clamp(1.25rem,2.4vw,2.25rem)] hyphens-auto text-body text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:mt-[clamp(4.5rem,6vw,7rem)] bar:max-w-[45ch] bar:pl-10"
         >
           {about.body}
         </p>

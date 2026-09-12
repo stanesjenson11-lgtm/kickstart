@@ -58,6 +58,8 @@ interface ScrollVelocityRowProps extends React.HTMLAttributes<HTMLDivElement> {
    * set it only ever speeds up or slows down, never reverses.
    */
   lockDirection?: boolean;
+  /** Hold the row still. Used to stop the marquee while a pointer is over it. */
+  paused?: boolean;
 }
 
 interface ScrollVelocityRowImplProps extends ScrollVelocityRowProps {
@@ -72,6 +74,7 @@ function ScrollVelocityRowImpl({
   velocityFactor,
   scrollReactivity = true,
   lockDirection = false,
+  paused = false,
   ...props
 }: ScrollVelocityRowImplProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,7 +149,7 @@ function ScrollVelocityRowImpl({
   });
 
   useAnimationFrame((_, delta) => {
-    if (!isInViewRef.current || !isPageVisibleRef.current) return;
+    if (paused || !isInViewRef.current || !isPageVisibleRef.current) return;
     const dt = delta / 1000;
     const vf = scrollReactivity ? velocityFactor.get() : 0;
     const absVf = Math.min(5, Math.abs(vf));

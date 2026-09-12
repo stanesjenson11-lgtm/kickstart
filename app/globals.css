@@ -250,6 +250,9 @@ button {
    extra size costs no column width, unlike enlarging body copy would. */
 @media (max-width: 620px) {
   :root { --text-meta: 0.78rem; }
+  /* The footer is almost entirely u-meta, so the bump above landed on every
+     line of it at once and read as oversized. It keeps close to the original. */
+  footer { --text-meta: 0.7rem; }
 }
 
 /* Light type on black reads lighter — give it more air. */

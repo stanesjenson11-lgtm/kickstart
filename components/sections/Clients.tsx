@@ -41,6 +41,7 @@ function Chars({ text, layer }: { text: string; layer: string }) {
  */
 export default function Clients() {
   const [active, setActive] = useState<number | null>(null);
+  const [held, setHeld] = useState(false);
   const label = active === null ? "" : clients[active].name;
 
   // Both names are on screen during the swap: the outgoing one rolls up and
@@ -79,7 +80,14 @@ export default function Clients() {
         const natural = el.scrollWidth;
         const avail = el.clientWidth;
         if (!natural || !avail) continue;
-        el.style.fontSize = `${Math.max(MIN_WORD, Math.min(MAX_WORD, (100 * avail) / natural))}px`;
+        // Capped by viewport as well as by MAX_WORD. Fitting a short name like
+        // "CGI" to the full column width is the right answer on a desktop and
+        // enormous on a phone, where that column is the whole screen. Split at
+        // the phone breakpoint so tightening the small end leaves the desktop
+        // ceiling exactly where it was.
+        const vw = window.innerWidth;
+        const ceiling = Math.min(MAX_WORD, vw < 620 ? vw * 0.1 : vw * 0.16);
+        el.style.fontSize = `${Math.max(MIN_WORD, Math.min(ceiling, (100 * avail) / natural))}px`;
       }
     };
     fit();
@@ -171,10 +179,17 @@ export default function Clients() {
         Our clients
       </h2>
 
-      <div ref={stripRef} className="cl-strip mt-8 md:mt-10">
+      <div
+        ref={stripRef}
+        className="cl-strip mt-8 md:mt-10"
+        // Hold the strip while a pointer is over it, so a logo can be read
+        // rather than chased. On touch this pauses for the length of the press.
+        onPointerEnter={() => setHeld(true)}
+        onPointerLeave={() => setHeld(false)}
+      >
         <ScrollVelocityContainer>
           {/* One way only: `lockDirection` stops a scroll upward from reversing it. */}
-          <ScrollVelocityRow baseVelocity={3} direction={-1} lockDirection>
+          <ScrollVelocityRow baseVelocity={1.6} direction={-1} lockDirection paused={held}>
             {clients.map((c, i) => (
               // Not a control any more — the name follows the centre of the
               // strip on its own, so there is nothing to press. The client

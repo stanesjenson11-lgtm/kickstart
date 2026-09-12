@@ -18,7 +18,7 @@ export const site = {
   description:
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
   url: "https://kickstartcreativestudio.com",
-  email: "hello@kickstartcreative.studio",
+  email: "business@kickstartcreativestudio.com",
   phone: "+91 00000 00000",
   whatsapp: "910000000000",
   instagram: "https://instagram.com/",
@@ -333,6 +333,8 @@ export const form = {
 
 /* FOOTER ----------------------------------------------------------------- */
 export const footer = {
+  /* Not in the site footer any more — this is the line under the wordmark in
+     the brief emails (lib/brief-email.ts), which is the only consumer left. */
   services: ["Media production", "Advertising", "Social media"],
   socials: [
     { label: "Instagram", href: site.instagram },
