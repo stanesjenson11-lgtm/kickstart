@@ -1,4 +1,5 @@
 import { footer, nav, site } from "@/lib/content";
+import CrowdCanvas from "@/components/ui/crowd-canvas";
 
 export default function Footer() {
   return (
@@ -13,6 +14,19 @@ export default function Footer() {
           <path d="M62 0 L12 88 L40 82 L32 160 L88 68 L58 74 Z" />
         </svg>
       </span>
+
+      {/* The sheet is black line art on transparent, so it inverts to white
+          strokes on the ink — the white fill goes to near-black and drops out.
+          At 0.2 a peep is ~48x65 and the 130px band holds it with its cropped
+          edge tucked under the floor. 150 over 37 sprites stacks them roughly
+          four deep across a desktop width, which is what keeps it a solid bank
+          with no lone figures. scale / count / opacity are the knobs. */}
+      <CrowdCanvas
+        src="/images/peeps/all-peeps.png"
+        scale={0.2}
+        count={150}
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[130px] w-full opacity-30 invert"
+      />
 
       <div className="relative z-[var(--z-content)] px-gutter pt-section pb-10">
         <div className="grid gap-12 md:grid-cols-12 md:gap-8">
