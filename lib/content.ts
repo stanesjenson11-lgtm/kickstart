@@ -80,17 +80,17 @@ export const services = {
     {
       title: "Corporate visuals",
       items: ["Executive/founder portraits", "Corporate headshots", "Team photography"],
-      src: IMG("photo-1516035069371-29a1b244cc32", 1400),
+      src: IMG("photo-1519085360753-af0119f7cbe7", 1400),
     },
     {
       title: "Events",
       items: ["Corporate events", "Conferences", "Launches", "Award nights", "Corporate parties"],
-      src: IMG("photo-1560439514-4e9645039924", 1400),
+      src: "/gallery/conferences/toast-53.webp",
     },
     {
       title: "Advertising",
       items: ["Campaign films", "Commercials", "Product content", "Brand films"],
-      src: IMG("photo-1546435770-a3e426bf472b", 1400),
+      src: IMG("photo-1601506521937-0121a7fc2a6b", 1400),
     },
     {
       title: "Social media",
@@ -102,7 +102,7 @@ export const services = {
         "Social media management",
         "Paid ads management",
       ],
-      src: IMG("photo-1478737270239-2f02b77fc618", 1400),
+      src: IMG("photo-1563986768609-322da13575f3", 1400),
     },
   ],
 } as const;

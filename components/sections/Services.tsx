@@ -6,6 +6,8 @@ import { services } from "@/lib/content";
 import { useGsap, gsap } from "@/lib/motion";
 
 /**
+ * White ground, black type — the one light section on the page.
+ *
  * Hairlines, not cards — the brief is explicit that this section must not
  * become a card grid. The headline sticks while the four groups pass it, and
  * the group under the pointer bleeds its own image in behind the whole section,
@@ -29,7 +31,7 @@ export default function Services() {
   }, []);
 
   return (
-    <section ref={scope} id="services" className="relative overflow-hidden bg-ink">
+    <section ref={scope} id="services" className="relative overflow-hidden bg-paper text-ink">
       {/* Bleed layer — one image per group, cross-faded. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         {services.groups.map((g, i) => (
@@ -40,13 +42,10 @@ export default function Services() {
             fill
             sizes="100vw"
             className="object-cover transition-opacity duration-700 ease-[var(--ease-out-expo)]"
-            style={{
-              filter: "grayscale(1) contrast(1.2)",
-              opacity: active === i ? 0.2 : 0,
-            }}
+            style={{ opacity: active === i ? 0.5 : 0 }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/70 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/40 to-paper" />
       </div>
 
       <div className="relative z-[var(--z-content)] px-gutter py-section">
@@ -55,14 +54,14 @@ export default function Services() {
             <h2 className="u-display text-h1" style={{ ["--wdth" as string]: 106 }}>
               {services.headline}
             </h2>
-            <p className="u-meta mt-6 text-muted-dark">{services.label}</p>
+            <p className="u-meta mt-6">{services.label}</p>
           </div>
 
           <div className="mt-14 flex-1 lg:mt-0">
             {services.groups.map((g, i) => (
               <div
                 key={g.title}
-                className="svc-group border-t border-[var(--rule-on-dark)] py-8 last:border-b"
+                className="svc-group border-t border-[var(--rule-on-light)] py-8 last:border-b"
                 onPointerEnter={() => setActive(i)}
                 onPointerLeave={() => setActive(null)}
                 onFocusCapture={() => setActive(i)}
@@ -77,7 +76,7 @@ export default function Services() {
                 >
                   {g.title}
                 </h3>
-                <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-body text-muted-dark">
+                <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-body">
                   {g.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
