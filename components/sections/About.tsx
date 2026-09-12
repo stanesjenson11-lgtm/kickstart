@@ -44,10 +44,23 @@ export default function About() {
               className="inline h-[0.72em] w-auto align-baseline"
             />
           </h2>
-          {/* mt-18 = the old mt-8 plus the ~40px the dropped eyebrow label and
-              its mt-6 used to occupy, so the body sits lower without the column
-              — and therefore the section — getting any taller. */}
-          <p className="ab-fade u-measure mt-18 text-body text-muted-light">{about.body}</p>
+          {/* An explicit margin, not mt-auto in a flex column: the plate beside
+              this is a stretched grid item, so its aspect-ratio height is
+              discarded and the row never ends up taller than this text — there
+              is no free space for mt-auto to distribute.
+              Inline clamp rather than a Tailwind class so the value is readable
+              as one number: 72px floor on mobile, ~86px at 1440, capped at 112.
+              maxWidth replaces u-measure's 62ch: the body is 366 characters, so
+              ~52 per line lands 7 lines, and 45ch is about that once "0" advance
+              is converted to average character width. Approximate by nature —
+              line count moves with the loaded font.
+              hyphens-auto because justified text opens rivers without it. */}
+          <p
+            className="ab-fade hyphens-auto text-body text-justify text-muted-light"
+            style={{ marginTop: "clamp(4.5rem, 6vw, 7rem)", maxWidth: "45ch" }}
+          >
+            {about.body}
+          </p>
         </div>
 
         <Plate
