@@ -32,56 +32,49 @@ export default function About() {
       // cut-top's padding has already reduced to precisely that frame.
       className="cut-top on-paper relative flex min-h-[calc(100svh+var(--cut-drop))] items-center bg-paper-warm text-ink"
     >
-      {/* w-full: as a flex child the grid would otherwise shrink to its content. */}
-      <div className="grid w-full gap-12 px-gutter py-section md:grid-cols-12 md:gap-8">
-        {/* Indented from md up so the heading and body sit in off the gutter.
-            Padding, not margin — the column keeps its track width, and the body
-            is capped at 45ch so only the heading sees the narrower space. */}
-        <div className="md:col-span-7 md:pl-10">
-          <h2 className="ab-fade u-display text-h1" style={{ ["--wdth" as string]: 104 }}>
-            {about.headline}{" "}
-            {/* Height in em, not a clamp: it tracks the heading's own fluid
-                font-size for free. The file is cropped to its ink bounds, so a
-                baseline-aligned 0.72em lands the wordmark on the cap height of
-                the word beside it. Black mark — this section is on paper. */}
-            <Image
-              src="/ks black.png"
-              alt="Kickstart"
-              width={1000}
-              height={128}
-              sizes="400px"
-              className="inline h-[0.72em] w-auto align-baseline"
-            />
-          </h2>
-          {/* An explicit margin, not mt-auto in a flex column: the plate beside
-              this is a stretched grid item, so its aspect-ratio height is
-              discarded and the row never ends up taller than this text — there
-              is no free space for mt-auto to distribute.
-              Inline clamp rather than a Tailwind class so the value is readable
-              as one number: 72px floor on mobile, ~86px at 1440, capped at 112.
-              maxWidth replaces u-measure's 62ch: the body is 366 characters, so
-              ~52 per line lands 7 lines, and 45ch is about that once "0" advance
-              is converted to average character width. Approximate by nature —
-              line count moves with the loaded font.
-              hyphens-auto because justified text opens rivers without it. */}
-          <p
-            className="ab-fade hyphens-auto text-body text-justify text-muted-light"
-            style={{ marginTop: "clamp(4.5rem, 6vw, 7rem)", maxWidth: "45ch" }}
-          >
-            {about.body}
-          </p>
-        </div>
+      {/* Newspaper set: one text column with the photograph floated into it, so
+          the body runs beside the picture and then on underneath it rather than
+          stopping short in a column of its own.
 
-        {/* Back to a 5-column track but held at 88% of it, which lands between
-            the old 5-column and 4-column sizes. Setting an explicit width also
-            drops justify-self from stretch to start, so the plate shifts left off
-            the right edge by the 12% it gives up — one change, both effects. */}
+          max-w caps the measure — the body would otherwise set to the full
+          content width on a desktop and run well past a readable line. */}
+      <div className="w-full px-gutter py-section after:block after:clear-both after:content-['']">
+        <h2
+          className="ab-fade u-display text-h1 max-w-[64rem]"
+          style={{ ["--wdth" as string]: 104 }}
+        >
+          {about.headline}{" "}
+          {/* Height in em, not a clamp: it tracks the heading's own fluid
+              font-size for free. The file is cropped to its ink bounds, so a
+              baseline-aligned 0.72em lands the wordmark on the cap height of
+              the word beside it. Black mark — this section is on paper. */}
+          <Image
+            src="/ks black.png"
+            alt="Kickstart"
+            width={1000}
+            height={128}
+            sizes="400px"
+            className="inline h-[0.72em] w-auto align-baseline"
+          />
+        </h2>
+
+        {/* Floated, and before the paragraph in source order — a float only
+            wraps the content that follows it. The section's own max-w-[64rem]
+            measure lives on both children so the picture cannot drift away
+            from the text on a wide screen. */}
         <Plate
           src={about.src}
           alt={about.alt}
-          sizes="(max-width: 768px) 100vw, 30vw"
-          className="plate-colour aspect-4/5 md:col-span-5 md:w-[88%]"
+          sizes="(min-width: 64rem) 26rem, 42vw"
+          className="plate-colour ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem]"
         />
+
+        <p
+          className="ab-fade hyphens-auto text-body text-justify text-muted-light max-w-[64rem]"
+          style={{ marginTop: "clamp(1.25rem, 2.4vw, 2.25rem)" }}
+        >
+          {about.body}
+        </p>
       </div>
     </section>
   );

@@ -87,7 +87,7 @@ export default function Nav() {
             />
           </a>
 
-          <nav aria-label="Primary" className="hidden items-center gap-10 md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-10 bar:flex">
             {nav.links.map((l) => (
               <a key={l.href} href={l.href} className="u-meta cut-link">
                 {l.label}
@@ -96,7 +96,7 @@ export default function Nav() {
           </nav>
 
           <button
-            className="relative z-[var(--z-menu)] flex h-11 w-11 items-center justify-center md:hidden"
+            className="relative z-[var(--z-menu)] flex h-11 w-11 items-center justify-center bar:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
@@ -120,7 +120,7 @@ export default function Nav() {
       <div
         id="mobile-menu"
         hidden={!open}
-        className="fixed inset-0 z-[var(--z-overlay)] bg-ink px-gutter pt-28 md:hidden"
+        className="fixed inset-0 z-[var(--z-overlay)] bg-ink px-gutter pt-28 bar:hidden"
         style={{
           clipPath: open
             ? "polygon(0 -20%, 100% -20%, 100% 100%, 0 112%)"

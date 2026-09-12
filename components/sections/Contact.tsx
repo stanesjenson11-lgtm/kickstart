@@ -41,7 +41,15 @@ function Field({
 
   return (
     <p className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="u-meta text-muted-dark">
+      {/* Two lines reserved, with the line-height pinned so the arithmetic is
+          local rather than inherited. A label that wraps would otherwise push
+          its own input below its neighbour's and the row would read as a
+          diagonal. At phone width every one of these wraps, so the reserved
+          space is space that gets used. */}
+      <label
+        htmlFor={id}
+        className="u-meta min-h-[2.8em] leading-[1.4] text-muted-dark"
+      >
         {label}
       </label>
       {textarea ? (

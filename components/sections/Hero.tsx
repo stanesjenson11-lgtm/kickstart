@@ -83,7 +83,7 @@ export default function Hero() {
               {d}
             </li>
           ))}
-          <li className="ml-auto hidden items-center gap-3 sm:flex" aria-hidden="true">
+          <li className="ml-auto hidden items-center gap-3 bar:flex" aria-hidden="true">
             Scroll
             <span className="block h-px w-10 bg-current" />
           </li>

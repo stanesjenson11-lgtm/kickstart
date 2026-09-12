@@ -9,15 +9,15 @@ import { faq } from "@/lib/content";
 export default function Faq() {
   return (
     <section className="bg-ink px-gutter py-section">
-      <div className="md:grid md:grid-cols-12 md:gap-8">
+      <div className="bar:grid bar:grid-cols-12 bar:gap-grid">
         <h2
-          className="u-display text-h2 md:col-span-5 lg:col-span-4"
+          className="u-display text-h2 bar:col-span-5 wide:col-span-4"
           style={{ ["--wdth" as string]: 106 }}
         >
           Questions, answered.
         </h2>
 
-        <div className="mt-12 md:col-span-7 md:mt-0 lg:col-span-8">
+        <div className="mt-12 bar:col-span-7 bar:mt-0 wide:col-span-8">
           {faq.map((item) => (
             <details
               key={item.q}

@@ -29,7 +29,7 @@ export default function Footer() {
       />
 
       <div className="relative z-[var(--z-content)] px-gutter pt-section pb-10">
-        <div className="grid gap-12 md:grid-cols-12 md:gap-8">
+        <div className="grid gap-grid md:grid-cols-12">
           <div className="md:col-span-12 lg:col-span-5">
             {/* White mark — the footer is always on ink. Height clamp tracks
                 the cap height of the text-h2 this replaced. */}

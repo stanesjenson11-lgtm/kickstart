@@ -61,21 +61,17 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
 
       {/* The drift runs inside this track. Its padding is the clearance the
           columns move within, and the clip is the guarantee they stay there —
-          so a drifting column can never cover the label above it.
-
-          Columns only exist side by side above 768px. Below that they stack,
-          which also puts the photographs back in their original order. */}
-      {/* The clearance is only needed where the drift runs. Below 768px the
-          columns stack and nothing moves, so the track keeps a plain gap. */}
+          so a drifting column can never cover the label above it. Columns run
+          side by side at every width, so both the clearance and the drift do. */}
       <div
         className="relative overflow-hidden py-6 md:py-(--pad)"
         style={{ ["--pad" as string]: `${PAD}px` }}
       >
-        <div className="flex flex-col gap-3 md:flex-row md:gap-6">
+        <div className="flex flex-col gap-3 md:flex-row md:gap-tile">
           {columns.map((col, c) => (
             <div
               key={c}
-              className={`gal-col flex flex-col gap-3 md:gap-6 ${
+              className={`gal-col flex flex-col gap-3 md:gap-tile ${
                 col.length === 1 ? "md:flex-[1.3] md:justify-center" : "md:flex-1"
               }`}
             >
@@ -88,7 +84,10 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
                     src={p.src}
                     alt={p.alt}
                     fill
-                    sizes="(max-width: 768px) 100vw, 32vw"
+                    // Three columns at every width now, so roughly a third of
+                    // the viewport at every width. The old 100vw below 768px
+                    // fetched a full-width source for a ~100px slot.
+                    sizes="32vw"
                     className="object-cover"
                   />
                 </div>
@@ -114,29 +113,26 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
  */
 export default function Gallery() {
   const scope = useGsap<HTMLElement>(({ self }) => {
-    const mm = gsap.matchMedia();
-
-    // Columns only exist side by side above 768px; below that the frames stack,
-    // and the scroll is its own parallax.
-    mm.add("(min-width: 768px)", () => {
-      self.querySelectorAll<HTMLElement>(".gal-band").forEach((band) => {
-        band.querySelectorAll<HTMLElement>(".gal-col").forEach((col, i) => {
-          const d = DRIFT[i] ?? 0;
-          gsap.fromTo(
-            col,
-            { y: -d },
-            {
-              y: d,
-              ease: "none",
-              scrollTrigger: {
-                trigger: band,
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 0.8,
-              },
+    // Ungated: the columns now run side by side at every width, so the drift
+    // belongs at every width too. PAD is the clearance it moves within and is
+    // applied at every width along with it.
+    self.querySelectorAll<HTMLElement>(".gal-band").forEach((band) => {
+      band.querySelectorAll<HTMLElement>(".gal-col").forEach((col, i) => {
+        const d = DRIFT[i] ?? 0;
+        gsap.fromTo(
+          col,
+          { y: -d },
+          {
+            y: d,
+            ease: "none",
+            scrollTrigger: {
+              trigger: band,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.8,
             },
-          );
-        });
+          },
+        );
       });
     });
 
@@ -161,7 +157,8 @@ export default function Gallery() {
       scrollTrigger: { trigger: self, start: "top 72%" },
     });
 
-    return () => mm.revert();
+    // No matchMedia scope to revert any more — useGsap's gsap.context collects
+    // every tween and ScrollTrigger created here and reverts them on unmount.
   }, []);
 
   return (

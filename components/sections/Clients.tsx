@@ -53,7 +53,6 @@ export default function Clients() {
   const inRef = useRef<HTMLParagraphElement>(null);
   const outRef = useRef<HTMLParagraphElement>(null);
   const stripRef = useRef<HTMLDivElement>(null);
-  const pointer = useRef<{ x: number; y: number } | null>(null);
 
   const wordScope = useGsap<HTMLDivElement>(({ self }) => {
     gsap.to(self.querySelectorAll<HTMLElement>(".cl-out .cl-char"), {
@@ -89,44 +88,40 @@ export default function Clients() {
   }, [pair.to, pair.from]);
 
   /**
-   * Which logo is under the pointer, resolved by hit-testing every frame.
+   * The name belongs to whichever logo is nearest the middle of the screen.
    *
-   * pointerenter/leave are no use here: the browser only re-resolves hover when
-   * the POINTER moves, and here it is the tiles that move. Holding the cursor
-   * still over the marquee left the name stuck on whichever logo happened to be
-   * there first while the strip slid on underneath it.
+   * Resolved every frame rather than from an event, because it is the tiles
+   * that move, not the pointer — the same reason the old pointer hit-test ran
+   * on a ticker. Tracking the centre instead means the name reads on touch and
+   * on a mouse alike, and one is always showing rather than only on hover.
+   *
+   * The marquee duplicates its children to loop seamlessly, so several tiles
+   * carry the same data-index; nearest-to-centre still resolves to one name.
    */
   useEffect(() => {
     const strip = stripRef.current;
-    if (!strip || !window.matchMedia("(pointer: fine)").matches) return;
-
-    const onMove = (e: PointerEvent) => {
-      pointer.current = { x: e.clientX, y: e.clientY };
-    };
-    const onLeave = () => {
-      pointer.current = null;
-      setActive(null);
-    };
-
-    strip.addEventListener("pointermove", onMove);
-    strip.addEventListener("pointerleave", onLeave);
+    if (!strip) return;
 
     let raf = requestAnimationFrame(function tick() {
       raf = requestAnimationFrame(tick);
-      const p = pointer.current;
-      if (!p) return;
-      const el = document.elementFromPoint(p.x, p.y);
-      const tile = el instanceof Element ? el.closest<HTMLElement>(".cl-tile") : null;
-      const next = tile?.dataset.index ? Number(tile.dataset.index) : null;
+      const mid = window.innerWidth / 2;
+      let nearest: number | null = null;
+      let best = Infinity;
+
+      for (const tile of strip.querySelectorAll<HTMLElement>(".cl-tile")) {
+        const r = tile.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < best) {
+          best = d;
+          nearest = tile.dataset.index ? Number(tile.dataset.index) : null;
+        }
+      }
+
       // Returning the previous value keeps React from re-rendering every frame.
-      setActive((prev) => (prev === next ? prev : next));
+      setActive((prev) => (prev === nearest ? prev : nearest));
     });
 
-    return () => {
-      cancelAnimationFrame(raf);
-      strip.removeEventListener("pointermove", onMove);
-      strip.removeEventListener("pointerleave", onLeave);
-    };
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const scope = useGsap<HTMLElement>(({ self }) => {
@@ -181,15 +176,13 @@ export default function Clients() {
           {/* One way only: `lockDirection` stops a scroll upward from reversing it. */}
           <ScrollVelocityRow baseVelocity={3} direction={-1} lockDirection>
             {clients.map((c, i) => (
-              <button
+              // Not a control any more — the name follows the centre of the
+              // strip on its own, so there is nothing to press. The client
+              // names stay in the accessibility tree through the image alts.
+              <span
                 key={c.name}
-                type="button"
                 data-index={i}
-                aria-label={c.name}
-                // Tap works where hover does not, and gives the name a way in
-                // on touch devices.
-                onClick={() => setActive((a) => (a === i ? null : i))}
-                className={`cl-tile mx-2 shrink-0 cursor-pointer transition-opacity duration-400 ${
+                className={`cl-tile mx-2 block shrink-0 transition-opacity duration-400 ${
                   active === null || active === i ? "opacity-100" : "opacity-35"
                 }`}
               >
@@ -216,7 +209,7 @@ export default function Clients() {
                     </span>
                   )}
                 </span>
-              </button>
+              </span>
             ))}
           </ScrollVelocityRow>
         </ScrollVelocityContainer>

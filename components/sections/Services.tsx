@@ -54,7 +54,7 @@ export default function Services() {
       </div>
 
       <div className="relative z-[var(--z-content)] px-gutter py-section">
-        <div className="lg:flex lg:gap-16">
+        <div className="lg:flex lg:gap-[clamp(1rem,4.4vw,4rem)]">
           <div className="lg:sticky lg:top-28 lg:h-fit lg:w-[38%] lg:shrink-0">
             <h2 className="u-display text-h1" style={{ ["--wdth" as string]: 106 }}>
               {services.headline}

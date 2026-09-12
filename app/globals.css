@@ -51,9 +51,37 @@
   --text-meta--letter-spacing: 0.16em;
 
   /* --- rhythm ----------------------------------------------------------- */
+  /* --- breakpoints ------------------------------------------------------
+     The desktop layout is the only layout: sm/md/lg are effectively always on,
+     so every grid, column span and flex row applies at phone width too. They
+     are 0/1px/2px rather than all 0 so Tailwind still orders them sm < md < lg
+     — Footer relies on lg:col-span-* beating md:col-span-* on the same element.
+
+     `bar:` is the real 768px breakpoint, kept for the two things that must
+     retain their own mobile treatment: the navbar and the hero. */
+  --breakpoint-sm: 0rem;
+  --breakpoint-md: 0.0625rem;
+  --breakpoint-lg: 0.125rem;
+  --breakpoint-bar: 48rem;
+  /* The old `lg`, for the few places that keep their original responsive
+     behaviour rather than running the desktop layout at every width. */
+  --breakpoint-wide: 64rem;
+
   --spacing-gutter: clamp(1.25rem, 5vw, 6rem);
-  --spacing-section: clamp(5rem, 12vh, 9rem);
-  --spacing-section-lg: clamp(8rem, 18vh, 14rem);
+  /* Grid gutter. Fixed 2rem gaps are impossible on a phone: 11 of them across a
+     12-column grid is 352px, wider than the 350px a 390px screen has left after
+     the page gutter. Fluid keeps the grid valid and still lands on 2rem by
+     desktop. */
+  --spacing-grid: clamp(0.5rem, 2.2vw, 2rem);
+  /* Gap between gallery tiles. Lands on the old 1.5rem by desktop; on a phone a
+     fixed 1.5rem was 14% of the row against 4% on desktop — that difference is
+     the wasted space. */
+  --spacing-tile: clamp(0.375rem, 1.7vw, 1.5rem);
+  /* Section rhythm. Pulled in from 12vh/18vh — at 12vh a section carried 216px
+     of vertical padding on a laptop, which read as a gap between sections
+     rather than breathing room inside one. */
+  --spacing-section: clamp(2.75rem, 7.5vh, 6rem);
+  --spacing-section-lg: clamp(4.5rem, 11vh, 9rem);
 
   /* --- motion ----------------------------------------------------------- */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -215,6 +243,13 @@ button {
 }
 @media (max-width: 420px) {
   :root { --wdth-scale: 0.72; }
+}
+
+/* Slate metadata is 11px by design, which is below a comfortable floor on a
+   phone. Nudged up where the screen is small — it carries short labels, so the
+   extra size costs no column width, unlike enlarging body copy would. */
+@media (max-width: 620px) {
+  :root { --text-meta: 0.78rem; }
 }
 
 /* Light type on black reads lighter — give it more air. */
