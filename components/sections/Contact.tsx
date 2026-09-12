@@ -138,9 +138,9 @@ export default function Contact() {
           alt=""
           reveal={false}
           sizes="100vw"
-          className="h-full w-full opacity-60"
+          className="plate-colour h-full w-full opacity-70"
         />
-        <div className="absolute inset-0 bg-ink/55" />
+        <div className="absolute inset-0 bg-ink/50" />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,var(--color-ink),transparent_10%,transparent_90%,var(--color-ink))]" />
       </div>
 

@@ -90,7 +90,7 @@ export const services = {
     {
       title: "Advertising",
       items: ["Campaign films", "Commercials", "Product content", "Brand films"],
-      src: IMG("photo-1601506521937-0121a7fc2a6b", 1400),
+      src: IMG("photo-1574717024653-61fd2cf4d44d", 1400),
     },
     {
       title: "Social media",
@@ -319,7 +319,13 @@ export const faq = [
 
 export const contact = {
   headline: "Contact us",
-  bg: IMG("photo-1531058020387-3be344556be6", 2400),
+  /* `rect` crops the source to its left 62% before Unsplash resizes it. The
+     full frame has a costumed dancer on the marks at ~0.65 across who reads as
+     unprofessional at background scale; cropping there keeps the operator, the
+     cinema camera, the magenta rim and the LED tubes — and the grade, which is
+     the whole reason for this picture. Crop, not a different photo: nothing
+     free-licensed pairs this lighting with a professional model. */
+  bg: `${IMG("photo-1601506521937-0121a7fc2a6b", 2400)}&rect=0,0,1740,1861`,
   alt: "",
 } as const;
 
