@@ -14,14 +14,18 @@ type Photo = { src: string; alt: string };
  * height, so the taller column drifts further and rides up over the category
  * label. A fixed distance stays inside PAD whatever the column ends up holding.
  */
-const DRIFT = [76, -48, 62];
+const DRIFT = [28, -16, 23];
 
 /**
- * Clearance above and below the columns, in px. Must exceed max(|DRIFT|) —
- * a column sits at its full negative drift the moment its band enters the
+ * Clearance above and below the columns, in px. Must exceed max(|DRIFT|) — a
+ * column sits at its full negative drift the moment its band enters the
  * viewport, so the difference is the gap left under the label at its tightest.
+ *
+ * This is the whole reason DRIFT stays modest: every pixel of drift has to be
+ * bought with a pixel of clearance, and that clearance is dead space on the
+ * page whether or not a column is currently using it.
  */
-const PAD = 128;
+const PAD = 56;
 
 /**
  * Split into three columns in reading order, the middle one deliberately the
@@ -60,9 +64,11 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
 
           Columns only exist side by side above 768px. Below that they stack,
           which also puts the photographs back in their original order. */}
+      {/* The clearance is only needed where the drift runs. Below 768px the
+          columns stack and nothing moves, so the track keeps a plain gap. */}
       <div
-        className="relative overflow-hidden"
-        style={{ paddingTop: PAD, paddingBottom: PAD }}
+        className="relative overflow-hidden py-6 md:py-(--pad)"
+        style={{ ["--pad" as string]: `${PAD}px` }}
       >
         <div className="flex flex-col gap-3 md:flex-row md:gap-6">
           {columns.map((col, c) => (
@@ -137,7 +143,9 @@ export default function Gallery() {
     self.querySelectorAll<HTMLElement>(".gal-head").forEach((head) => {
       gsap.from(head, {
         opacity: 0,
-        y: 20,
+        // Small on purpose: `from` applies this offset the moment it is created,
+        // so a large one pushes the label down toward the frames until it plays.
+        y: 12,
         duration: 0.7,
         ease: "power3.out",
         scrollTrigger: { trigger: head, start: "top 88%" },
@@ -166,7 +174,7 @@ export default function Gallery() {
         {gallery.headline}
       </h2>
 
-      <div className="mt-16 flex flex-col gap-16 md:mt-20 md:gap-20">
+      <div className="mt-12 flex flex-col gap-8 md:mt-16 md:gap-10">
         {gallery.categories.map((c) => (
           <Band key={c.name} name={c.name} photos={c.photos} />
         ))}
