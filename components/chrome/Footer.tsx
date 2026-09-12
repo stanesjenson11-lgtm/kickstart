@@ -18,13 +18,12 @@ export default function Footer() {
       {/* The sheet is black line art on transparent, so it inverts to white
           strokes on the ink — the white fill goes to near-black and drops out.
           At 0.2 a peep is ~48x65 and the 130px band holds it with its cropped
-          edge tucked under the floor. 150 over 37 sprites stacks them roughly
-          four deep across a desktop width, which is what keeps it a solid bank
-          with no lone figures. scale / count / opacity are the knobs. */}
+          edge tucked under the floor. 100 over 37 sprites is about three deep
+          across a desktop width. scale / count / opacity are the knobs. */}
       <CrowdCanvas
         src="/images/peeps/all-peeps.png"
         scale={0.2}
-        count={150}
+        count={100}
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[130px] w-full opacity-30 invert"
       />
 

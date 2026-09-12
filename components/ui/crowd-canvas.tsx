@@ -3,17 +3,6 @@
 import { useEffect, useRef } from "react";
 import { gsap, prefersReduced } from "@/lib/motion";
 
-type Peep = {
-  rect: [number, number, number, number];
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-  anchorY: number;
-  scaleX: number;
-  walk: gsap.core.Timeline | null;
-};
-
 /**
  * Which cells of the bundled sheet get used, by index (left to right, top to
  * bottom). Curated, not the whole sheet: this crowd is meant to read as a media
@@ -23,36 +12,64 @@ type Peep = {
  * slogan tees. A property of this sheet, so it lives with it rather than at the
  * call site.
  */
-/* Walk tuning, in seconds. CROSS is how long one peep takes to cross the full
-   width before timeScale varies it; STEP is the bob period, and has to stay in
-   proportion to CROSS or a slow walker bobs like a fast one on the spot. */
-const CROSS = 30;
-const STEP = 0.75;
-
-/* How far a peep sinks below the canvas floor, in sheet pixels before `scale`.
-   Never negative: these sprites are busts cropped near the hip, so the crop has
-   to stay under the bottom edge — lift one and it reads as a legless torso
-   hovering in mid-air. SINK_MIN clears the bob's own lift, and SINK_RANGE is
-   kept tight so the crowd stays a packed bank of heads rather than scattering
-   into lone figures with empty space under them. */
-const SINK_MIN = 12;
-const SINK_RANGE = 110;
-
 const MEDIA_PEEPS = [
   0, 6, 8, 9, 11, 13, 14, 15, 20, 23, 24, 29, 31, 32, 33, 38, 43, 44, 46, 47,
   48, 49, 50, 51, 54, 55, 57, 58, 59, 69, 74, 76, 79, 85, 86, 96, 100,
 ];
 
+/** Seconds for one lap of the loop at rate 1. */
+const CROSS = 30;
+
+/**
+ * Lap-rate multipliers, so the crowd is not one conveyor at a single speed.
+ * Every peep still has a constant velocity and an exact period, which is what
+ * keeps the spread permanent — see the phase note in `build`.
+ */
+const RATES = [1, 1.2, 1.5];
+
+/** Step cadence, in bobs per second. */
+const BOB_SLOW = 0.5;
+const BOB_FAST = 0.8;
+
+/**
+ * How far a peep sits below the canvas floor, in sheet pixels before `scale`.
+ * These sprites are busts cropped near the hip, so the crop has to stay under
+ * the bottom edge — a peep that rides even slightly high reads as a legless
+ * torso floating in mid-air. SINK_MIN is the guaranteed clearance and the bob
+ * is allowed only half of it, so the crop can never surface.
+ */
+const SINK_MIN = 45;
+const SINK_RANGE = 90;
+
+type Peep = {
+  rect: [number, number, number, number];
+  width: number;
+  height: number;
+  /** Clearance below the floor, in canvas px. Kept so a resize can re-anchor. */
+  sink: number;
+  baseY: number;
+  dir: 1 | -1;
+  /** Position along the lap at t=0, 0–1. */
+  phase: number;
+  rate: number;
+  bobHz: number;
+  bobPhase: number;
+};
+
 /**
  * A crowd of Open Peeps walking back and forth along the bottom of a canvas.
- * skiper-ui's `skiper39`, on the `gsap` already here; the registry's demo
- * wrapper is dropped — this site supplies its own frame.
+ * After skiper-ui's `skiper39`, on the `gsap` already here; the registry's demo
+ * wrapper is dropped and so is its recycling — each peep there ran a one-shot
+ * timeline and was re-admitted at an edge when it finished, which drains the
+ * middle and lands the survivors as two clumps meeting head-on. Here every peep
+ * holds a fixed lane and loops on its own phase, so the spread never decays:
+ * what the first frame looks like is what every later frame looks like.
  *
  * The sprite sheet is one image of `rows` × `cols` cells (the names read
  * backwards: `rows` counts cells ACROSS, `cols` counts them down). A cell is
- * 240×324 in the bundled sheet; `scale` is what brings that down to a size a
- * footer band can hold, and `count` oversubscribes the curated list — the same
- * peep appearing more than once is what makes the crowd read as a crowd.
+ * 240×324 in the bundled sheet; `scale` brings that down to a size a footer
+ * band can hold, and `count` oversubscribes the curated list — the same peep
+ * appearing more than once is what makes the crowd read as a crowd.
  */
 export default function CrowdCanvas({
   src,
@@ -78,122 +95,87 @@ export default function CrowdCanvas({
     // decoration, and the footer reads fine without it.
     if (!canvas || !ctx || prefersReduced()) return;
 
-    const rand = (min: number, max: number) => min + Math.random() * (max - min);
-    const pluck = <T,>(a: T[], i: number) => a.splice(i, 1)[0];
-
     const stage = { width: 0, height: 0 };
-    const all: Peep[] = [];
-    const idle: Peep[] = [];
     const crowd: Peep[] = [];
-
     const img = document.createElement("img");
     let dead = false;
 
-    /** Park a peep off one edge at a random depth, facing the way it will walk. */
-    const reset = (peep: Peep) => {
-      const rightward = Math.random() > 0.5;
-      // Always downward, so every crop stays hidden under the floor.
-      // power2.in keeps most of the crowd near the front row.
-      const sink =
-        (SINK_MIN + SINK_RANGE * gsap.parseEase("power2.in")(Math.random())) * scale;
-      const startY = stage.height - peep.height + sink;
+    const build = () => {
+      const w = (img.naturalWidth / rows) * scale;
+      const h = (img.naturalHeight / cols) * scale;
+      const sw = img.naturalWidth / rows;
+      const sh = img.naturalHeight / cols;
 
-      peep.scaleX = rightward ? 1 : -1;
-      peep.x = rightward ? -peep.width : stage.width + peep.width;
-      peep.y = startY;
-      peep.anchorY = startY;
-      return { startY, endX: rightward ? stage.width : 0 };
-    };
-
-    const walk = (peep: Peep) => {
-      const { startY, endX } = reset(peep);
-      const tl = gsap.timeline();
-      tl.timeScale(rand(0.75, 1.25));
-      tl.to(peep, { duration: CROSS, x: endX, ease: "none" }, 0);
-      // The lift is capped by SINK_MIN, or the bob is what exposes the crop.
-      tl.to(
-        peep,
-        { duration: STEP, repeat: CROSS / STEP - 1, yoyo: true, y: startY - SINK_MIN * scale },
-        0,
-      );
-      return tl;
-    };
-
-    const admit = () => {
-      const peep = pluck(idle, (Math.random() * idle.length) | 0);
-      peep.walk = walk(peep).eventCallback("onComplete", () => {
-        pluck(crowd, crowd.indexOf(peep));
-        idle.push(peep);
-        admit();
-      });
-      crowd.push(peep);
-      // Painter's algorithm: the further back a peep started, the earlier it draws.
-      crowd.sort((a, b) => a.anchorY - b.anchorY);
-      return peep;
-    };
-
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.scale(devicePixelRatio, devicePixelRatio);
-      for (const p of crowd) {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.scale(p.scaleX, 1);
-        ctx.drawImage(img, ...p.rect, 0, 0, p.width, p.height);
-        ctx.restore();
+      for (let n = 0; n < count; n++) {
+        const i = MEDIA_PEEPS[n % MEDIA_PEEPS.length];
+        crowd.push({
+          rect: [(i % rows) * sw, ((i / rows) | 0) * sh, sw, sh],
+          width: w,
+          height: h,
+          // Squared, so most of the crowd gathers at the front of the band.
+          sink: (SINK_MIN + SINK_RANGE * Math.random() ** 2) * scale,
+          baseY: 0,
+          dir: n % 2 ? 1 : -1,
+          // Evenly spaced, jittered only enough not to read as a parade. Peeps
+          // sharing a direction and rate are 6 apart in n, so they stay evenly
+          // spaced within their own stream — and a sum of evenly spread streams
+          // is itself even, at every moment, forever.
+          phase: (n + Math.random() * 0.7) / count,
+          rate: RATES[n % RATES.length],
+          bobHz: BOB_SLOW + Math.random() * (BOB_FAST - BOB_SLOW),
+          bobPhase: Math.random(),
+        });
       }
-      ctx.restore();
+      // Painter's algorithm: the further back a peep stands, the earlier it draws.
+      crowd.sort((a, b) => a.sink - b.sink);
     };
 
-    const resize = () => {
+    const layout = () => {
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
       canvas.width = stage.width * devicePixelRatio;
       canvas.height = stage.height * devicePixelRatio;
-
-      for (const p of crowd) p.walk?.kill();
-      crowd.length = 0;
-      idle.length = 0;
-      idle.push(...all);
-      // Seeded at evenly spaced points along the walk rather than random ones:
-      // random seeding clumps, and a clump means a bare patch somewhere else
-      // where a single peep walks alone with its cropped edge on show. The
-      // jitter keeps the spacing from reading as a parade.
-      const total = all.length;
-      for (let n = 0; n < total; n++) admit().walk!.progress((n + Math.random()) / total);
+      // Lanes survive a resize, so no reshuffle when a mobile URL bar collapses.
+      for (const p of crowd) p.baseY = stage.height - p.height + p.sink;
     };
 
-    const init = () => {
-      if (dead) return;
-      const w = img.naturalWidth / rows;
-      const h = img.naturalHeight / cols;
-      for (let n = 0; n < count; n++) {
-        const i = MEDIA_PEEPS[n % MEDIA_PEEPS.length];
-        all.push({
-          rect: [(i % rows) * w, ((i / rows) | 0) * h, w, h],
-          width: w * scale,
-          height: h * scale,
-          x: 0,
-          y: 0,
-          anchorY: 0,
-          scaleX: 1,
-          walk: null,
-        });
+    const render = () => {
+      const t = gsap.ticker.time;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+
+      for (const p of crowd) {
+        // One lap runs from fully off one edge to fully off the other.
+        const span = stage.width + p.width * 2;
+        const u = ((t * p.rate) / CROSS + p.phase) % 1;
+        const x = p.dir > 0 ? -p.width + u * span : stage.width + p.width - u * span;
+        const lift =
+          Math.abs(Math.sin((t * p.bobHz + p.bobPhase) * Math.PI)) * SINK_MIN * 0.5 * scale;
+
+        ctx.save();
+        ctx.translate(x, p.baseY - lift);
+        ctx.scale(p.dir, 1);
+        ctx.drawImage(img, ...p.rect, 0, 0, p.width, p.height);
+        ctx.restore();
       }
-      resize();
+
+      ctx.restore();
+    };
+
+    img.onload = () => {
+      if (dead) return;
+      build();
+      layout();
       gsap.ticker.add(render);
     };
-
-    img.onload = init;
     img.src = src;
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", layout);
 
     return () => {
       dead = true;
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", layout);
       gsap.ticker.remove(render);
-      for (const p of crowd) p.walk?.kill();
     };
   }, [src, rows, cols, scale, count]);
 
