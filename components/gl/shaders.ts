@@ -49,10 +49,11 @@ export const fragment = /* glsl */ `
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
   }
 
-  // Grade both plates at one uv and blend them.
-  float plate(vec2 uv) {
-    float a = luma(texture2D(tA, cover(uv, uCoverA)).rgb);
-    float b = luma(texture2D(tB, cover(uv, uCoverB)).rgb);
+  // Sample both plates at one uv and blend them. Full colour — luma survives
+  // only to drive halation, which keys off brightness, not hue.
+  vec3 plate(vec2 uv) {
+    vec3 a = texture2D(tA, cover(uv, uCoverA)).rgb;
+    vec3 b = texture2D(tB, cover(uv, uCoverB)).rgb;
     return mix(a, b, uMix);
   }
 
@@ -86,22 +87,25 @@ export const fragment = /* glsl */ `
     float pull = exp(-dist * 5.5) * uMouseAmt;
     uv -= normalize(d + 1e-6) * pull * 0.045;
 
-    float base = plate(uv);
+    vec3 base = plate(uv);
 
-    // Halation: highlights bleed outward, the way film shoulders roll off.
-    float halo = 0.0;
+    // Halation: highlights bleed outward, the way film shoulders roll off. The
+    // bleed is driven by the blurred sample's brightness, so it reads off luma
+    // while the colour it lifts stays the plate's own.
+    vec3 halo = vec3(0.0);
     for (int i = 0; i < 4; i++) {
       float a = float(i) * 1.5707963 + uTime * 0.05;
       vec2 o = vec2(cos(a), sin(a)) * 0.014 * vec2(1.0, aspect);
       halo += plate(uv + o);
     }
     halo *= 0.25;
-    float lift = smoothstep(0.55, 1.0, halo);
+    float lift = smoothstep(0.55, 1.0, luma(halo));
 
-    float c = base + lift * 0.22;
+    vec3 c = base + lift * 0.22;
 
-    // Contrast — high-contrast black and white is the brief's image treatment.
-    c = clamp((c - 0.5) * 1.24 + 0.46, 0.0, 1.0);
+    // Gentler than the 1.24 the monochrome grade used: the same curve on colour
+    // crushes the shadows and oversaturates everything it lifts.
+    c = clamp((c - 0.5) * 1.12 + 0.48, 0.0, 1.0);
 
     // The bolt drifts across the frame as a light streak.
     vec2 bp = (uv - 0.5) * vec2(aspect, 1.0);
@@ -121,6 +125,6 @@ export const fragment = /* glsl */ `
     float g = hash(floor(gl_FragCoord.xy * 0.85) + fract(uTime) * 91.7);
     c += (g - 0.5) * 0.075;
 
-    gl_FragColor = vec4(vec3(clamp(c, 0.0, 1.0)), 1.0);
+    gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
   }
 `;

@@ -66,7 +66,7 @@ export default function About() {
           src={about.src}
           alt={about.alt}
           sizes="(min-width: 64rem) 26rem, 42vw"
-          className="plate-colour ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem]"
+          className="ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem]"
         />
 
         <p

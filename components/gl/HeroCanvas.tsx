@@ -176,7 +176,7 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000"
         style={{
-          filter: "grayscale(1) contrast(1.24) brightness(0.86)",
+          filter: "contrast(1.12) brightness(0.92)",
           opacity: live ? 0 : 1,
         }}
       />

@@ -49,7 +49,6 @@ export const hero = {
    */
   plates: [
     IMG("photo-1478720568477-152d9b164e26", 2000),
-    IMG("photo-1573164713988-8665fc963095", 2000),
     IMG("photo-1493225457124-a3eb161ffa5f", 2000),
     IMG("photo-1516035069371-29a1b244cc32", 2000),
   ],
