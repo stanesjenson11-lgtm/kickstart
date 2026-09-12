@@ -7,7 +7,6 @@ import Hero from "@/components/sections/Hero";
 import Statement from "@/components/sections/Statement";
 import Showreel from "@/components/sections/Showreel";
 import Services from "@/components/sections/Services";
-import Events from "@/components/sections/Events";
 import Gallery from "@/components/sections/Gallery";
 import Clients from "@/components/sections/Clients";
 import Testimonials from "@/components/sections/Testimonials";
@@ -30,7 +29,6 @@ export default function Home() {
         <Statement />
         <Showreel />
         <Services />
-        <Events />
         <Testimonials />
         <Gallery />
         <Clients />

@@ -102,8 +102,7 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
 }
 
 /**
- * The event categories, shown rather than listed — this section is the proof for
- * the claim the Events section makes just above it.
+ * The event categories, shown rather than listed.
  *
  * One band per category, each a set of columns drifting at its own rate as the
  * band passes. The parallax runs on ScrollTrigger rather than its own scroll

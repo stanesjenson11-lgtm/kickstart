@@ -107,24 +107,8 @@ export const services = {
   ],
 } as const;
 
-/* 08 — EVENTS ------------------------------------------------------------ */
-export const events = {
-  headline: ["The moment ends.", "The content lives on."],
-  categories: [
-    "Corporate events",
-    "Conferences",
-    "Launches",
-    "Award nights",
-    "Corporate parties",
-  ],
-  cta: { label: "Plan event coverage", href: "#contact" },
-  src: IMG("photo-1493225457124-a3eb161ffa5f", 2000),
-  alt: "A figure on stage with arms raised, backlit through smoke at a live event",
-} as const;
-
 /* 09 — EVENT GALLERY ----------------------------------------------------- */
-/** Real client work. Category order matches `events.categories` — this section
- *  is that list, shown rather than named. Photos live in `public/gallery/<slug>`,
+/** Real client work. Photos live in `public/gallery/<slug>`,
  *  resized from the originals in `assets/`. */
 export const gallery = {
   headline: "Gallery",
