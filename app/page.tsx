@@ -8,6 +8,7 @@ import Statement from "@/components/sections/Statement";
 import Showreel from "@/components/sections/Showreel";
 import Services from "@/components/sections/Services";
 import Events from "@/components/sections/Events";
+import Gallery from "@/components/sections/Gallery";
 import Clients from "@/components/sections/Clients";
 import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
@@ -32,6 +33,7 @@ export default function Home() {
         <Events />
         <Clients />
         <Testimonials />
+        <Gallery />
         <About />
         <Faq />
         <Contact />

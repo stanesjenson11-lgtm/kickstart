@@ -122,6 +122,141 @@ export const events = {
   alt: "A figure on stage with arms raised, backlit through smoke at a live event",
 } as const;
 
+/* 09 — EVENT GALLERY ----------------------------------------------------- */
+/** Real client work. Category order matches `events.categories` — this section
+ *  is that list, shown rather than named. Photos live in `public/gallery/<slug>`,
+ *  resized from the originals in `assets/`. */
+export const gallery = {
+  headline: "Gallery",
+  categories: [
+    {
+      name: "Corporate events",
+      photos: [
+        {
+          src: "/gallery/corporate-events/adyen-nl-201.webp",
+          alt: "Colleagues talking and laughing over drinks at an office networking evening",
+        },
+        {
+          src: "/gallery/corporate-events/cgi-82.webp",
+          alt: "Delegates in suits in conversation, drinks in hand, in front of a lit brand backdrop",
+        },
+        {
+          src: "/gallery/corporate-events/toast-63.webp",
+          alt: "A speaker addressing the room from the stage against an illuminated brand wall",
+        },
+        {
+          src: "/gallery/corporate-events/wsa-225.webp",
+          alt: "A host presenting to a standing audience across an open-plan office floor",
+        },
+        {
+          src: "/gallery/corporate-events/wsa-39.webp",
+          alt: "A full team lined up for a group photograph in a bright office atrium",
+        },
+      ],
+    },
+    {
+      name: "Conferences",
+      photos: [
+        {
+          src: "/gallery/conferences/cgi-225.webp",
+          alt: "A delegate putting a question to the panel from the floor of a conference hall",
+        },
+        {
+          src: "/gallery/conferences/img-8435.webp",
+          alt: "Four panellists mid-discussion in armchairs on a conference stage",
+        },
+        {
+          src: "/gallery/conferences/img-8437.webp",
+          alt: "A panel on stage seen over the heads of a packed national conference audience",
+        },
+        {
+          src: "/gallery/conferences/micron-56.webp",
+          alt: "Two speakers in conversation on an orange stage against a branded backdrop",
+        },
+        {
+          src: "/gallery/conferences/toast-53.webp",
+          alt: "A ballroom of delegates seated at round tables through a keynote",
+        },
+      ],
+    },
+    {
+      name: "Launches",
+      photos: [
+        {
+          src: "/gallery/launches/cgi-43.webp",
+          alt: "Guests lighting the ceremonial lamp at an office inauguration",
+        },
+        {
+          src: "/gallery/launches/micron-27.webp",
+          alt: "Leadership cutting a branded ribbon at the opening of a new facility",
+        },
+        {
+          src: "/gallery/launches/micron-40.webp",
+          alt: "A guest lighting the ceremonial lamp beside a garlanded green wall",
+        },
+        {
+          src: "/gallery/launches/wsa-121.webp",
+          alt: "Executives touring a cleanroom production floor at a plant opening",
+        },
+        {
+          src: "/gallery/launches/wsa-205.webp",
+          alt: "A team holding an oversized commemorative key at a site launch",
+        },
+      ],
+    },
+    {
+      name: "Award nights",
+      photos: [
+        {
+          src: "/gallery/award-nights/cgi-254.webp",
+          alt: "A banquet hall of guests applauding under chandeliers at an awards night",
+        },
+        {
+          src: "/gallery/award-nights/toast-51.webp",
+          alt: "A guest standing to be recognised among the seated audience",
+        },
+        {
+          src: "/gallery/award-nights/toast-79.webp",
+          alt: "A winner collecting a trophy and certificate on stage beside their citation",
+        },
+        {
+          src: "/gallery/award-nights/toast-80.webp",
+          alt: "A recipient shaking hands as they take their award on stage",
+        },
+        {
+          src: "/gallery/award-nights/toast-82.webp",
+          alt: "Two colleagues holding their trophies up for the camera on stage",
+        },
+      ],
+    },
+    {
+      name: "Corporate parties",
+      photos: [
+        {
+          src: "/gallery/corporate-parties/cw-172.webp",
+          alt: "A team in festive dress posed together at a Diwali office celebration",
+        },
+        {
+          src: "/gallery/corporate-parties/dsc-3873.webp",
+          alt: "A DJ performing behind the decks under stage lighting",
+        },
+        {
+          src: "/gallery/corporate-parties/dsc00730.webp",
+          alt: "Sparklers firing above a crowd at an outdoor evening party",
+        },
+        {
+          src: "/gallery/corporate-parties/dsc01162.webp",
+          alt: "A crowd dancing with hands raised under warm light",
+        },
+        {
+          src: "/gallery/corporate-parties/equinoxdiwali-111.webp",
+          alt: "Guests seated at round tables in a chandelier-lit banquet hall",
+        },
+      ],
+    },
+  ],
+} as const;
+
 /* 11 — CLIENTS ----------------------------------------------------------- */
 /** Real clients only. While this is empty the section does not render. */
 export const clients: { name: string; logo?: string }[] = [];
