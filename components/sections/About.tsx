@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { about } from "@/lib/content";
 import Plate from "@/components/ui/Plate";
 import { useGsap, gsap } from "@/lib/motion";
@@ -28,11 +29,25 @@ export default function About() {
     >
       <div className="grid gap-12 px-gutter py-section md:grid-cols-12 md:gap-8">
         <div className="md:col-span-7">
-          <p className="ab-fade u-meta text-muted-light">{about.label}</p>
-          <h2 className="ab-fade u-display mt-6 text-h1" style={{ ["--wdth" as string]: 104 }}>
-            {about.headline}
+          <h2 className="ab-fade u-display text-h1" style={{ ["--wdth" as string]: 104 }}>
+            {about.headline}{" "}
+            {/* Height in em, not a clamp: it tracks the heading's own fluid
+                font-size for free. The file is cropped to its ink bounds, so a
+                baseline-aligned 0.72em lands the wordmark on the cap height of
+                the word beside it. Black mark — this section is on paper. */}
+            <Image
+              src="/ks black.png"
+              alt="Kickstart"
+              width={1000}
+              height={128}
+              sizes="400px"
+              className="inline h-[0.72em] w-auto align-baseline"
+            />
           </h2>
-          <p className="ab-fade u-measure mt-8 text-body text-muted-light">{about.body}</p>
+          {/* mt-18 = the old mt-8 plus the ~40px the dropped eyebrow label and
+              its mt-6 used to occupy, so the body sits lower without the column
+              — and therefore the section — getting any taller. */}
+          <p className="ab-fade u-measure mt-18 text-body text-muted-light">{about.body}</p>
         </div>
 
         <Plate

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { footer, nav, site } from "@/lib/content";
 import CrowdCanvas from "@/components/ui/crowd-canvas";
 
@@ -30,9 +31,16 @@ export default function Footer() {
       <div className="relative z-[var(--z-content)] px-gutter pt-section pb-10">
         <div className="grid gap-12 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-12 lg:col-span-5">
-            <p className="u-display text-h2" style={{ ["--wdth" as string]: 116 }}>
-              Kickstart
-            </p>
+            {/* White mark — the footer is always on ink. Height clamp tracks
+                the cap height of the text-h2 this replaced. */}
+            <Image
+              src="/ks white.png"
+              alt="Kickstart"
+              width={1000}
+              height={132}
+              sizes="280px"
+              className="h-[clamp(1.2rem,2.8vw,2.2rem)] w-auto"
+            />
             <p className="u-meta mt-3 text-muted-dark">Creative Studio Pvt Ltd</p>
             <a
               href={`mailto:${site.email}`}
