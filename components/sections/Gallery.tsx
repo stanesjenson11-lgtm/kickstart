@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { gallery } from "@/lib/content";
 import { useGsap, gsap } from "@/lib/motion";
+import TextRoll from "@/components/ui/text-roll";
 
 type Photo = { src: string; alt: string };
 
@@ -51,7 +52,7 @@ function Band({ name, photos }: { name: string; photos: readonly Photo[] }) {
     <div className="gal-band">
       <div className="gal-head flex items-baseline justify-between gap-6 border-t border-[var(--rule-on-dark)] pt-5">
         <h3 className="u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
-          {name}
+          <TextRoll>{name}</TextRoll>
         </h3>
         <span className="u-meta shrink-0 text-muted-dark">
           {String(photos.length).padStart(2, "0")}
