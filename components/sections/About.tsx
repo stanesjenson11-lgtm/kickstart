@@ -39,7 +39,7 @@ export default function About() {
           src={about.src}
           alt={about.alt}
           sizes="(max-width: 768px) 100vw, 34vw"
-          className="aspect-4/5 md:col-span-5"
+          className="plate-colour aspect-4/5 md:col-span-5"
         />
       </div>
     </section>

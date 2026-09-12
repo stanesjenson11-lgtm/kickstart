@@ -310,6 +310,14 @@ img.plate {
   filter: grayscale(1) contrast(1.08) brightness(0.96);
 }
 
+/* Opt out, for real photography of real people — the grade is for stock, and it
+   drains a founder portrait. Has to be a plain CSS rule rather than a utility
+   at the call site: `.plate img` is unlayered, so it beats anything Tailwind
+   emits into its own layer no matter the specificity. */
+.plate.plate-colour img {
+  filter: none;
+}
+
 /* ==========================================================================
    Reduced motion — a designed variant, not a kill switch.
    The page must stay complete and readable.
