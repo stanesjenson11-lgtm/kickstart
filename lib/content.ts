@@ -68,8 +68,6 @@ export const showreel = {
   headline: "Watch the work.",
   src: "/showreel.mp4" as string,
   srcSmall: "/showreel-sm.mp4" as string,
-  runtime: "00:00:33:00",
-  roll: "A001_KS_REEL",
 } as const;
 
 /* 05 — SERVICES ---------------------------------------------------------- */

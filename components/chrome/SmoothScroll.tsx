@@ -49,7 +49,10 @@ export default function SmoothScroll() {
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target as HTMLElement, { offset: -8 });
+      // -8 gives most sections a little air above them. A pinned, full-height
+      // section has to land exactly on its own top or the pin starts late.
+      const offset = target.hasAttribute("data-anchor-flush") ? 0 : -8;
+      lenis.scrollTo(target as HTMLElement, { offset });
     };
     document.addEventListener("click", onClick);
 
