@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { about } from "@/lib/content";
 import Plate from "@/components/ui/Plate";
 import { useGsap, gsap } from "@/lib/motion";
@@ -42,22 +41,10 @@ export default function About() {
           The clearfix is a grid item from `bar` up, so it is hidden there. */}
       <div className="w-full px-gutter py-section after:block after:clear-both after:content-[''] bar:grid bar:grid-cols-12 bar:gap-grid bar:after:hidden">
         <h2
-          className="ab-fade u-display text-h1 max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pl-10"
+          className="ab-fade u-display text-h1 whitespace-pre-line max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pl-10"
           style={{ ["--wdth" as string]: 104 }}
         >
-          {about.headline}{" "}
-          {/* Height in em, not a clamp: it tracks the heading's own fluid
-              font-size for free. The file is cropped to its ink bounds, so a
-              baseline-aligned 0.72em lands the wordmark on the cap height of
-              the word beside it. Black mark — this section is on paper. */}
-          <Image
-            src="/ks black.png"
-            alt="Kickstart"
-            width={1000}
-            height={128}
-            sizes="400px"
-            className="inline h-[0.72em] w-auto align-baseline"
-          />
+          {about.headline}
         </h2>
 
         {/* Before the paragraph in source order, because a float only wraps the
@@ -72,10 +59,10 @@ export default function About() {
         />
 
         {/* Margin as classes rather than an inline style so it can differ by
-            width: tight under the heading in the newspaper set, and back to the
-            original ~86px on the desktop grid. */}
+            width: tight under the heading in the newspaper set, a little more
+            on the desktop grid. */}
         <p
-          className="ab-fade mt-[clamp(1.25rem,2.4vw,2.25rem)] hyphens-auto text-body text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:mt-[clamp(4.5rem,6vw,7rem)] bar:max-w-[45ch] bar:pl-10"
+          className="ab-fade mt-[clamp(1.25rem,2.4vw,2.25rem)] hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:mt-[clamp(1.5rem,2.4vw,2.5rem)] bar:max-w-[45ch] bar:pl-10"
         >
           {about.body}
         </p>

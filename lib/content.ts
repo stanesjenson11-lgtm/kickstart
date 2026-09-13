@@ -336,9 +336,7 @@ export const testimonials: {
 
 /* 13 — ABOUT ------------------------------------------------------------- */
 export const about = {
-  /* The KICKSTART wordmark follows this inline in About.tsx, so the heading
-     still reads "About Kickstart" — to screen readers too, via the img alt. */
-  headline: "About",
+  headline: "About\nKickstart",
   body: "Founded by Jerry Joshan, Kickstart Creative Studio was built on a simple belief: great businesses deserve to look as remarkable as the work they do. Bridging strategy and creativity, we bring together premium visual storytelling, media production and social media to create refined, purposeful brand experiences that command attention and leave a lasting impression.",
   src: "/jerry-joshan.png",
   alt: "Jerry Joshan, founder of Kickstart Creative Studio, arms folded in a tailored suit",
