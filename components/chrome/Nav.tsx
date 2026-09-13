@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import { nav, site } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
 
@@ -131,6 +132,18 @@ export default function Nav() {
           transition: "clip-path 700ms var(--ease-out-expo)",
         }}
       >
+        {/* The burger that opened the sheet ends up underneath it — the header's
+            z-index makes its own stacking context — so the way out lives on the
+            sheet itself. Lined up with the bar's 1.25rem top padding. */}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="absolute top-5 left-gutter -ml-3 flex h-11 w-11 items-center justify-center"
+        >
+          <span className="sr-only">Close menu</span>
+          <ArrowLeft aria-hidden="true" className="h-6 w-6" strokeWidth={1.5} />
+        </button>
+
         <nav aria-label="Mobile" className="flex flex-col">
           {nav.links.map((l, i) => (
             <a

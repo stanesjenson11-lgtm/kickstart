@@ -32,9 +32,7 @@ export default function Services() {
       scrollTrigger: { trigger: self, start: "top 68%" },
     });
 
-    // The list's scroll range, shared out evenly between the groups. The same
-    // for the single column and the phone's 2x2 grid, where two groups share a
-    // row and a trigger per group would skip one of each pair. Nothing is
+    // The list's scroll range, shared out evenly between the groups. Nothing is
     // selected above the list; past it, the last group stays.
     //
     // The reading line sits high, at 15% of the screen, so a frame snapped
@@ -72,31 +70,36 @@ export default function Services() {
         <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/40 to-paper" />
       </div>
 
-      <div className="relative z-[var(--z-content)] px-gutter py-section">
-        {/* Phone: heading across the top, groups in a 2x2 grid beneath it.
-            From `bar` up it is the original sticky sidebar beside a single
-            column of groups — `lg:` could not carry that any more, since the lg
-            breakpoint is effectively always on. */}
+      {/* pt-24 on a phone: the section's own padding would park the heading
+          under the nav pill, which ends 80px down. */}
+      <div className="relative z-[var(--z-content)] px-gutter pt-24 pb-section bar:py-section">
+        {/* Phone: heading across the top, the same single column of groups
+            beneath it, set smaller and tighter so the section fits one screen.
+            The groups' type and spacing follow the screen's height (svh): a
+            640px-tall phone gets the compact set, a tall one fills its frame.
+            From `bar` up it is the sticky sidebar beside that column — `lg:`
+            could not carry that any more, since the lg breakpoint is
+            effectively always on. */}
         <div className="bar:flex bar:gap-[clamp(1rem,4.4vw,4rem)]">
           <div className="bar:sticky bar:top-28 bar:h-fit bar:w-[38%] bar:shrink-0">
-            <h2 className="u-display text-h1" style={{ ["--wdth" as string]: 106 }}>
+            <h2 className="u-display text-h2 bar:text-h1" style={{ ["--wdth" as string]: 106 }}>
               {services.headline}
             </h2>
             <p className="u-meta mt-6">{services.label}</p>
           </div>
 
-          <div className="svc-list mt-10 grid grid-cols-2 gap-x-grid bar:mt-0 bar:block bar:flex-1">
+          <div className="svc-list mt-6 bar:mt-0 bar:flex-1">
             {services.groups.map((g, i) => (
               <div
                 key={g.title}
-                className="svc-group border-t border-[var(--rule-on-light)] py-6 bar:py-8 bar:last:border-b"
+                className="svc-group border-t border-[var(--rule-on-light)] py-[clamp(0.75rem,calc(5svh_-_1.25rem),1.5rem)] last:border-b bar:py-8"
                 onPointerEnter={() => setPointed(i)}
                 onPointerLeave={() => setPointed(null)}
                 onFocusCapture={() => setPointed(i)}
                 onBlurCapture={() => setPointed(null)}
               >
                 <h3
-                  className="u-display text-h3 transition-transform duration-500 ease-[var(--ease-out-expo)]"
+                  className="u-display text-h3 max-bar:text-[length:clamp(1rem,2.5svh,1.25rem)] max-bar:leading-tight transition-transform duration-500 ease-[var(--ease-out-expo)]"
                   style={{
                     ["--wdth" as string]: 100,
                     transform: active === i ? "translateX(10px)" : "none",
@@ -104,7 +107,7 @@ export default function Services() {
                 >
                   {g.title}
                 </h3>
-                <ul className="mt-4 flex flex-col gap-y-2 text-body bar:flex-row bar:flex-wrap bar:gap-x-6">
+                <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[length:clamp(0.875rem,2.1svh,1rem)]/[1.4] bar:mt-4 bar:gap-x-6 bar:gap-y-2 bar:text-body">
                   {g.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}

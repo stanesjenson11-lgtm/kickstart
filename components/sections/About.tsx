@@ -28,8 +28,9 @@ export default function About() {
       // 100svh PLUS the cut, because a frame lands below the diagonal: the
       // visible frame is then exactly 100svh of clean section with none of the
       // next one showing. items-center resolves against the content box, which
-      // cut-top's padding has already reduced to precisely that frame.
-      className="cut-top on-paper relative flex min-h-[calc(100svh+var(--cut-drop))] items-center bg-paper-warm text-ink"
+      // cut-top's padding has already reduced to precisely that frame. A phone
+      // tops the heading instead, just clear of the nav pill (it ends at 80px).
+      className="cut-top on-paper relative flex min-h-[calc(100svh+var(--cut-drop))] items-start bg-paper-warm text-ink bar:items-center"
     >
       {/* Two layouts, one tree.
           Phone keeps the newspaper set: the photograph is floated and the body
@@ -39,7 +40,7 @@ export default function About() {
           and placing all three children explicitly, so source order can serve
           the float without disturbing the desktop arrangement.
           The clearfix is a grid item from `bar` up, so it is hidden there. */}
-      <div className="w-full px-gutter py-section after:block after:clear-both after:content-[''] bar:grid bar:grid-cols-12 bar:gap-grid bar:after:hidden">
+      <div className="w-full px-gutter pt-24 pb-section bar:py-section after:block after:clear-both after:content-[''] bar:grid bar:grid-cols-12 bar:gap-grid bar:after:hidden">
         <h2
           className="ab-fade u-display text-h1 whitespace-pre-line max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pl-10"
           style={{ ["--wdth" as string]: 104 }}
@@ -55,14 +56,15 @@ export default function About() {
           src={about.src}
           alt={about.alt}
           sizes="(min-width: 48rem) 30vw, 42vw"
-          className="ab-fade float-right mt-6 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem] bar:col-span-5 bar:col-start-8 bar:row-span-2 bar:row-start-1 bar:m-0 bar:float-none bar:w-[88%] bar:max-w-none"
+          className="ab-fade float-right mt-16 mb-grid ml-grid aspect-4/5 w-[42%] max-w-[26rem] bar:col-span-5 bar:col-start-8 bar:row-span-2 bar:row-start-1 bar:m-0 bar:float-none bar:w-[88%] bar:max-w-none"
         />
 
-        {/* Margin as classes rather than an inline style so it can differ by
-            width: tight under the heading in the newspaper set, a little more
-            on the desktop grid. */}
+        {/* Padding, not margin: the global `p { margin: 0 }` is unlayered, so it
+            outranks every margin utility. A phone sets the paragraph well clear
+            of the heading and the photo's mt-16 drops with it; the desktop grid
+            keeps it flush to its row. */}
         <p
-          className="ab-fade mt-[clamp(1.25rem,2.4vw,2.25rem)] hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:mt-[clamp(1.5rem,2.4vw,2.5rem)] bar:max-w-[45ch] bar:pl-10"
+          className="ab-fade pt-15 hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:pt-0 bar:max-w-[45ch] bar:pl-10"
         >
           {about.body}
         </p>
