@@ -159,7 +159,19 @@ export default function SmoothScroll() {
     };
     document.addEventListener("click", onClick);
 
+    // A grab on the page scrollbar hands scrolling straight to the browser.
+    // Lenis ignores native scroll while one of its own animations runs (a
+    // wheel glide, a snap, a keyframe hold) and keeps writing its position, so
+    // a drag begun then was pulled back from under the pointer. Landing where
+    // the page already is, immediately, ends that animation.
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.clientX < document.documentElement.clientWidth) return;
+      lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+
     return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("load", refresh);
       window.removeEventListener("ks:snap", onSnapToggle);
       window.removeEventListener("ks:keys", onKeys);

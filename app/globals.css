@@ -261,14 +261,9 @@ button {
 @media (max-width: 620px) {
   :root { --text-meta: 0.78rem; }
   /* The footer is almost entirely u-meta, so the bump above landed on every
-     line of it at once and read as oversized. It keeps close to the original. */
-  footer { --text-meta: 0.7rem; }
-}
-
-/* Light type on black reads lighter — give it more air. */
-.on-ink p,
-.on-ink .u-measure {
-  line-height: 1.65;
+     line of it at once and read as oversized. It runs a touch under the
+     desktop size instead. */
+  footer { --text-meta: 0.62rem; }
 }
 
 /* ==========================================================================
@@ -307,17 +302,6 @@ button {
 .cut-link:hover::after,
 .cut-link:focus-visible::after {
   transform: scaleX(1) skewX(calc(var(--cut-angle) * -1));
-}
-
-/* A hairline rule carrying the cut angle. Used as a section divider. */
-.cut-rule {
-  height: 1px;
-  border: 0;
-  margin: 0;
-  background: var(--rule-on-dark);
-}
-.on-paper .cut-rule {
-  background: var(--rule-on-light);
 }
 
 /* ==========================================================================
@@ -543,11 +527,6 @@ button {
 
 .ks-faq[open]::details-content {
   block-size: auto;
-}
-
-/* SplitText's masked lines need the overflow clip to hide the rise. */
-.ks-line {
-  overflow: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -169,13 +169,9 @@ export default function Clients() {
         className="cl-dot pointer-events-none absolute left-0 top-0 z-10 -ml-1.5 -mt-1.5 h-3 w-3 rounded-full bg-paper opacity-0"
       />
 
-      {/* u-meta's own size is 11px, too quiet to head the section. Keep its
-          mono/tracked character and scale it up — inline, because .u-meta sets
-          font-size and is unlayered, so it beats any Tailwind size utility. */}
-      <h2
-        className="px-gutter u-meta text-muted-dark"
-        style={{ fontSize: "clamp(1.5rem, 3.4vw, 3rem)" }}
-      >
+      {/* Set like the gallery's category labels ("Corporate parties") just
+          above this section. */}
+      <h2 className="px-gutter u-display text-h2" style={{ ["--wdth" as string]: 100 }}>
         Our clients
       </h2>
 

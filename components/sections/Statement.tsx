@@ -17,9 +17,7 @@ import { useGsap, gsap } from "@/lib/motion";
  * same grid cell. The heading stays a single real element for assistive tech
  * and indexing; the light is a mask over its twin.
  *
- * Only `.on-paper` is ever toggled (by the shot, for the navbar). `.on-ink` is
- * deliberately absent: it adds line-height to paragraphs, and switching it
- * mid-pin would visibly reflow the body copy.
+ * Only `.on-paper` is ever toggled (by the shot, for the navbar).
  */
 export default function Statement() {
   const scope = useGsap<HTMLElement>(({ self }) => {
@@ -40,8 +38,9 @@ export default function Statement() {
       ref={scope}
       id="statement"
       // min-h: the shot pins this section, and a pinned frame shorter than the
-      // screen would leave the page's ground showing beneath it.
-      className="st-stage cut-top relative min-h-[100svh]"
+      // screen would leave the page's ground showing beneath it. From `bar` up
+      // the copy sits in the middle of that frame rather than at its top.
+      className="st-stage cut-top relative min-h-[100svh] bar:flex bar:flex-col bar:justify-center"
     >
       <div className="relative z-[var(--z-content)] px-gutter py-section-lg">
         <div className="grid">

@@ -3,21 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import { services } from "@/lib/content";
-import { useGsap, gsap } from "@/lib/motion";
+import { useGsap, gsap, ScrollTrigger } from "@/lib/motion";
 
 /**
  * White ground, black type — the one light section on the page.
  *
  * Hairlines, not cards — the brief is explicit that this section must not
  * become a card grid. The headline sticks while the four groups pass it, and
- * the group under the pointer bleeds its own image in behind the whole section,
- * so the list stays a list and the imagery still gets to do the selling.
+ * the group in play bleeds its own image in behind the whole section, so the
+ * list stays a list and the imagery still gets to do the selling.
  *
- * The bleed is pointer-driven, so it also responds to keyboard focus; nothing
- * here is hover-only, and the text stands alone without it.
+ * The group in play follows the scroll: moving down the list selects each group
+ * in turn. Pointing at or focusing a group previews it instead, and letting go
+ * hands back to the scroll. The text stands alone without any of it.
  */
 export default function Services() {
-  const [active, setActive] = useState<number | null>(null);
+  const [inView, setInView] = useState<number | null>(null);
+  const [pointed, setPointed] = useState<number | null>(null);
+  const active = pointed ?? inView;
 
   const scope = useGsap<HTMLElement>(({ self }) => {
     gsap.from(self.querySelectorAll<HTMLElement>(".svc-group"), {
@@ -27,6 +30,22 @@ export default function Services() {
       ease: "power3.out",
       stagger: 0.12,
       scrollTrigger: { trigger: self, start: "top 68%" },
+    });
+
+    // The list's scroll range, shared out evenly between the groups. The same
+    // for the single column and the phone's 2x2 grid, where two groups share a
+    // row and a trigger per group would skip one of each pair. Nothing is
+    // selected above the list; past it, the last group stays.
+    //
+    // The reading line sits high, at 15% of the screen, so a frame snapped
+    // flush opens on the first group and the rest follow as the page moves on.
+    const n = services.groups.length;
+    ScrollTrigger.create({
+      trigger: self.querySelector(".svc-list"),
+      start: "top 15%",
+      end: "bottom 15%",
+      onUpdate: (st) =>
+        setInView(st.progress <= 0 ? null : Math.min(n - 1, Math.floor(st.progress * n))),
     });
   }, []);
 
@@ -66,15 +85,15 @@ export default function Services() {
             <p className="u-meta mt-6">{services.label}</p>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-x-grid bar:mt-0 bar:block bar:flex-1">
+          <div className="svc-list mt-10 grid grid-cols-2 gap-x-grid bar:mt-0 bar:block bar:flex-1">
             {services.groups.map((g, i) => (
               <div
                 key={g.title}
                 className="svc-group border-t border-[var(--rule-on-light)] py-6 bar:py-8 bar:last:border-b"
-                onPointerEnter={() => setActive(i)}
-                onPointerLeave={() => setActive(null)}
-                onFocusCapture={() => setActive(i)}
-                onBlurCapture={() => setActive(null)}
+                onPointerEnter={() => setPointed(i)}
+                onPointerLeave={() => setPointed(null)}
+                onFocusCapture={() => setPointed(i)}
+                onBlurCapture={() => setPointed(null)}
               >
                 <h3
                   className="u-display text-h3 transition-transform duration-500 ease-[var(--ease-out-expo)]"

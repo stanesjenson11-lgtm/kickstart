@@ -32,6 +32,19 @@ export default function Hero() {
       scrollTrigger: { trigger: self, start: "top top", end: "bottom top", scrub: 0.4 },
     });
 
+    // The two CTAs step aside as soon as the page moves, rather than lingering
+    // through the whole headline fade. Played, not scrubbed, so they go at one
+    // pace however the page is scrolled; autoAlpha also takes them out of the
+    // tab order and the pointer's way while hidden.
+    gsap.to(self.querySelectorAll<HTMLElement>(".hero-copy a"), {
+      autoAlpha: 0,
+      y: 16,
+      duration: 0.35,
+      ease: "power2.out",
+      stagger: 0.04,
+      scrollTrigger: { trigger: self, start: "top top-=24", toggleActions: "play none none reverse" },
+    });
+
     gsap.to(self.querySelector(".hero-copy"), {
       yPercent: 26,
       opacity: 0,

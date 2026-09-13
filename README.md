@@ -38,7 +38,7 @@ npm run build && npm run start
    exist. This is the highest-value asset to replace — the brief calls the reel
    one of the site's main selling points.
 
-3. **Fill in the real contact details.** `site.email`, `site.phone`,
+3. **Fill in the real contact details.** `site.email`,
    `site.whatsapp`, `site.instagram`, `site.linkedin` in `lib/content.ts` are
    placeholders.
 
@@ -53,10 +53,9 @@ npm run build && npm run start
 6. **Set the real domain** in `site.url` (`lib/content.ts`) so canonical URLs,
    the sitemap and the Open Graph card point at production.
 
-7. **Supply a vector logo.** `public/ks-mark.jpg` is the file that came with the
-   brief — a 545×482 JPEG named `.PNG`. It is fine at favicon size and too small
-   for anything else. The bolt used through the site (`public/bolt.svg`,
-   `app/icon.svg`, the loader, the footer watermark) is hand-drawn vector and
+7. **Supply a vector logo.** The wordmarks in use (`public/logo-*.png`,
+   `public/ks *.png`) are PNG exports. The bolt used through the site
+   (`app/icon.svg`, the loader, the footer watermark) is hand-drawn vector and
    needs no replacement.
 
 ## Deploy

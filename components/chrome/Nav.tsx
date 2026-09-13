@@ -14,9 +14,9 @@ export default function Nav() {
   useEffect(() => {
     // The light sections already announce themselves with .on-paper — reuse
     // that rather than adding a second marker that can drift out of step.
-    // Queried on each scroll, not cached at mount: Statement trades .on-paper
-    // for .on-ink partway through the projector shot, and a list taken once
-    // would keep treating it as light after it has gone dark.
+    // Queried on each scroll, not cached at mount: Statement drops .on-paper
+    // partway through the projector shot, and a list taken once would keep
+    // treating it as light after it has gone dark.
     const paper = () => Array.from(document.querySelectorAll<HTMLElement>(".on-paper"));
 
     const onScroll = () => {

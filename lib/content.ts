@@ -20,7 +20,6 @@ export const site = {
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
-  phone: "+91 00000 00000",
   whatsapp: "910000000000",
   instagram: "https://instagram.com/",
   linkedin: "https://linkedin.com/",
@@ -106,11 +105,10 @@ export const hero = {
      * projector sits low and tilts up to reach it, with a wider cone.
      */
     end: {
-      landscape: { cx: 0.76, cy: 0.37, width: 0.27, roll: 8, yaw: 12, pitch: 3, spread: 0.14 },
+      landscape: { cx: 0.76, cy: 0.55, width: 0.27, roll: 8, yaw: 12, pitch: 3, spread: 0.14 },
       portrait: { cx: 0.7, cy: 0.72, width: 0.56, roll: 32, yaw: 10, pitch: 3, spread: 0.22 },
     },
   },
-  alt: "A studio light cutting a hard beam through haze on a Kickstart set",
 } as const;
 
 /* 02 — BRAND STATEMENT --------------------------------------------------- */
@@ -121,7 +119,6 @@ export const statement = {
 
 /* 03 — SHOWREEL ---------------------------------------------------------- */
 export const showreel = {
-  label: "Showreel",
   headline: "Watch the work.",
   src: "/showreel.mp4" as string,
   srcSmall: "/showreel-sm.mp4" as string,
@@ -382,7 +379,6 @@ export const contact = {
      the whole reason for this picture. Crop, not a different photo: nothing
      free-licensed pairs this lighting with a professional model. */
   bg: `${IMG("photo-1601506521937-0121a7fc2a6b", 2400)}&rect=0,0,1740,1861`,
-  alt: "",
 } as const;
 
 export const form = {
