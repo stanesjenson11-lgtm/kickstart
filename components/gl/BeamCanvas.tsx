@@ -13,7 +13,7 @@ import { shot } from "@/lib/shot";
  * blended, so its black is transparent and it can only ever add light to what
  * lies beneath it.
  *
- * Draws only while the beam is on; idle, it has cleared once and does nothing.
+ * Draws only while the beam is on; idle, it is hidden and does nothing.
  * If WebGL is unavailable it simply is not there — the headline is still lit by
  * Statement's CSS layer.
  */
@@ -74,15 +74,19 @@ export default function BeamCanvas() {
       const u = program.uniforms;
 
       if (b.on <= 0.001) {
+        // Hidden, not just cleared: a full-screen blended layer left in place
+        // is composited on every frame of scrolling for the rest of the page.
         if (!idle) {
-          u.uOn.value = 0;
-          renderer.render({ scene: mesh });
+          el.style.visibility = "hidden";
           idle = true;
         }
         return;
       }
 
-      idle = false;
+      if (idle) {
+        el.style.visibility = "";
+        idle = false;
+      }
       u.uTime.value = (now - start) / 1000;
       u.uOn.value = b.on;
       u.uReach.value = b.reach;

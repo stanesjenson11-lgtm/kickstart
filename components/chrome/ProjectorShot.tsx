@@ -17,6 +17,13 @@ const optimized = (src: string, w: number) =>
 const TRAVEL_AT = 0.18;
 
 /**
+ * Keyframes, as timeline positions: the projector has arrived, and the headline
+ * is fully lit. A flick comes to rest on these instead of carrying past them
+ * (SmoothScroll does the holding), so one swipe cannot skip the shot.
+ */
+const KEYS = [0.6, 1];
+
+/**
  * How far each face of the photograph turns before handing over to the other.
  * A flat image turned to 90° is a sliver, the one frame that gives away that it
  * is a picture, so each face stops well short of it and the two cross-fade while
@@ -118,7 +125,32 @@ export default function ProjectorShot() {
     // Set on every refresh.
     let detachAt = 0;
 
+    /**
+     * The body keeps one size and is scaled, never resized: a width change is a
+     * layout plus a fresh raster of the photograph, every frame. Sized to the
+     * larger of where it starts and ends so it is only ever scaled down and
+     * stays sharp. Measured lazily, and again after every refresh.
+     */
+    let boxW = 0;
+
+    // Only touch the DOM when a value has actually changed. Most of these hold
+    // still for most of the shot, and each write costs a style pass or a
+    // repaint — on a phone, the difference between smooth and stuck.
+    const written = new WeakMap<HTMLElement, Record<string, string>>();
+    const put = (el: HTMLElement | null, prop: string, value: string) => {
+      if (!el) return;
+      const seen = written.get(el) ?? {};
+      if (seen[prop] === value) return;
+      seen[prop] = value;
+      written.set(el, seen);
+      el.style.setProperty(prop, value);
+    };
+
     const apply = () => {
+      // Every read before any write, so none of them forces a layout. The lens,
+      // read further down, follows a transform-only change: a style pass, no
+      // layout.
+      //
       // It follows the photograph only until it separates. After that it is its
       // own object and travels from where it was at that moment, rather than
       // carrying on off the top of the screen with the hero.
@@ -126,11 +158,14 @@ export default function ProjectorShot() {
       const W = window.innerWidth;
       const H = window.innerHeight;
       const st = stage.getBoundingClientRect();
+      const hl = headline.getBoundingClientRect();
       const t = s.travel;
 
       // The rest pose lives in Statement's frame, so the projector arrives with
       // the section and leaves with it once the pin lets go.
       const ew = end.width * W;
+      boxW ||= Math.max(ew, inPlate(detachAt).w);
+      const boxH = boxW * trueRatio;
       const cx = lerp(a.cx, st.left + end.cx * W, t);
       // Not a straight slide: a slight sag mid-flight, the way something with
       // weight settles, while z carries it toward the viewer.
@@ -146,29 +181,30 @@ export default function ProjectorShot() {
       const flipYaw = f < 0.5 ? -FLIP_MAX * (f / 0.5) : FLIP_MAX * (1 - (f - 0.5) / 0.5);
       const toLeft = smooth(0.42, 0.58, f);
 
-      rigEl.style.opacity = String(s.rig);
-      bodyEl.style.width = `${w}px`;
-      bodyEl.style.height = `${h}px`;
-      bodyEl.style.transform =
-        `translate3d(${cx - w / 2}px, ${cy - h / 2}px, ${z}px) ` +
-        `rotateY(${flipYaw + end.yaw * s.aim}deg) ` +
-        `rotateX(${end.pitch * s.aim}deg) rotateZ(${end.roll * s.aim}deg)`;
-      const filter = `contrast(1.12) brightness(${(0.96 * lerp(a.shade, 1, t)).toFixed(3)})`;
-      if (faceR) {
-        faceR.style.opacity = String(1 - toLeft);
-        faceR.style.filter = filter;
-      }
-      if (faceL) {
-        faceL.style.opacity = String(toLeft);
-        faceL.style.filter = filter;
-      }
+      put(rigEl, "opacity", s.rig.toFixed(3));
+      put(bodyEl, "width", `${boxW.toFixed(1)}px`);
+      put(bodyEl, "height", `${boxH.toFixed(1)}px`);
+      put(
+        bodyEl,
+        "transform",
+        `translate3d(${(cx - boxW / 2).toFixed(1)}px, ${(cy - boxH / 2).toFixed(1)}px, ${z.toFixed(1)}px) ` +
+          `rotateY(${(flipYaw + end.yaw * s.aim).toFixed(2)}deg) ` +
+          `rotateX(${(end.pitch * s.aim).toFixed(2)}deg) rotateZ(${(end.roll * s.aim).toFixed(2)}deg) ` +
+          `scale(${(w / boxW).toFixed(4)}, ${(h / boxH).toFixed(4)})`,
+      );
+      // Brightness in steps of 0.01: too fine to see, coarse enough that the
+      // filter is not rewritten on every pixel of scroll.
+      const filter = `contrast(1.12) brightness(${(0.96 * lerp(a.shade, 1, t)).toFixed(2)})`;
+      put(faceR, "opacity", (1 - toLeft).toFixed(3));
+      put(faceR, "filter", filter);
+      put(faceL, "opacity", toLeft.toFixed(3));
+      put(faceL, "filter", filter);
 
       shot.lift = s.lift;
 
       // The beam leaves the lens — read off the page, so it follows every
       // transform above — and lands on the headline: first at its right end,
       // nearest the projector, then along it to the left as the sweep runs.
-      const hl = headline.getBoundingClientRect();
       const lr = lens?.getBoundingClientRect();
       const hx = hl.left + hl.width * lerp(0.9, 0.08, s.sweep);
       const hy = hl.top + hl.height * lerp(0.6, 0.42, s.sweep);
@@ -184,17 +220,17 @@ export default function ProjectorShot() {
       b.tx = hx;
       b.ty = hy;
 
-      stage.style.setProperty("--dark", s.dark.toFixed(4));
-      stage.style.setProperty("--pool", s.pool.toFixed(4));
-      stage.style.setProperty("--lit", s.sweep.toFixed(4));
-      stage.style.setProperty("--spill", s.spill.toFixed(4));
+      put(stage, "--dark", s.dark.toFixed(3));
+      put(stage, "--pool", s.pool.toFixed(3));
+      put(stage, "--lit", s.sweep.toFixed(3));
+      put(stage, "--spill", s.spill.toFixed(3));
       // The navbar reads .on-paper to pick its ink; hand it over mid-drench.
       stage.classList.toggle("on-paper", s.dark < 0.5);
       // The lit pool and the room's spill sit exactly where the beam lands.
-      stage.style.setProperty("--pool-x", `${(((hx - hl.left) / hl.width) * 100).toFixed(2)}%`);
-      stage.style.setProperty("--pool-y", `${(((hy - hl.top) / hl.height) * 100).toFixed(2)}%`);
-      stage.style.setProperty("--spill-x", `${(((hx - st.left) / st.width) * 100).toFixed(2)}%`);
-      stage.style.setProperty("--spill-y", `${(((hy - st.top) / st.height) * 100).toFixed(2)}%`);
+      put(stage, "--pool-x", `${(((hx - hl.left) / hl.width) * 100).toFixed(1)}%`);
+      put(stage, "--pool-y", `${(((hy - hl.top) / hl.height) * 100).toFixed(1)}%`);
+      put(stage, "--spill-x", `${(((hx - st.left) / st.width) * 100).toFixed(1)}%`);
+      put(stage, "--spill-y", `${(((hy - st.top) / st.height) * 100).toFixed(1)}%`);
     };
 
     const ctx = gsap.context(() => {
@@ -235,7 +271,14 @@ export default function ProjectorShot() {
         refreshPriority: 1,
         onUpdate: apply,
         onRefresh: (self) => {
-          detachAt = self.start + TRAVEL_AT * (self.end - self.start);
+          const span = self.end - self.start;
+          detachAt = self.start + TRAVEL_AT * span;
+          boxW = 0;
+          window.dispatchEvent(
+            new CustomEvent("ks:keys", {
+              detail: KEYS.map((k) => Math.round(self.start + k * span)),
+            }),
+          );
           // Published for the screenshot check, which maps progress to scroll.
           stage.dataset.shotStart = String(Math.round(self.start));
           stage.dataset.shotEnd = String(Math.round(self.end));
@@ -263,6 +306,7 @@ export default function ProjectorShot() {
     return () => {
       ctx.revert();
       window.dispatchEvent(new CustomEvent("ks:snap", { detail: true }));
+      window.dispatchEvent(new CustomEvent("ks:keys", { detail: [] }));
       shot.lift = 0;
       shot.beam.on = 0;
       // Back to the CSS end state, which is the no-JS state.
@@ -289,9 +333,12 @@ export default function ProjectorShot() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-[var(--z-stage)] opacity-0 [perspective:1400px]"
       >
+        {/* Flat, not preserve-3d: the two faces share one plane, and sorted in
+            3D they z-fight — a flicker right through the turn. The body's own
+            turn still takes the rig's perspective. */}
         <div
           ref={body}
-          className="absolute left-0 top-0 origin-center will-change-transform [transform-style:preserve-3d]"
+          className="absolute left-0 top-0 origin-center will-change-transform"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- optimizer URLs
               moved every frame by hand; next/image would wrap them in a box that
@@ -301,7 +348,7 @@ export default function ProjectorShot() {
             src={optimized(plate.cutout, width)}
             alt=""
             draggable={false}
-            className="absolute inset-0 block h-full w-full select-none"
+            className="absolute inset-0 block h-full w-full select-none [will-change:opacity,filter]"
           />
           {/* The photograph mirrored, its lettering put back the right way
               round, for after the turn (scripts/cutout.py). */}
@@ -311,7 +358,7 @@ export default function ProjectorShot() {
             src={optimized(plate.cutoutLeft, width)}
             alt=""
             draggable={false}
-            className="absolute inset-0 block h-full w-full select-none opacity-0"
+            className="absolute inset-0 block h-full w-full select-none opacity-0 [will-change:opacity,filter]"
           />
           {/* The lens of the turned projector: the beam reads this point's
               position, which follows every transform on the rig for free. */}

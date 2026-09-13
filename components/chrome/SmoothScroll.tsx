@@ -20,10 +20,43 @@ export default function SmoothScroll() {
       duration: 1.05,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.6,
+      /* Touch runs through Lenis too. Left native, a phone scrolls the page on
+         the compositor while the pins and the projector shot are moved a frame
+         later on the main thread — the shake and flicker — and native momentum
+         cannot be held at the keyframes below. Drag stays 1:1 with the finger:
+         no touchMultiplier. */
+      syncTouch: true,
     });
 
     lenis.on("scroll", ScrollTrigger.update);
+
+    /**
+     * Keyframes: scroll positions momentum comes to rest on instead of carrying
+     * past, so one flick cannot throw a visitor straight through the projector
+     * shot. ProjectorShot publishes them on every refresh, as a window event
+     * like ks:snap below.
+     *
+     * Momentum only — a released swipe or the wheel's smoothing, both of which
+     * aim ahead of where the page is. A finger still on the glass is never
+     * stopped, and a programmatic scroll keeps its target level with its
+     * position, so it never matches. Resting on a key, the next gesture goes on
+     * past it.
+     */
+    let keys: number[] = [];
+    const onKeys = (e: Event) => {
+      keys = (e as CustomEvent<number[]>).detail;
+    };
+    window.addEventListener("ks:keys", onKeys);
+    lenis.on("scroll", () => {
+      if (lenis.isTouching || !keys.length) return;
+      const from = lenis.animatedScroll;
+      const to = lenis.targetScroll;
+      const key =
+        to > from
+          ? keys.find((k) => k > from + 1 && k < to)
+          : keys.filter((k) => k < from - 1 && k > to).pop();
+      if (key !== undefined) lenis.scrollTo(key, { programmatic: false, lerp: 0.1 });
+    });
 
     /**
      * Snap the full-frame sections flush to the viewport. Lenis's own snap, not
@@ -129,6 +162,7 @@ export default function SmoothScroll() {
     return () => {
       window.removeEventListener("load", refresh);
       window.removeEventListener("ks:snap", onSnapToggle);
+      window.removeEventListener("ks:keys", onKeys);
       document.removeEventListener("click", onClick);
       ScrollTrigger.removeEventListener("refresh", buildSnap);
       gsap.ticker.remove(tick);

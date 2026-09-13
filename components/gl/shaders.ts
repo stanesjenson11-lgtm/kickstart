@@ -80,6 +80,9 @@ export const fragment = /* glsl */ `
   // only to drive halation, which keys off brightness, not hue.
   vec3 plate(vec2 uv) {
     vec3 a = texture2D(tA, cover(uv, uCoverA)).rgb;
+    // Holding on one plate — always, with a single plate — the second tap adds
+    // nothing, and plate() runs five times a pixel.
+    if (uMix <= 0.0) return a;
     vec3 b = texture2D(tB, cover(uv, uCoverB)).rgb;
     return mix(a, b, uMix);
   }

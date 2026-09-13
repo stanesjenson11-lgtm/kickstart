@@ -67,7 +67,10 @@ export default function HeroCanvas({
       renderer = new Renderer({
         alpha: false,
         antialias: false,
-        dpr: Math.min(window.devicePixelRatio, 1.5),
+        // 1x on phones: grain and halation have no fine detail to lose, and a
+        // dense phone screen at 1.5x is most of a mid-range GPU's frame — the
+        // same frame the projector shot is scrolling through.
+        dpr: window.matchMedia(PHONE).matches ? 1 : Math.min(window.devicePixelRatio, 1.5),
       });
     } catch {
       return; // No WebGL — the still underneath stands in.
