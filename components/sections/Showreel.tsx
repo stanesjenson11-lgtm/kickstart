@@ -15,7 +15,9 @@ import { useGsap, gsap } from "@/lib/motion";
  * `preload="metadata"` and an observer starts it a viewport early, so the
  * homepage never pays for the file before the section is in reach.
  *
- * Two encodes exist: a 1920 plate from `md:` up, a 1280 one below it.
+ * Two encodes exist: a 1920 plate from `md:` up, a 1280 one below it. The
+ * phone one is held to ~1.6 Mbps: at 3 Mbps a 4G link barely kept ahead of
+ * playback, so the reel sat black while it buffered and stalled after.
  *
  * Phones letterbox rather than cover. The footage is 16:9 and a portrait
  * viewport is not, so covering it would crop the sides off every shot and
@@ -39,17 +41,35 @@ export default function Showreel() {
       ? showreel.src
       : showreel.srcSmall;
 
+    // A refused play() — iOS Low Power Mode blocks even muted autoplay — is
+    // lifted by any tap on the page, so arm the next one to try again. Only
+    // while the reel is in reach: an AbortError from pausing mid-play() lands
+    // in the catch too, and must not start it offscreen later.
+    let near = false;
+    const arm = () => {
+      document.addEventListener("touchend", play, { once: true, passive: true });
+      document.addEventListener("click", play, { once: true });
+    };
+    const play = () => {
+      if (near) el.play().catch(arm);
+    };
+
     const io = new IntersectionObserver(
       ([entry]) => {
         // play() pulls the media down; pausing offscreen keeps a decoder off
         // the main thread for the rest of the page.
-        if (entry.isIntersecting) void el.play().catch(() => {});
+        near = entry.isIntersecting;
+        if (near) play();
         else el.pause();
       },
       { rootMargin: "100% 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      document.removeEventListener("touchend", play);
+      document.removeEventListener("click", play);
+    };
   }, []);
 
   const scope = useGsap<HTMLElement>(({ self }) => {
