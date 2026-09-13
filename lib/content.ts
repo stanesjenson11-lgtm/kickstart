@@ -57,6 +57,18 @@ export const hero = {
    * Add entries here and the montage starts cycling again on its own.
    */
   plates: [IMG("photo-1478720568477-152d9b164e26", 2000)],
+  /* Phones held upright. A local file, not IMG() — that helper only builds an
+     Unsplash URL, and HeroCanvas routes either kind through the optimizer. */
+  platesPortrait: ["/hero/projector-phone.png"],
+  /**
+   * Where the fog starts, per plate set, as a fraction of texture width: the
+   * lens sits at ~0.55 in the landscape frame and ~0.52 in the portrait one, so
+   * the shader needs the boundary told to it rather than hard-coded.
+   */
+  // Portrait: the lens face ends at ~0.48 and the crate's lit top-right corner
+  // sits at ~0.57, so the ramp starts just clear of the lens and is still
+  // shallow at the corner — the crate edge barely moves.
+  fog: { landscape: [0.56, 0.70], portrait: [0.53, 0.66] },
   alt: "A studio light cutting a hard beam through haze on a Kickstart set",
 } as const;
 

@@ -34,18 +34,15 @@ export const fragment = /* glsl */ `
   uniform vec2 uMouse;
   uniform float uMouseAmt;
   uniform float uScroll;
+  /* Fog boundary in texture x: (ramp start, fully on). Set per plate, because
+     the lens is not in the same place in the landscape and portrait frames. */
+  uniform vec2 uFog;
 
   /* How far the smoke is pushed, in uv. The previous 0.024 worked out to about
      five pixels of travel on a phone over ten seconds, which is invisible —
      this is the one number to turn if the plume wants more or less life. */
   const float SMOKE = 0.085;
 
-  /* Where the fog is allowed to move, in texture x. The projector body runs to
-     about 0.53 in this frame and the beam leaves the lens at roughly 0.55, so
-     the warp ramps in past that and the machine is never displaced at all —
-     masking on brightness alone caught the lit casing and the lens with it. */
-  const float FOG_START = 0.56;
-  const float FOG_FULL = 0.70;
 
   varying vec2 vUv;
 
@@ -115,13 +112,13 @@ export const fragment = /* glsl */ `
     /* Only the fog past the lens moves.
 
        Masked in texture space, not screen space, so the boundary stays on the
-       lens whatever the crop: FOG_START/FOG_FULL gate it by x, and brightness
+       lens whatever the crop: uFog gates it by x, and brightness
        gates it again so the dark surround to the right of the beam stays still
        too. The projector, its casing and the lens fall entirely outside the
        mask and render exactly as before. */
     vec2 tc = cover(uv, uCoverA);
     float lit = luma(texture2D(tA, tc).rgb);
-    float fog = smoothstep(FOG_START, FOG_FULL, tc.x) * smoothstep(0.18, 0.62, lit);
+    float fog = smoothstep(uFog.x, uFog.y, tc.x) * smoothstep(0.18, 0.62, lit);
 
     /* Left to right: subtracting time from the x argument translates the noise
        field in +x, so its features march away from the lens. Two octaves at

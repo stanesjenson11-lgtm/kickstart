@@ -9,7 +9,17 @@ import { prefersReduced } from "@/lib/motion";
 const optimized = (src: string, w = 2048) =>
   `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
 
-type Props = { plates: readonly string[]; className?: string };
+type Props = {
+  plates: readonly string[];
+  /** Tall plates for phones held upright. Falls back to `plates`. */
+  portraitPlates?: readonly string[];
+  /** Fog ramp in texture x, per plate set — the lens is not in the same place. */
+  fog?: { landscape: readonly number[]; portrait: readonly number[] };
+  className?: string;
+};
+
+/** Phones only, matching the other phone-specific rules in globals.css. */
+const PHONE = "(max-width: 620px)";
 
 /**
  * The hero's moving image. ogl rather than three.js — everything here is one
@@ -17,16 +27,36 @@ type Props = { plates: readonly string[]; className?: string };
  * weight.
  *
  * Falls back to a static graded still if WebGL is unavailable or the visitor
- * prefers reduced motion. The <img> underneath is always rendered, so the
- * hero is never empty while textures load.
+ * prefers reduced motion. The still underneath is always rendered, so the hero
+ * is never empty while textures load.
  */
-export default function HeroCanvas({ plates, className = "" }: Props) {
+export default function HeroCanvas({
+  plates,
+  portraitPlates,
+  fog,
+  className = "",
+}: Props) {
   const host = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState(false);
+  // Bumped when the phone query flips, so the textures are rebuilt at the other
+  // orientation. Only rotating a device trips it, so a full teardown is fine.
+  const [epoch, setEpoch] = useState(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia(PHONE);
+    const onChange = () => setEpoch((e) => e + 1);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     if (prefersReduced() || !host.current) return;
     const el = host.current;
+    const portrait = Boolean(
+      window.matchMedia(PHONE).matches && portraitPlates?.length,
+    );
+    const plateSet = portrait && portraitPlates ? portraitPlates : plates;
+    const fogRamp = (portrait ? fog?.portrait : fog?.landscape) ?? [0.56, 0.7];
 
     let renderer: Renderer;
     try {
@@ -43,8 +73,8 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
     gl.canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block";
     el.appendChild(gl.canvas);
 
-    const textures = plates.map(() => new Texture(gl, { generateMipmaps: false }));
-    const sizes = plates.map(() => [1, 1] as [number, number]);
+    const textures = plateSet.map(() => new Texture(gl, { generateMipmaps: false }));
+    const sizes = plateSet.map(() => [1, 1] as [number, number]);
 
     const program = new Program(gl, {
       vertex,
@@ -60,6 +90,7 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
         uMouse: { value: [0.5, 0.45] },
         uMouseAmt: { value: 0 },
         uScroll: { value: 0 },
+        uFog: { value: [fogRamp[0], fogRamp[1]] },
       },
     });
 
@@ -67,7 +98,7 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
 
     /* --- textures ----------------------------------------------------- */
     let loaded = 0;
-    plates.forEach((src, i) => {
+    plateSet.forEach((src, i) => {
       const img = new Image();
       img.decoding = "async";
       img.onload = () => {
@@ -127,7 +158,7 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
       u.uTime.value = t;
 
       // Cross-dissolve through the montage.
-      const n = plates.length;
+      const n = plateSet.length;
       const phase = (t / DWELL) % n;
       const i = Math.floor(phase);
       const f = phase - i;
@@ -162,24 +193,30 @@ export default function HeroCanvas({ plates, className = "" }: Props) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       gl.canvas.remove();
     };
-  }, [plates]);
+  }, [plates, portraitPlates, fog, epoch]);
 
   return (
     <div ref={host} className={`absolute inset-0 overflow-hidden bg-ink ${className}`}>
       {/* Always present: covers texture load, no-WebGL, and reduced motion.
           Plain <img> on purpose — the src is already an optimizer URL, and
           next/image would wrap it in a container that fights the canvas. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={optimized(plates[0], 1920)}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000"
-        style={{
-          filter: "contrast(1.12) brightness(0.92)",
-          opacity: live ? 0 : 1,
-        }}
-      />
+      {/* A <source>, not JS: the phone requests the portrait plate on first
+          paint and never fetches the landscape one at all. */}
+      <picture>
+        {portraitPlates?.[0] && (
+          <source media={PHONE} srcSet={optimized(portraitPlates[0], 1200)} />
+        )}
+        <img
+          src={optimized(plates[0], 1920)}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000"
+          style={{
+            filter: "contrast(1.12) brightness(0.92)",
+            opacity: live ? 0 : 1,
+          }}
+        />
+      </picture>
     </div>
   );
 }

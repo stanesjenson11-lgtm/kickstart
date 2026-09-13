@@ -66,6 +66,10 @@
   /* The old `lg`, for the few places that keep their original responsive
      behaviour rather than running the desktop layout at every width. */
   --breakpoint-wide: 64rem;
+  /* Phones, for `max-phone:`. 621px so that `width < 621px` is `width <= 620px`
+     at whole-pixel widths — the same line HeroCanvas swaps plates on with
+     `(max-width: 620px)`, so the phone layout and the phone photo never split. */
+  --breakpoint-phone: 38.8125rem;
 
   --spacing-gutter: clamp(1.25rem, 5vw, 6rem);
   /* Grid gutter. Fixed 2rem gaps are impossible on a phone: 11 of them across a
