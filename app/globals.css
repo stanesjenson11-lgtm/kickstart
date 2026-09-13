@@ -98,6 +98,12 @@
   --z-media: 1;
   --z-content: 2;
   --z-sticky: 10;
+  /* The projector shot's fixed stage. Above section grounds and the hero
+     photograph, beneath every section's type: the projector is a physical
+     object in the set, and the typography stays in front of it as it travels,
+     rather than being wiped out by it. Equal to --z-media but earlier in the
+     DOM, so the hero's scrim still falls over it exactly as over the plate. */
+  --z-stage: 1;
   --z-nav: 20;
   --z-overlay: 30;
   --z-menu: 40;
@@ -575,4 +581,75 @@ button {
     oklch(0.145 0 0 / 0.28) 52%,
     transparent 78%
   );
+}
+
+/* ==========================================================================
+   The projector shot — Statement as the dark studio.
+   Every default below is the shot's END state, so the section is finished
+   without JS or under reduced motion. ProjectorShot writes the from-state
+   and scrubs these properties; nothing here is animated by CSS.
+   ========================================================================== */
+
+.st-stage {
+  --dark: 1;       /* ground: 0 paper → 1 ink */
+  --lit: 1;        /* the lit edge's sweep across the headline, 0 → 1 */
+  --lit-angle: 282deg; /* the sweep's direction: from the right, where the
+                          projector stands, keeping the cut's 12° lean */
+  --pool: 0;       /* the beam's own pool on the headline, 0 → 1 */
+  --pool-x: 30%;   /* pool centre, in the headline's box */
+  --pool-y: 45%;
+  --spill: 1;      /* secondary light on the section, 0 → 1 */
+  --spill-x: 30%;  /* spill centre, in the section's box */
+  --spill-y: 32%;
+  background-color: var(--color-ink);
+  background-color: color-mix(in oklch, var(--color-ink) calc(var(--dark) * 100%), var(--color-paper));
+}
+
+/* Secondary spill: the beam lifting the room around the type, faint enough to
+   read as bounce light rather than as a shape. */
+.st-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    55% 45% at var(--spill-x) var(--spill-y),
+    oklch(1 0 0 / calc(var(--spill) * 0.055)),
+    transparent 70%
+  );
+}
+
+/* The headline unlit: oklch 0.5 on ink is ~3.4:1, past the 3:1 large-text
+   floor, so it is subdued without ever becoming illegible. On paper it is the
+   ordinary ink it always was. */
+.st-base {
+  color: oklch(0.5 0 0);
+  color: color-mix(in oklch, oklch(0.5 0 0) calc(var(--dark) * 100%), var(--color-ink));
+}
+
+.st-body {
+  color: var(--color-muted-dark);
+  color: color-mix(in oklch, var(--color-muted-dark) calc(var(--dark) * 100%), var(--color-muted-light));
+}
+
+/* Light, not glow: near-white with a tight bloom and a wide, faint spill.
+   Two masks unioned — the edge sweeping along the lines at the cut's 12°, and
+   the pool where the beam itself is landing. */
+.st-lit {
+  /* The real heading is an h2 and inherits text-wrap: balance from the base
+     rules; this twin is a div, so without the same wrap it breaks its lines
+     elsewhere and the two copies stop registering — doubled, garbled type. */
+  text-wrap: balance;
+  color: oklch(0.985 0 0);
+  text-shadow:
+    0 0 0.08em oklch(1 0 0 / 0.32),
+    0 0 0.6em oklch(1 0 0 / 0.1);
+  -webkit-mask-image:
+    linear-gradient(var(--lit-angle), #000 calc(var(--lit) * 130% - 30%), transparent calc(var(--lit) * 130%)),
+    radial-gradient(38% 60% at var(--pool-x) var(--pool-y), rgb(0 0 0 / var(--pool)), transparent 72%);
+  mask-image:
+    linear-gradient(var(--lit-angle), #000 calc(var(--lit) * 130% - 30%), transparent calc(var(--lit) * 130%)),
+    radial-gradient(38% 60% at var(--pool-x) var(--pool-y), rgb(0 0 0 / var(--pool)), transparent 72%);
+  -webkit-mask-composite: source-over;
+  mask-composite: add;
 }

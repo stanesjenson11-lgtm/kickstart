@@ -39,6 +39,8 @@ export default function SmoothScroll() {
      * half a viewport of pull is enough to grab you mid-section.
      */
     let snap: Snap | undefined;
+    // Off while the projector shot is scrubbing — see onSnapToggle below.
+    let snapOn = true;
 
     /**
      * Where a frame should come to rest: its own top, plus its top padding.
@@ -70,7 +72,22 @@ export default function SmoothScroll() {
       document
         .querySelectorAll<HTMLElement>("[data-frame]")
         .forEach((el) => snap!.add(frameStart(el)));
+      // A rebuild mid-shot (a refresh on resize) must not quietly re-arm it.
+      if (!snapOn) snap.stop();
     };
+
+    /**
+     * The projector shot suspends snapping for its own scroll range. Stopping
+     * partway through the shot has to hold the frame where it is, not pull the
+     * page back to the hero and rewind the shot. A window event keeps the shot
+     * from needing a handle on this component.
+     */
+    const onSnapToggle = (e: Event) => {
+      snapOn = (e as CustomEvent<boolean>).detail;
+      if (snapOn) snap?.start();
+      else snap?.stop();
+    };
+    window.addEventListener("ks:snap", onSnapToggle);
 
     // Pinned sections cache their start/end when they are created. Web fonts
     // land after that and reflow every headline, so those cached values go
@@ -111,6 +128,7 @@ export default function SmoothScroll() {
 
     return () => {
       window.removeEventListener("load", refresh);
+      window.removeEventListener("ks:snap", onSnapToggle);
       document.removeEventListener("click", onClick);
       ScrollTrigger.removeEventListener("refresh", buildSnap);
       gsap.ticker.remove(tick);

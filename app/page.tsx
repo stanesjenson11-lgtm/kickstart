@@ -1,6 +1,7 @@
 import Loader from "@/components/chrome/Loader";
 import SmoothScroll from "@/components/chrome/SmoothScroll";
 import ZoomLock from "@/components/chrome/ZoomLock";
+import ProjectorShot from "@/components/chrome/ProjectorShot";
 import Nav from "@/components/chrome/Nav";
 import Footer from "@/components/chrome/Footer";
 
@@ -25,6 +26,7 @@ export default function Home() {
       <Loader />
       <SmoothScroll />
       <ZoomLock />
+      <ProjectorShot />
       <Nav />
       <main id="main">
         <Hero />

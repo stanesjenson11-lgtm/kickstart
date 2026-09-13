@@ -69,6 +69,47 @@ export const hero = {
   // sits at ~0.57, so the ramp starts just clear of the lens and is still
   // shallow at the corner — the crate edge barely moves.
   fog: { landscape: [0.56, 0.70], portrait: [0.53, 0.66] },
+  /* The projector shot. Mattes from scripts/cutout.py, per plate set. */
+  shot: {
+    masks: { landscape: "/hero/mask-desktop.png", portrait: "/hero/mask-phone.png" },
+    /**
+     * The projector as scripts/cutout.py cut it. `rect` is the cutout's bounds
+     * in plate texture space (the script prints it), `aspect` the plate's own
+     * width/height, `lens` the lens face within the cutout. `cutoutLeft` is the
+     * same photograph mirrored with its lettering put back the right way round,
+     * for after the projector turns; its lens sits at x = 1 - lens[0].
+     */
+    plates: {
+      landscape: {
+        cutout: "/hero/cutout-desktop.png",
+        cutoutLeft: "/hero/cutout-desktop-left.png",
+        aspect: 4000 / 2667,
+        rect: { x: 0.11825, y: 0.27672, w: 0.4195, h: 0.60855 },
+        lens: [0.978, 0.376],
+      },
+      portrait: {
+        cutout: "/hero/cutout-phone.png",
+        cutoutLeft: "/hero/cutout-phone-left.png",
+        aspect: 941 / 1672,
+        rect: { x: 0.09671, y: 0.53409, w: 0.39426, h: 0.2189 },
+        lens: [0.985, 0.381],
+      },
+    },
+    /**
+     * Where the projector comes to rest in the pinned Statement frame, turned
+     * round to face the headline from the right: centre and width as fractions
+     * of the viewport, angles in degrees (positive roll tips the lens up),
+     * `spread` the beam's half-angle in radians.
+     *
+     * Desktop sits level with the headline so the light crosses the frame
+     * almost flat. On a phone the headline fills the top of the screen, so the
+     * projector sits low and tilts up to reach it, with a wider cone.
+     */
+    end: {
+      landscape: { cx: 0.76, cy: 0.37, width: 0.27, roll: 8, yaw: 12, pitch: 3, spread: 0.14 },
+      portrait: { cx: 0.7, cy: 0.72, width: 0.56, roll: 32, yaw: 10, pitch: 3, spread: 0.22 },
+    },
+  },
   alt: "A studio light cutting a hard beam through haze on a Kickstart set",
 } as const;
 

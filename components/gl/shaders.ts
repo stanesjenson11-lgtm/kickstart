@@ -37,6 +37,11 @@ export const fragment = /* glsl */ `
   /* Fog boundary in texture x: (ramp start, fully on). Set per plate, because
      the lens is not in the same place in the landscape and portrait frames. */
   uniform vec2 uFog;
+  /* The projector shot. tMask is a soft matte of the projector in plate texture
+     space; uLift is how far the projector has left the photograph. Where both
+     are on, the patch it vacates is filled. */
+  uniform sampler2D tMask;
+  uniform float uLift;
 
   /* How far the smoke is pushed, in uv. The previous 0.024 worked out to about
      five pixels of travel on a phone over ten seconds, which is invisible —
@@ -77,6 +82,28 @@ export const fragment = /* glsl */ `
     vec3 a = texture2D(tA, cover(uv, uCoverA)).rgb;
     vec3 b = texture2D(tB, cover(uv, uCoverB)).rgb;
     return mix(a, b, uMix);
+  }
+
+  /* The set behind the projector, which the photograph never recorded. Rebuilt
+     from two rings of taps outside the matte, each weighted by how far outside
+     it lies so the machine's own pixels never bleed back in, then pulled down
+     toward a set whose key light has just been carried away. Two rings of eight
+     keeps it to sixteen taps — this runs across a patch of the hero every frame. */
+  vec3 vacated(vec2 tc) {
+    vec3 acc = vec3(0.0);
+    float wsum = 0.0;
+    for (int ring = 1; ring <= 2; ring++) {
+      float r = 0.06 * float(ring);
+      for (int k = 0; k < 8; k++) {
+        float ang = float(k) * 0.7853982 + float(ring) * 0.39;
+        vec2 p = tc + vec2(cos(ang), sin(ang)) * r;
+        float outside = 1.0 - texture2D(tMask, p).r;
+        float w = outside * outside;
+        acc += texture2D(tA, p).rgb * w;
+        wsum += w;
+      }
+    }
+    return (wsum > 0.001 ? acc / wsum : vec3(0.0)) * 0.35;
   }
 
   // Signed distance to a line segment — the bolt is built from four of them.
@@ -134,6 +161,10 @@ export const fragment = /* glsl */ `
 
     vec3 base = plate(huv);
 
+    // Where the projector has lifted away, the plate shows the set behind it.
+    float hole = texture2D(tMask, tc).r * uLift;
+    if (hole > 0.002) base = mix(base, vacated(tc), hole);
+
     // Halation: highlights bleed outward, the way film shoulders roll off. The
     // bleed is driven by the blurred sample's brightness, so it reads off luma
     // while the colour it lifts stays the plate's own. Sampled off the warped
@@ -146,7 +177,8 @@ export const fragment = /* glsl */ `
       halo += plate(huv + o);
     }
     halo *= 0.25;
-    float lift = smoothstep(0.55, 1.0, luma(halo));
+    // The vacated patch must not keep glowing from the projector that left it.
+    float lift = smoothstep(0.55, 1.0, luma(halo)) * (1.0 - hole);
 
     vec3 c = base + lift * 0.22;
 

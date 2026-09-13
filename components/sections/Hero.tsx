@@ -55,6 +55,7 @@ export default function Hero() {
         plates={hero.plates}
         portraitPlates={hero.platesPortrait}
         fog={hero.fog}
+        masks={hero.shot.masks}
       />
 
       {/* The plates are bright through the middle; white type needs ground.

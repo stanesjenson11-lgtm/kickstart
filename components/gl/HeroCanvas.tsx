@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Renderer, Program, Mesh, Triangle, Texture } from "ogl";
 import { vertex, fragment } from "./shaders";
 import { prefersReduced } from "@/lib/motion";
+import { shot } from "@/lib/shot";
 
 /** Route through Next's optimizer: same-origin (no CORS on the texture) and AVIF/WebP. */
 const optimized = (src: string, w = 2048) =>
@@ -15,6 +16,8 @@ type Props = {
   portraitPlates?: readonly string[];
   /** Fog ramp in texture x, per plate set — the lens is not in the same place. */
   fog?: { landscape: readonly number[]; portrait: readonly number[] };
+  /** Projector mattes per plate set, for filling the patch the shot vacates. */
+  masks?: { landscape: string; portrait: string };
   className?: string;
 };
 
@@ -34,6 +37,7 @@ export default function HeroCanvas({
   plates,
   portraitPlates,
   fog,
+  masks,
   className = "",
 }: Props) {
   const host = useRef<HTMLDivElement>(null);
@@ -74,6 +78,15 @@ export default function HeroCanvas({
     el.appendChild(gl.canvas);
 
     const textures = plateSet.map(() => new Texture(gl, { generateMipmaps: false }));
+    // Black until it loads, which reads as "nothing vacated" — the right default.
+    const maskTex = new Texture(gl, { generateMipmaps: false });
+    const maskSrc = portrait ? masks?.portrait : masks?.landscape;
+    if (maskSrc) {
+      const m = new Image();
+      m.decoding = "async";
+      m.onload = () => (maskTex.image = m);
+      m.src = maskSrc;
+    }
     const sizes = plateSet.map(() => [1, 1] as [number, number]);
 
     const program = new Program(gl, {
@@ -91,6 +104,8 @@ export default function HeroCanvas({
         uMouseAmt: { value: 0 },
         uScroll: { value: 0 },
         uFog: { value: [fogRamp[0], fogRamp[1]] },
+        tMask: { value: maskTex },
+        uLift: { value: 0 },
       },
     });
 
@@ -109,12 +124,18 @@ export default function HeroCanvas({
       img.src = optimized(src);
     });
 
-    /* --- object-fit: cover, in shader space --------------------------- */
+    /* --- object-fit: cover, in shader space ---------------------------
+       The scale is the share of the texture visible along each axis, so it is
+       at most 1 and the plate keeps its proportions. It used to be the
+       reciprocal, which sampled past the texture edge: the photograph was
+       squashed along one axis and the edge row smeared into the gap. That also
+       put the projector somewhere other than where its true-to-life cutout
+       would land at the start of the projector shot. */
     const coverFor = (i: number): [number, number] => {
       const [tw, th] = sizes[i];
       const screen = gl.canvas.width / gl.canvas.height;
       const tex = tw / th;
-      return screen > tex ? [1, screen / tex] : [tex / screen, 1];
+      return screen > tex ? [1, tex / screen] : [screen / tex, 1];
     };
 
     const resize = () => {
@@ -179,6 +200,7 @@ export default function HeroCanvas({
 
       const r = el.getBoundingClientRect();
       u.uScroll.value = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)));
+      u.uLift.value = shot.lift;
 
       renderer.render({ scene: mesh });
     };
@@ -193,7 +215,7 @@ export default function HeroCanvas({
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       gl.canvas.remove();
     };
-  }, [plates, portraitPlates, fog, epoch]);
+  }, [plates, portraitPlates, fog, masks, epoch]);
 
   return (
     <div ref={host} className={`absolute inset-0 overflow-hidden bg-ink ${className}`}>
