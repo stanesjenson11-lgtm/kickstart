@@ -20,9 +20,9 @@ export const site = {
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
-  whatsapp: "910000000000",
-  instagram: "https://instagram.com/",
-  linkedin: "https://linkedin.com/",
+  whatsapp: "9677827166",
+  instagram: "https://www.instagram.com/kickstartcreativestudio?stkn=OHY4eHBmZXBiOHZi",
+  linkedin: "https://www.linkedin.com/company/kickstart-creativestudio/",
 } as const;
 
 export const nav = {

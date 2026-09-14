@@ -62,26 +62,47 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+/* WebSite is what Google reads for the site name shown above the result;
+   the business entry carries the logo and the brand's other profiles. */
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: site.legalName,
-  alternateName: site.name,
-  url: site.url,
-  email: site.email,
-  description: site.description,
-  foundingDate: "2025-08",
-  areaServed: "IN",
-  serviceType: [
-    "Corporate photography",
-    "Corporate videography",
-    "Corporate headshots",
-    "Event photography",
-    "Advertising production",
-    "Brand films",
-    "Social media marketing",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      name: site.name,
+      alternateName: "Kickstart",
+      url: site.url,
+      publisher: { "@id": `${site.url}/#business` },
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": `${site.url}/#business`,
+      name: site.name,
+      legalName: site.legalName,
+      alternateName: "Kickstart",
+      url: site.url,
+      logo: `${site.url}/logo-black.png`,
+      image: `${site.url}/opengraph-image`,
+      email: site.email,
+      description: site.description,
+      founder: { "@type": "Person", name: "Jerry Joshan" },
+      foundingDate: "2025-08",
+      areaServed: "IN",
+      serviceType: [
+        "Corporate photography",
+        "Corporate videography",
+        "Corporate headshots",
+        "Event photography",
+        "Advertising production",
+        "Brand films",
+        "Social media marketing",
+      ],
+      // ponytail: skips the bare instagram.com/linkedin.com placeholders in
+      // lib/content.ts; real profile URLs there flow in with no change here.
+      sameAs: [site.instagram, site.linkedin].filter((u) => new URL(u).pathname.length > 1),
+    },
   ],
-  sameAs: [site.instagram, site.linkedin],
 };
 
 export default function RootLayout({
@@ -101,7 +122,7 @@ export default function RootLayout({
         {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
       </body>
     </html>
