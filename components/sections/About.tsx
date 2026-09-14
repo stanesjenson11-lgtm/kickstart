@@ -42,7 +42,7 @@ export default function About() {
           The clearfix is a grid item from `bar` up, so it is hidden there. */}
       <div className="w-full px-gutter pt-24 pb-section bar:py-section after:block after:clear-both after:content-[''] bar:grid bar:grid-cols-12 bar:gap-grid bar:after:hidden">
         <h2
-          className="ab-fade u-display text-h1 whitespace-pre-line max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pt-10 bar:pl-10 bar:translate-y-12"
+          className="ab-fade u-display text-h1 whitespace-pre-line max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-1 bar:max-w-none bar:pl-10"
           style={{ ["--wdth" as string]: 104 }}
         >
           {about.headline}
@@ -64,7 +64,7 @@ export default function About() {
             of the heading and the photo's mt-16 drops with it; the desktop grid
             keeps it flush to its row. */}
         <p
-          className="ab-fade pt-15 hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:pt-0 bar:max-w-[60ch] bar:pl-10 bar:-translate-y-10"
+          className="ab-fade pt-15 hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:pt-0 bar:max-w-none bar:pl-10"
         >
           {about.body}
         </p>
