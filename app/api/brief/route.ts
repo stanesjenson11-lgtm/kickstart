@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { z } from "zod";
+import * as z from "zod/mini";
 import { briefSchema } from "@/lib/brief-schema";
+import { formatPhone } from "@/lib/phone";
 import { ackEmail, briefRef, leadEmail } from "@/lib/brief-email";
 
-/** Far above any honest brief — the schema caps the details at 4,000 characters. */
+/** Far above any honest brief — the longest field is capped at 2,000 characters. */
 const MAX_BODY = 16_000;
 
 /** The Turnstile token travels with the brief but is not part of it. */
-const requestSchema = briefSchema.extend({ token: z.string().min(1).max(2048) });
+const requestSchema = z.extend(briefSchema, {
+  token: z.string().check(z.minLength(1, "Verification is required."), z.maxLength(2048)),
+});
+
+const PHONE_INVALID = "Enter a valid phone number with its country code, like +91 98765 43210.";
 
 /**
  * Cloudflare Turnstile's verdict on the widget token. Every failure — a bad or
@@ -30,7 +35,24 @@ async function isHuman(token: string, secret: string, ip: string | null) {
   }
 }
 
+/** JSON from the page's own submit; url-encoded when the form posts without
+    JavaScript, with Turnstile's own field name for the token. */
+function parseBody(raw: string, type: string): unknown {
+  if (!type.includes("application/x-www-form-urlencoded")) return JSON.parse(raw);
+  const fields = Object.fromEntries(new URLSearchParams(raw));
+  return { ...fields, token: fields["cf-turnstile-response"] ?? fields.token };
+}
+
+const invalid = (issues: { path: string[]; message: string }[]) =>
+  NextResponse.json({ error: "Validation failed.", issues }, { status: 422 });
+
 export async function POST(req: Request) {
+  // The form only ever posts to its own origin, so a cross-site post is refused.
+  const origin = req.headers.get("origin");
+  if (origin && origin !== new URL(req.url).origin) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
   // Refuse on the declared length before buffering, then again on what arrived,
   // since a chunked request declares none.
   if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY) {
@@ -43,16 +65,15 @@ export async function POST(req: Request) {
 
   let body: unknown;
   try {
-    body = JSON.parse(raw);
+    body = parseBody(raw, req.headers.get("content-type") ?? "");
   } catch {
     return NextResponse.json({ error: "Malformed request." }, { status: 400 });
   }
 
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed.", issues: parsed.error.issues },
-      { status: 422 },
+    return invalid(
+      parsed.error.issues.map((i) => ({ path: i.path.map(String), message: i.message })),
     );
   }
 
@@ -60,6 +81,9 @@ export async function POST(req: Request) {
 
   // Honeypot tripped: accept silently so the bot learns nothing.
   if (brief.website) return NextResponse.json({ ok: true });
+
+  const phone = formatPhone(brief.phone);
+  if (!phone) return invalid([{ path: ["phone"], message: PHONE_INVALID }]);
 
   const key = process.env.RESEND_API_KEY;
   const secret = process.env.TURNSTILE_SECRET_KEY;
@@ -80,13 +104,14 @@ export async function POST(req: Request) {
   const ref = briefRef();
   const from = process.env.LEAD_FROM_EMAIL ?? "Kickstart <onboarding@resend.dev>";
   const resend = new Resend(key);
+  const clean = { ...brief, phone };
 
   try {
-    const lead = await leadEmail(brief, ref);
+    const lead = await leadEmail(clean, ref);
     const { data, error } = await resend.emails.send({
       from,
       to,
-      replyTo: brief.email,
+      replyTo: clean.email,
       subject: lead.subject,
       html: lead.html,
       text: lead.text,
@@ -104,10 +129,10 @@ export async function POST(req: Request) {
   // The acknowledgement is a courtesy; the lead is the thing that matters and
   // it has already gone. A failure here is logged, never surfaced.
   try {
-    const ack = await ackEmail(brief, ref);
+    const ack = await ackEmail(clean, ref);
     await resend.emails.send({
       from,
-      to: [brief.email],
+      to: [clean.email],
       replyTo: to[0],
       subject: ack.subject,
       html: ack.html,

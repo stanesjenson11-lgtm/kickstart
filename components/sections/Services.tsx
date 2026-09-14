@@ -82,10 +82,10 @@ export default function Services() {
             effectively always on. */}
         <div className="bar:flex bar:gap-[clamp(1rem,4.4vw,4rem)]">
           <div className="bar:sticky bar:top-28 bar:h-fit bar:w-[38%] bar:shrink-0">
+            <p className="u-meta mt-6">{services.label}</p>
             <h2 className="u-display text-h2 bar:text-h1" style={{ ["--wdth" as string]: 106 }}>
               {services.headline}
             </h2>
-            <p className="u-meta mt-6">{services.label}</p>
           </div>
 
           <div className="svc-list mt-6 bar:mt-0 bar:flex-1">

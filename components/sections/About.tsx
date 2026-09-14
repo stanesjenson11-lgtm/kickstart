@@ -64,7 +64,7 @@ export default function About() {
             of the heading and the photo's mt-16 drops with it; the desktop grid
             keeps it flush to its row. */}
         <p
-          className="ab-fade pt-15 hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:pt-0 bar:max-w-[45ch] bar:pl-10"
+          className="ab-fade pt-15 hyphens-auto text-body leading-[1.85] text-justify text-muted-light max-w-[64rem] bar:col-span-7 bar:col-start-1 bar:row-start-2 bar:pt-0 bar:max-w-none bar:pl-10"
         >
           {about.body}
         </p>

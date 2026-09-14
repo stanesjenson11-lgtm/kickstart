@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Script from "next/script";
 import { PlusIcon } from "lucide-react";
 import { contact, form, site } from "@/lib/content";
-import { briefSchema } from "@/lib/brief-schema";
+import { briefSchema, keepAllowed, LIMITS, TIMELINES, type LimitedField } from "@/lib/brief-schema";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Plate from "@/components/ui/Plate";
 
 type Status = "idle" | "sending" | "sent" | "error";
+type Issue = { path: readonly PropertyKey[]; message: string };
 
 const CARD =
   "rounded-xl border border-paper/20 bg-ink/50 p-6 shadow-2xl shadow-black/70 sm:p-8 backdrop-blur-xl";
+
+const CHECK_FIELDS = "Some details need a look before this can send.";
+const PHONE_INVALID = "Enter a valid phone number with its country code, like +91 98765 43210.";
+const NETWORK_FAILED = "That did not send. Try again, or email us directly and we will pick it up.";
+/** What a refused send says, by status. Anything else reads as a network problem. */
+const SEND_FAILED: Record<number, string> = {
+  403: "We couldn't confirm this came from a real browser. Please try again.",
+  413: "That brief is too long to send. Please shorten the project details.",
+  429: "Too many attempts in a row. Wait a minute, then try again.",
+};
 
 /**
  * Label is visually hidden and the placeholder carries it, so the card stays as
@@ -25,6 +36,7 @@ function Field({
   required,
   autoComplete,
   textarea,
+  options,
   error,
 }: {
   label: string;
@@ -34,23 +46,43 @@ function Field({
   required?: boolean;
   autoComplete?: string;
   textarea?: boolean;
+  /** Renders a select of these values, with the placeholder as its empty choice. */
+  options?: readonly string[];
   error?: string;
 }) {
   const id = `f-${name}`;
   const cls =
     "w-full rounded-md border border-paper/15 bg-paper/[0.04] px-3.5 py-2.5 text-sm text-paper placeholder:text-muted-dark/70 transition-colors duration-300 focus:border-paper focus:bg-paper/[0.07] focus:outline-none aria-invalid:border-paper";
+  const aria = {
+    "aria-invalid": Boolean(error),
+    "aria-describedby": error ? `${id}-err` : undefined,
+  };
+  const limited = name in LIMITS ? (name as LimitedField) : null;
+  // maxLength stops typing and pasting at the field's cap.
+  const limit = { maxLength: limited ? LIMITS[limited].max : undefined, onInput };
 
+  /** Drops characters the field doesn't allow as they are typed or pasted, and
+      keeps the caret where it was. Skipped mid-composition, so IME keyboards
+      can finish a character before it is judged. */
+  function onInput(e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const el = e.currentTarget;
+    if (!limited || (e.nativeEvent as InputEvent).isComposing) return;
+    const kept = keepAllowed(limited, el.value);
+    if (kept === el.value) return;
+    const caret = Math.max(0, (el.selectionStart ?? el.value.length) - (el.value.length - kept.length));
+    el.value = kept;
+    try {
+      el.setSelectionRange(caret, caret);
+    } catch {
+      // Email inputs expose no selection; the caret just lands at the end.
+    }
+  }
+
+  // No reserved label height: fields stack in one column on a phone, and every
+  // label fits on one line in the two-column card, so there is nothing to align.
   return (
-    <p className="flex flex-col gap-1.5">
-      {/* Two lines reserved, with the line-height pinned so the arithmetic is
-          local rather than inherited. A label that wraps would otherwise push
-          its own input below its neighbour's and the row would read as a
-          diagonal. At phone width every one of these wraps, so the reserved
-          space is space that gets used. */}
-      <label
-        htmlFor={id}
-        className="u-meta min-h-[2.8em] leading-[1.4] text-muted-dark"
-      >
+    <p className="flex flex-col gap-1">
+      <label htmlFor={id} className="u-meta leading-[1.4] text-muted-dark">
         {label}
       </label>
       {textarea ? (
@@ -60,10 +92,28 @@ function Field({
           rows={3}
           required={required}
           placeholder={placeholder}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-err` : undefined}
+          {...aria}
+          {...limit}
           className={`${cls} resize-y`}
         />
+      ) : options ? (
+        <select
+          id={id}
+          name={name}
+          required={required}
+          defaultValue=""
+          {...aria}
+          className={`${cls} invalid:text-muted-dark/70`}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
       ) : (
         <input
           id={id}
@@ -72,8 +122,8 @@ function Field({
           required={required}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-err` : undefined}
+          {...aria}
+          {...limit}
           className={cls}
         />
       )}
@@ -90,14 +140,35 @@ export default function Contact() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
+  // A double click lands before React has re-rendered the button as disabled.
+  const busy = useRef(false);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function showErrors(issues: readonly Issue[]) {
+    const next: Record<string, string> = {};
+    for (const issue of issues) next[String(issue.path[0])] ??= issue.message;
+    setErrors(next);
+    setFormError(CHECK_FIELDS);
+  }
+
+  /** A field showing an error is re-checked as it changes, so fixing it clears
+      that one message and leaves the others alone. */
+  function onFieldChange(e: React.FormEvent<HTMLFormElement>) {
+    const { name, value } = e.target as HTMLInputElement;
+    if (!errors[name] || !(name in briefSchema.shape)) return;
+    const result = briefSchema.shape[name as keyof typeof briefSchema.shape].safeParse(value);
+    const next = { ...errors };
+    if (result.success) delete next[name];
+    else next[name] = result.error.issues[0].message;
+    setErrors(next);
+    if (!Object.keys(next).length) setFormError("");
+  }
+
+  async function send(formEl: HTMLFormElement) {
     setErrors({});
     setFormError("");
 
-    const fd = new FormData(e.currentTarget);
-    const payload = {
+    const fd = new FormData(formEl);
+    const parsed = briefSchema.safeParse({
       name: String(fd.get("name") ?? ""),
       company: String(fd.get("company") ?? ""),
       email: String(fd.get("email") ?? ""),
@@ -106,19 +177,12 @@ export default function Contact() {
       details: String(fd.get("details") ?? ""),
       timeline: String(fd.get("timeline") ?? ""),
       website: String(fd.get("website") ?? ""),
-    };
+    });
+    if (!parsed.success) return showErrors(parsed.error.issues);
 
-    const parsed = briefSchema.safeParse(payload);
-    if (!parsed.success) {
-      const next: Record<string, string> = {};
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0]);
-        next[key] ??= issue.message;
-      }
-      setErrors(next);
-      setFormError("Some details need a look before this can send.");
-      return;
-    }
+    // Every country's numbering plan: fetched on the first submit, not with the page.
+    const { formatPhone } = await import("@/lib/phone");
+    if (!formatPhone(parsed.data.phone)) return showErrors([{ path: ["phone"], message: PHONE_INVALID }]);
 
     // Turnstile writes this hidden field once it has checked the browser.
     const token = String(fd.get("cf-turnstile-response") ?? "");
@@ -128,21 +192,41 @@ export default function Contact() {
     }
 
     setStatus("sending");
+    // Tokens are single-use, so any retry needs a fresh one.
+    const resetCheck = () =>
+      (window as Window & { turnstile?: { reset: () => void } }).turnstile?.reset();
     try {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...parsed.data, token }),
       });
-      if (!res.ok) throw new Error(String(res.status));
-      setStatus("sent");
-    } catch {
+      if (res.ok) return setStatus("sent");
+
+      resetCheck();
       setStatus("error");
-      // Tokens are single-use, so a retry needs a fresh one.
-      (window as Window & { turnstile?: { reset: () => void } }).turnstile?.reset();
-      setFormError(
-        "That did not send. Try again, or email us directly and we will pick it up.",
-      );
+      if (res.status === 422) {
+        const data = (await res.json().catch(() => null)) as { issues?: Issue[] } | null;
+        return data?.issues?.length ? showErrors(data.issues) : setFormError(CHECK_FIELDS);
+      }
+      setFormError(SEND_FAILED[res.status] ?? NETWORK_FAILED);
+    } catch {
+      resetCheck();
+      setStatus("error");
+      setFormError(NETWORK_FAILED);
+    }
+  }
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy.current) return;
+    busy.current = true;
+    // currentTarget is gone once the handler awaits, so hand the form over now.
+    const formEl = e.currentTarget;
+    try {
+      await send(formEl);
+    } finally {
+      busy.current = false;
     }
   }
 
@@ -200,12 +284,22 @@ export default function Contact() {
               </p>
             </div>
           ) : (
-            <form onSubmit={onSubmit} noValidate className={CARD}>
+            // method and action only matter with JavaScript off: the brief then
+            // posts to the route, which validates it all the same, instead of
+            // landing in the address bar as a query string.
+            <form
+              onSubmit={onSubmit}
+              onChange={onFieldChange}
+              method="post"
+              action="/api/brief"
+              noValidate
+              className={CARD}
+            >
               {/* Fields pair up two to a row so the card stays short; the
                   textarea and the button run the full width. */}
               <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
                 <Field
-                  label="Your name"
+                  label="Name"
                   name="name"
                   placeholder="Jane Doe"
                   required
@@ -216,10 +310,12 @@ export default function Contact() {
                   label="Company"
                   name="company"
                   placeholder="Where you work"
+                  required
                   autoComplete="organization"
+                  error={errors.company}
                 />
                 <Field
-                  label="Your email"
+                  label="Email"
                   name="email"
                   type="email"
                   placeholder="you@company.com"
@@ -228,14 +324,16 @@ export default function Contact() {
                   error={errors.email}
                 />
                 <Field
-                  label="Phone / WhatsApp"
+                  label="Phone"
                   name="phone"
                   type="tel"
                   placeholder="+91 00000 00000"
+                  required
                   autoComplete="tel"
+                  error={errors.phone}
                 />
                 <Field
-                  label="What do you need?"
+                  label="Requirements?"
                   name="needs"
                   placeholder="Brand film, event coverage, social…"
                   required
@@ -244,7 +342,8 @@ export default function Contact() {
                 <Field
                   label="Timeline"
                   name="timeline"
-                  placeholder="ASAP, this month, still exploring…"
+                  placeholder="Select a timeline"
+                  options={TIMELINES}
                   required
                   error={errors.timeline}
                 />
@@ -260,8 +359,10 @@ export default function Contact() {
                 </div>
               </div>
 
+              {/* Padding, not margin: the global `p { margin: 0 }` is unlayered
+                  and outranks margin utilities. */}
               {formError && (
-                <p role="alert" className="mt-3 u-meta text-paper">
+                <p role="alert" className="pt-3 u-meta text-paper">
                   {formError}
                 </p>
               )}
@@ -292,9 +393,10 @@ export default function Contact() {
                 </MagneticButton>
               </div>
 
-              {/* Notice at the point of collection (DPDP). normal-case and
-                  tracking with `!`: .u-meta is unlayered and outranks utilities. */}
-              <p className="mt-4 text-center u-meta normal-case! tracking-[0.04em]! text-muted-dark">
+              {/* Notice at the point of collection (DPDP). Padding for the gap,
+                  as above; size, case and tracking carry `!` because .u-meta is
+                  unlayered and outranks the utilities. */}
+              <p className="pt-5 text-center u-meta normal-case! tracking-[0.04em]! text-[0.625rem]! max-phone:text-[0.6875rem]! text-muted-dark">
                 We use these details only to reply to your brief. See our{" "}
                 <a href="/privacy" className="text-paper underline! underline-offset-4">
                   Privacy Policy
