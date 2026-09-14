@@ -32,7 +32,7 @@ export const nav = {
     { label: "About", href: "#about" },
     { label: "Contact", href: "#contact" },
   ],
-  cta: { label: "Start a project", href: "#contact" },
+  cta: { label: "Work with Us", href: "#contact" },
 } as const;
 
 /* 01 — HERO ------------------------------------------------------------- */
@@ -40,7 +40,7 @@ export const hero = {
   headline: ["We make brands", "look remarkable."],
   support: "Premium visual storytelling, media production & social media for ambitious brands.",
   primary: { label: "View our work", href: "#work" },
-  secondary: { label: "Start a project", href: "#contact" },
+  secondary: { label: "Work with Us", href: "#contact" },
   disciplines: ["Media production", "Corporate", "Advertising", "Events", "Social"],
   /**
    * The hero renders these as a slow WebGL cross-dissolve montage with film
@@ -126,7 +126,7 @@ export const showreel = {
 
 /* 05 — SERVICES ---------------------------------------------------------- */
 export const services = {
-  label: "What we create",
+  label: "We create",
   headline: "From first idea to final frame.",
   groups: [
     {
@@ -346,7 +346,7 @@ export const about = {
 export const faq = [
   {
     q: "What type of companies do you work with?",
-    a: "Corporates, funded startups, agencies and established consumer brands — anyone who needs their visual output to look as considered as the rest of their business. We work with teams of five and teams of five thousand.",
+    a: "Corporates, funded startups, agencies and established consumer brands anyone who needs their visual output to look as considered as the rest of their business. We work with teams of five and teams of five thousand.",
   },
   {
     q: "Do you travel for shoots and events?",
