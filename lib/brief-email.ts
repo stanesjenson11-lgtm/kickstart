@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import { site, footer as footerContent } from "./content";
 import type { Brief } from "./brief-schema";
@@ -95,6 +96,23 @@ export const briefRef = () =>
   `KS-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
 /**
+ * public/ straight off disk under Node (next dev, Vercel). A Cloudflare Worker
+ * has no disk, so there the same file comes through the static-assets binding,
+ * which only reads the URL's path — the host is a placeholder.
+ */
+async function readPublic(file: string) {
+  try {
+    return await readFile(path.join(process.cwd(), "public", file));
+  } catch (err) {
+    const assets = getCloudflareContext().env.ASSETS;
+    if (!assets) throw err;
+    const res = await assets.fetch(new URL(`/${file}`, "https://assets.local"));
+    if (!res.ok) throw new Error(`${file}: ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
+  }
+}
+
+/**
  * Reads only the assets an email actually references. A missing file degrades
  * that one element — never the send.
  */
@@ -102,7 +120,7 @@ async function loadAssets(keys: readonly AssetKey[]) {
   const entries = await Promise.all(
     keys.map(async (key) => {
       try {
-        const file = await readFile(path.join(process.cwd(), "public", ASSETS[key]));
+        const file = await readPublic(ASSETS[key]);
         return [key, file.toString("base64")] as const;
       } catch {
         // ponytail: a missing asset must never cost us the lead.

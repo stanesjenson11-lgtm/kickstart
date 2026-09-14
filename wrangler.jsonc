@@ -1,0 +1,27 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	// Must match the Worker name in the Cloudflare dashboard, and so must the
+	// self-reference below. Left to the migrate command, both came from the
+	// package.json name and the binding pointed at a Worker that doesn't exist.
+	"name": "kickstart",
+	"compatibility_date": "2026-09-11",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "kickstart"
+		}
+	],
+	"images": {
+		// Serves next/image optimisation, see https://opennext.js.org/cloudflare/howtos/image
+		"binding": "IMAGES"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
