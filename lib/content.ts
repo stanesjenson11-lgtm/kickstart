@@ -4,12 +4,9 @@
  * Replacing the placeholder photography with real Kickstart work is a one-file
  * change: swap the `src` values below. Nothing else references image URLs.
  *
- * Placeholder photography is Unsplash. Every URL was verified (HTTP 200) and
- * visually reviewed before being committed here.
+ * Placeholder photography is Unsplash, downloaded once into public/placeholders
+ * so every image is same-origin and pre-sized by scripts/images.mjs.
  */
-
-export const IMG = (id: string, w = 1600, q = 80) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=${q}`;
 
 
 export const site = {
@@ -20,8 +17,8 @@ export const site = {
     "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
-  whatsapp: "9677827166",
-  instagram: "https://www.instagram.com/kickstartcreativestudio?stkn=OHY4eHBmZXBiOHZi",
+  whatsapp: "919677827166",
+  instagram: "https://www.instagram.com/kickstartcreativestudio/",
   linkedin: "https://www.linkedin.com/company/kickstart-creativestudio/",
 } as const;
 
@@ -55,9 +52,8 @@ export const hero = {
    * the grain, halation, drifting bolt and cursor displacement carry the motion.
    * Add entries here and the montage starts cycling again on its own.
    */
-  plates: [IMG("photo-1478720568477-152d9b164e26", 2000)],
-  /* Phones held upright. A local file, not IMG() — that helper only builds an
-     Unsplash URL, and HeroCanvas routes either kind through the optimizer. */
+  plates: ["/placeholders/hero-plate.jpg"],
+  /* Phones held upright. */
   platesPortrait: ["/hero/projector-phone.png"],
   /**
    * Where the fog starts, per plate set, as a fraction of texture width: the
@@ -132,7 +128,7 @@ export const services = {
     {
       title: "Corporate visuals",
       items: ["Executive/founder portraits", "Corporate headshots", "Team photography"],
-      src: IMG("photo-1519085360753-af0119f7cbe7", 1400),
+      src: "/placeholders/services-1.jpg",
     },
     {
       title: "Events",
@@ -142,7 +138,7 @@ export const services = {
     {
       title: "Advertising",
       items: ["Campaign films", "Commercials", "Product content", "Brand films"],
-      src: IMG("photo-1574717024653-61fd2cf4d44d", 1400),
+      src: "/placeholders/services-2.jpg",
     },
     {
       title: "Social media",
@@ -154,7 +150,7 @@ export const services = {
         "Social media management",
         "Paid ads management",
       ],
-      src: IMG("photo-1563986768609-322da13575f3", 1400),
+      src: "/placeholders/services-3.jpg",
     },
   ],
 } as const;
@@ -370,13 +366,13 @@ export const faq = [
 
 export const contact = {
   headline: "Contact us",
-  /* `rect` crops the source to its left 62% before Unsplash resizes it. The
+  /* Downloaded with `rect=0,0,1740,1861`: the source cropped to its left 62%. The
      full frame has a costumed dancer on the marks at ~0.65 across who reads as
      unprofessional at background scale; cropping there keeps the operator, the
      cinema camera, the magenta rim and the LED tubes — and the grade, which is
      the whole reason for this picture. Crop, not a different photo: nothing
      free-licensed pairs this lighting with a professional model. */
-  bg: `${IMG("photo-1601506521937-0121a7fc2a6b", 2400)}&rect=0,0,1740,1861`,
+  bg: "/placeholders/contact-bg.jpg",
 } as const;
 
 export const form = {

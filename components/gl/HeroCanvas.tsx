@@ -6,9 +6,11 @@ import { vertex, fragment } from "./shaders";
 import { prefersReduced } from "@/lib/motion";
 import { shot } from "@/lib/shot";
 
-/** Route through Next's optimizer: same-origin (no CORS on the texture) and AVIF/WebP. */
-const optimized = (src: string, w = 2048) =>
-  `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
+import { imagePath } from "@/lib/image-loader";
+
+/** One width per plate set, shared by the still and the texture, so each plate
+    is fetched once. The two used to ask for different sizes and download twice. */
+const PLATE_W = { landscape: 2048, portrait: 1080 };
 
 type Props = {
   plates: readonly string[];
@@ -124,7 +126,7 @@ export default function HeroCanvas({
         sizes[i] = [img.naturalWidth, img.naturalHeight];
         if (++loaded === 1) setLive(true);
       };
-      img.src = optimized(src);
+      img.src = imagePath(src, portrait ? PLATE_W.portrait : PLATE_W.landscape);
     });
 
     /* --- object-fit: cover, in shader space ---------------------------
@@ -223,16 +225,16 @@ export default function HeroCanvas({
   return (
     <div ref={host} className={`absolute inset-0 overflow-hidden bg-ink ${className}`}>
       {/* Always present: covers texture load, no-WebGL, and reduced motion.
-          Plain <img> on purpose — the src is already an optimizer URL, and
+          Plain <img> on purpose — the src is already a pre-sized URL, and
           next/image would wrap it in a container that fights the canvas. */}
       {/* A <source>, not JS: the phone requests the portrait plate on first
           paint and never fetches the landscape one at all. */}
       <picture>
         {portraitPlates?.[0] && (
-          <source media={PHONE} srcSet={optimized(portraitPlates[0], 1200)} />
+          <source media={PHONE} srcSet={imagePath(portraitPlates[0], PLATE_W.portrait)} />
         )}
         <img
-          src={optimized(plates[0], 1920)}
+          src={imagePath(plates[0], PLATE_W.landscape)}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-1000"

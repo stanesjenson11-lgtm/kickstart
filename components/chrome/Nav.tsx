@@ -78,7 +78,7 @@ export default function Nav() {
               width={1000}
               height={182}
               sizes="180px"
-              priority
+              loading="eager"
               data-logo="white"
             />
             <Image

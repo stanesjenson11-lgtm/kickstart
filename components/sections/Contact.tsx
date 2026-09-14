@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import { PlusIcon } from "lucide-react";
 import { contact, form, site } from "@/lib/content";
 import { briefSchema } from "@/lib/brief-schema";
@@ -119,17 +120,26 @@ export default function Contact() {
       return;
     }
 
+    // Turnstile writes this hidden field once it has checked the browser.
+    const token = String(fd.get("cf-turnstile-response") ?? "");
+    if (!token) {
+      setFormError("One moment — we are still checking this is a real browser. Try again.");
+      return;
+    }
+
     setStatus("sending");
     try {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify({ ...parsed.data, token }),
       });
       if (!res.ok) throw new Error(String(res.status));
       setStatus("sent");
     } catch {
       setStatus("error");
+      // Tokens are single-use, so a retry needs a fresh one.
+      (window as Window & { turnstile?: { reset: () => void } }).turnstile?.reset();
       setFormError(
         "That did not send. Try again, or email us directly and we will pick it up.",
       );
@@ -256,6 +266,21 @@ export default function Contact() {
                 </p>
               )}
 
+              {/* Cloudflare Turnstile. `interaction-only` keeps it invisible
+                  unless Cloudflare actually needs a click. Loaded after the
+                  page so it costs nothing up front. */}
+              <div
+                className="cf-turnstile"
+                data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                data-theme="dark"
+                data-size="flexible"
+                data-appearance="interaction-only"
+              />
+              <Script
+                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                strategy="lazyOnload"
+              />
+
               <div className="mt-7">
                 <MagneticButton
                   type="submit"
@@ -266,6 +291,16 @@ export default function Contact() {
                   {status === "sending" ? "Sending" : form.submit}
                 </MagneticButton>
               </div>
+
+              {/* Notice at the point of collection (DPDP). normal-case and
+                  tracking with `!`: .u-meta is unlayered and outranks utilities. */}
+              <p className="mt-4 text-center u-meta normal-case! tracking-[0.04em]! text-muted-dark">
+                We use these details only to reply to your brief. See our{" "}
+                <a href="/privacy" className="text-paper underline! underline-offset-4">
+                  Privacy Policy
+                </a>
+                .
+              </p>
 
               {/* Honeypot — off-screen, not display:none, and never announced. */}
               <input

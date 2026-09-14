@@ -5,13 +5,10 @@ import { hero } from "@/lib/content";
 import { gsap, ScrollTrigger, prefersReduced } from "@/lib/motion";
 import { shot } from "@/lib/shot";
 import BeamCanvas from "@/components/gl/BeamCanvas";
+import { imagePath } from "@/lib/image-loader";
 
 /** Phones only, the same line HeroCanvas swaps plates on. */
 const PHONE = "(max-width: 620px)";
-
-/** Through Next's optimizer: the cutout PNGs are heavy, AVIF/WebP keep the alpha. */
-const optimized = (src: string, w: number) =>
-  `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
 
 /** Timeline position where the projector separates from the photograph and travels. */
 const TRAVEL_AT = 0.18;
@@ -345,7 +342,7 @@ export default function ProjectorShot() {
               fights the transform. */}
           <img
             data-face="right"
-            src={optimized(plate.cutout, width)}
+            src={imagePath(plate.cutout, width)}
             alt=""
             draggable={false}
             className="absolute inset-0 block h-full w-full select-none [will-change:opacity,filter]"
@@ -355,7 +352,7 @@ export default function ProjectorShot() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             data-face="left"
-            src={optimized(plate.cutoutLeft, width)}
+            src={imagePath(plate.cutoutLeft, width)}
             alt=""
             draggable={false}
             className="absolute inset-0 block h-full w-full select-none opacity-0 [will-change:opacity,filter]"

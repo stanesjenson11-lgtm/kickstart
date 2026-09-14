@@ -9,7 +9,6 @@ type Props = {
   /** Wrapper classes. The wrapper must establish size — the image fills it. */
   className?: string;
   sizes?: string;
-  priority?: boolean;
   /** Slow push-in as the plate crosses the viewport. */
   scale?: boolean;
   /** Unmask along the cut instead of appearing outright. */
@@ -31,7 +30,6 @@ export default function Plate({
   alt,
   className = "",
   sizes = "100vw",
-  priority = false,
   scale = false,
   reveal = true,
   parallax = 0,
@@ -87,7 +85,6 @@ export default function Plate({
         alt={alt}
         fill
         sizes={sizes}
-        priority={priority}
         className="object-cover"
         style={parallax ? { scale: 1 + parallax * 2.4 } : undefined}
       />

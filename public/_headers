@@ -1,4 +1,19 @@
 # https://developers.cloudflare.com/workers/static-assets/headers
+# Static files are served before the Worker runs, so next.config.ts headers()
+# never sees them: the security headers are repeated here. The CSP stays in
+# next.config.ts, with the HTML it governs.
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Pre-sized images from scripts/images.mjs. Their names carry no content hash,
+# so a day fresh and then revalidated in the background, not immutable.
+/_img/*
+  Cache-Control: public,max-age=86400,stale-while-revalidate=2592000

@@ -77,7 +77,14 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="mt-6 u-meta text-muted-dark max-phone:mt-5">{footer.copyright}</p>
+        {/* A plain link, not "#…": the Lenis click handler only takes in-page
+            anchors, so this one navigates normally. */}
+        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-grid gap-y-2 max-phone:mt-5">
+          <p className="u-meta text-muted-dark">{footer.copyright}</p>
+          <a href="/privacy" className="cut-link u-meta text-muted-dark">
+            Privacy Policy
+          </a>
+        </div>
       </div>
     </footer>
   );

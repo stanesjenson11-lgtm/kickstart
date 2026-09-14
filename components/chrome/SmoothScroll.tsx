@@ -13,6 +13,36 @@ import { gsap, ScrollTrigger, prefersReduced } from "@/lib/motion";
  * Lenis keeps a real scrollTop, so sticky and fixed just work.
  */
 export default function SmoothScroll() {
+  /**
+   * Once the page has loaded and the main thread is idle, start every image
+   * that is still waiting on the lazy-load threshold. The hero has painted by
+   * then, and a scroll meets the gallery already decoded instead of mid-fetch.
+   * Outside the reduced-motion early return below: this is about loading, not
+   * motion. A visitor who has asked to save data keeps lazy loading.
+   */
+  useEffect(() => {
+    const { connection } = navigator as Navigator & { connection?: { saveData?: boolean } };
+    if (connection?.saveData) return;
+
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    let id = 0;
+    const warm = () => {
+      id = idle(() => {
+        document
+          .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
+          .forEach((img) => (img.loading = "eager"));
+      });
+    };
+
+    if (document.readyState === "complete") warm();
+    else window.addEventListener("load", warm, { once: true });
+    return () => {
+      window.removeEventListener("load", warm);
+      cancel(id);
+    };
+  }, []);
+
   useEffect(() => {
     if (prefersReduced()) return;
 
