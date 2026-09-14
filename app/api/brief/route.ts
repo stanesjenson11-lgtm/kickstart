@@ -2,15 +2,17 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import * as z from "zod/mini";
 import { briefSchema } from "@/lib/brief-schema";
+import { site } from "@/lib/content";
 import { formatPhone } from "@/lib/phone";
 import { ackEmail, briefRef, leadEmail } from "@/lib/brief-email";
 
 /** Far above any honest brief — the longest field is capped at 2,000 characters. */
 const MAX_BODY = 16_000;
 
-/** The Turnstile token travels with the brief but is not part of it. */
+/** The Turnstile token travels with the brief but is not part of it. Optional
+    here; required below whenever the check is switched on. */
 const requestSchema = z.extend(briefSchema, {
-  token: z.string().check(z.minLength(1, "Verification is required."), z.maxLength(2048)),
+  token: z.optional(z.string().check(z.maxLength(2048))),
 });
 
 const PHONE_INVALID = "Enter a valid phone number with its country code, like +91 98765 43210.";
@@ -92,12 +94,20 @@ export async function POST(req: Request) {
     .split(",")
     .map((e) => e.trim())
     .filter(Boolean);
-  if (!key || !secret || !to.length) {
-    console.error("[brief] RESEND_API_KEY, TURNSTILE_SECRET_KEY or LEAD_TO_EMAIL is not set.");
+  const missing = [
+    !key && "RESEND_API_KEY",
+    !to.length && "LEAD_TO_EMAIL",
+    site.turnstile && !secret && "TURNSTILE_SECRET_KEY",
+  ].filter(Boolean);
+  if (missing.length) {
+    // Names only, never values: this is what to add under Variables and Secrets.
+    console.error(`[brief] Not configured, missing: ${missing.join(", ")}`);
     return NextResponse.json({ error: "Mail is not configured." }, { status: 500 });
   }
 
-  if (!(await isHuman(token, secret, req.headers.get("cf-connecting-ip")))) {
+  // Switched in lib/content.ts (site.turnstile). While it is off, the honeypot,
+  // validation, size cap and origin check are the form's only guards.
+  if (site.turnstile && !(token && secret && (await isHuman(token, secret, req.headers.get("cf-connecting-ip"))))) {
     return NextResponse.json({ error: "Verification failed." }, { status: 403 });
   }
 

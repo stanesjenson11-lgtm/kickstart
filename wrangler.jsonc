@@ -7,6 +7,10 @@
 	"name": "kickstart",
 	"compatibility_date": "2026-09-11",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	// Keep the Variables & Secrets set in the Cloudflare dashboard. Without this,
+	// every deploy replaces plain-text dashboard variables with the (empty) set
+	// in this file, which is how LEAD_TO_EMAIL and friends kept disappearing.
+	"keep_vars": true,
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

@@ -185,8 +185,8 @@ export default function Contact() {
     if (!formatPhone(parsed.data.phone)) return showErrors([{ path: ["phone"], message: PHONE_INVALID }]);
 
     // Turnstile writes this hidden field once it has checked the browser.
-    const token = String(fd.get("cf-turnstile-response") ?? "");
-    if (!token) {
+    const token = site.turnstile ? String(fd.get("cf-turnstile-response") ?? "") : undefined;
+    if (site.turnstile && !token) {
       setFormError("One moment — we are still checking this is a real browser. Try again.");
       return;
     }
@@ -370,17 +370,21 @@ export default function Contact() {
               {/* Cloudflare Turnstile. `interaction-only` keeps it invisible
                   unless Cloudflare actually needs a click. Loaded after the
                   page so it costs nothing up front. */}
-              <div
-                className="cf-turnstile"
-                data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-                data-theme="dark"
-                data-size="flexible"
-                data-appearance="interaction-only"
-              />
-              <Script
-                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                strategy="lazyOnload"
-              />
+              {site.turnstile && (
+                <>
+                  <div
+                    className="cf-turnstile"
+                    data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || site.turnstileSiteKey}
+                    data-theme="dark"
+                    data-size="flexible"
+                    data-appearance="interaction-only"
+                  />
+                  <Script
+                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                    strategy="lazyOnload"
+                  />
+                </>
+              )}
 
               <div className="mt-7">
                 <MagneticButton
