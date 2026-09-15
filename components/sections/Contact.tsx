@@ -274,13 +274,7 @@ export default function Contact() {
               </h3>
               <p className="mt-4 text-base text-muted-dark">
                 We read every one properly. Expect a considered reply within two working
-                days — not a calendar link.
-              </p>
-              <p className="mt-5 u-meta text-muted-dark">
-                Something urgent?{" "}
-                <a href={`https://wa.me/${site.whatsapp}`} className="cut-link text-paper">
-                  WhatsApp us
-                </a>
+                days.
               </p>
             </div>
           ) : (
