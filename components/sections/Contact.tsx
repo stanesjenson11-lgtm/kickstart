@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import Script from "next/script";
 import { PlusIcon } from "lucide-react";
 import { contact, form, site } from "@/lib/content";
@@ -23,6 +24,10 @@ const SEND_FAILED: Record<number, string> = {
   413: "That brief is too long to send. Please shorten the project details.",
   429: "Too many attempts in a row. Wait a minute, then try again.",
 };
+
+/** Turnstile tokens are single-use, so any retry or new brief needs a fresh one. */
+const resetCheck = () =>
+  (window as Window & { turnstile?: { reset: () => void } }).turnstile?.reset();
 
 /**
  * Label is visually hidden and the placeholder carries it, so the card stays as
@@ -142,6 +147,17 @@ export default function Contact() {
   const [formError, setFormError] = useState("");
   // A double click lands before React has re-rendered the button as disabled.
   const busy = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  /** Back to an empty form. It stayed mounted while hidden, so reset() clears
+      it and Turnstile's widget is still there to issue a fresh token. flushSync
+      shows the form before focus moves, or focus would land on a hidden field. */
+  function sendAnother() {
+    formRef.current?.reset();
+    resetCheck();
+    flushSync(() => setStatus("idle"));
+    (formRef.current?.elements.namedItem("name") as HTMLInputElement | null)?.focus();
+  }
 
   function showErrors(issues: readonly Issue[]) {
     const next: Record<string, string> = {};
@@ -192,9 +208,6 @@ export default function Contact() {
     }
 
     setStatus("sending");
-    // Tokens are single-use, so any retry needs a fresh one.
-    const resetCheck = () =>
-      (window as Window & { turnstile?: { reset: () => void } }).turnstile?.reset();
     try {
       const res = await fetch("/api/brief", {
         method: "POST",
@@ -264,7 +277,7 @@ export default function Contact() {
           <PlusIcon aria-hidden="true" className="absolute -bottom-2.5 -left-2.5 h-5 w-5" />
           <PlusIcon aria-hidden="true" className="absolute -right-2.5 -bottom-2.5 h-5 w-5" />
 
-          {status === "sent" ? (
+          {status === "sent" && (
             <div
               role="status"
               className={`${CARD} py-6 text-center`}
@@ -276,12 +289,20 @@ export default function Contact() {
                 We read every one properly. Expect a considered reply within two working
                 days.
               </p>
+              <div className="mt-7">
+                <MagneticButton variant="ghost" onClick={sendAnother} className="rounded-md">
+                  Send another brief
+                </MagneticButton>
+              </div>
             </div>
-          ) : (
-            // method and action only matter with JavaScript off: the brief then
-            // posts to the route, which validates it all the same, instead of
-            // landing in the address bar as a query string.
-            <form
+          )}
+          {/* method and action only matter with JavaScript off: the brief then
+              posts to the route, which validates it all the same, instead of
+              landing in the address bar as a query string. Hidden rather than
+              unmounted once sent, so "Send another brief" can reset it in place. */}
+          <form
+              ref={formRef}
+              hidden={status === "sent"}
               onSubmit={onSubmit}
               onChange={onFieldChange}
               method="post"
@@ -412,7 +433,6 @@ export default function Contact() {
                 className="absolute left-[-9999px] h-px w-px"
               />
             </form>
-          )}
         </div>
       </div>
     </section>

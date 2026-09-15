@@ -10,6 +10,7 @@ type Props = {
   variant?: "solid" | "ghost";
   className?: string;
   type?: "button" | "submit";
+  onClick?: () => void;
   disabled?: boolean;
   /** Stretch to the container. The magnet still tracks, it just cannot slide far. */
   fullWidth?: boolean;
@@ -28,6 +29,7 @@ export default function MagneticButton({
   variant = "solid",
   className = "",
   type = "button",
+  onClick,
   disabled,
   fullWidth = false,
 }: Props) {
@@ -83,6 +85,7 @@ export default function MagneticButton({
   return (
     <button
       type={type}
+      onClick={onClick}
       disabled={disabled}
       className={`${magnet} disabled:opacity-50 disabled:cursor-not-allowed`}
       onMouseMove={move}
