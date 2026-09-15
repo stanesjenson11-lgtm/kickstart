@@ -51,11 +51,16 @@ const BREAK = "word-wrap:break-word;overflow-wrap:break-word";
 const W = 640;
 const SPLIT = 240;
 const CUT_H = 420; // height over which the diagonal completes
+/** Desktop runs full width. The ink column keeps SPLIT's share of it, so the
+    footer wedge, which scales with the width, still meets the paper edge. */
+const INK_COL = `${(SPLIT / W) * 100}%`;
 
 /** Inlined as `cid:` so nothing is fetched over the network — no tracking
     pixel behaviour, and no broken boxes where remote images are blocked. */
 const ASSETS = {
   logo: "email-logo.png",
+  logoWhite: "email-logo-white.png",
+  logoBlack: "email-logo-black.png",
   cut: "email-cut.png",
   cutfoot: "email-cutfoot.png",
   cutfootfull: "email-cutfootfull.png",
@@ -88,10 +93,10 @@ const stamp = () =>
     })
     .toUpperCase();
 
-/** Shared by both emails so the studio's copy and the client's copy carry the
-    same reference. Random rather than time-derived: the low digits of a base36
-    timestamp cycle every ~28 minutes, so two briefs sent half an hour apart
-    would be filed under the same number. */
+/** Tags one brief's log lines in the route, so a send and its failure can be
+    matched. Never shown in the emails. Random rather than time-derived: the low
+    digits of a base36 timestamp cycle every ~28 minutes, so two briefs half an
+    hour apart would share a tag. */
 export const briefRef = () =>
   `KS-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
@@ -143,30 +148,52 @@ async function loadAssets(keys: readonly AssetKey[]) {
   };
 }
 
-const wordmark = (available: boolean, width: number) =>
+const wordmark = (available: boolean, width: number, key: AssetKey = "logo", colour = "#ffffff") =>
   available
-    ? `<img src="cid:logo" width="${width}" alt="${esc(site.name)}" style="display:block;width:${width}px;max-width:100%;height:auto;border:0;outline:none">`
-    : `<span style="font-family:${DISPLAY};font-size:${Math.round(width / 8)}px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#ffffff">${esc(site.name)}</span>`;
+    ? `<img src="cid:${key}" width="${width}" alt="${esc(site.name)}" style="display:block;width:${width}px;max-width:100%;height:auto;border:0;outline:none">`
+    : `<span style="font-family:${DISPLAY};font-size:${Math.round(width / 8)}px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:${colour}">${esc(site.name)}</span>`;
+
+/** Phone only: a paper strip above everything else. The white logo on paper
+    (and the black one in the phone footer) is deliberate, chosen for mail
+    apps that invert the email in dark mode; in normal view neither shows.
+    Hidden inline and kept out of Outlook; the media query reveals it, so a
+    client that strips <style> just keeps the desktop header. */
+const phoneLogo = (available: boolean) => `
+  <!--[if !mso]><!-->
+  <tr class="m-only" style="display:none">
+    <td bgcolor="${PAPER}" style="background:${PAPER};padding:30px 28px 26px">
+      ${wordmark(available, 150, "logoWhite")}
+    </td>
+  </tr>
+  <!--<![endif]-->`;
 
 /** Slate metadata — mono, tracked, uppercase. The site's vocabulary for roll
-    numbers and timecode, carrying the reference and date here. */
+    numbers and timecode, carrying the date here. */
 const slate = (parts: string[], colour: string, size = 11, track = ".16em") =>
   `<p style="margin:0;font-family:${MONO};font-size:${size}px;line-height:1.6;letter-spacing:${track};text-transform:uppercase;color:${colour};${BREAK}">${parts
     .map(esc)
     .join(" &nbsp;·&nbsp; ")}</p>`;
 
-/** Label over value, hairline between — the paper column's field stack. */
-const field = (label: string, value: string, href?: string, last = false) => `
-  <tr>
-    <td style="padding:20px 0 6px;font-family:${MONO};font-size:11px;line-height:1.5;letter-spacing:.14em;text-transform:uppercase;color:${MUTED_LIGHT}">${esc(label)}</td>
-  </tr>
-  <tr>
-    <td style="padding:0 0 20px;${last ? "" : `border-bottom:1px solid ${RULE_LIGHT};`}font-family:${BODY};font-size:17px;line-height:1.5;color:${INK};${BREAK}">${
-      href
-        ? `<a href="${esc(href)}" style="color:${INK};text-decoration:none">${esc(value)}</a>`
-        : esc(value)
-    }</td>
+/** Label over value — one cell of the paper column's field grid. */
+const field = (label: string, value: string, href?: string) => `
+  <p style="margin:0 0 6px;font-family:${MONO};font-size:11px;line-height:1.5;letter-spacing:.14em;text-transform:uppercase;color:${MUTED_LIGHT}">${esc(label)}</p>
+  <p style="margin:0;font-family:${BODY};font-size:17px;line-height:1.5;color:${INK};${BREAK}">${
+    href
+      ? `<a href="${esc(href)}" style="color:${INK};text-decoration:none">${esc(value)}</a>`
+      : esc(value)
+  }</p>`;
+
+/** One grid row, hairline under it. A pair sits side by side on desktop and
+    stacks on a phone in the same reading order; a lone field spans the row. */
+const fieldRow = (cells: string[], last: boolean) => {
+  const rule = last ? "" : `border-bottom:1px solid ${RULE_LIGHT};`;
+  return cells.length === 1
+    ? `<tr><td colspan="2" style="padding:20px 0;${rule}">${cells[0]}</td></tr>`
+    : `<tr>
+    <td class="col pair-l" width="50%" valign="top" style="width:50%;padding:20px 32px 20px 0;${rule}">${cells[0]}</td>
+    <td class="col" width="50%" valign="top" style="width:50%;padding:20px 0;${rule}">${cells[1]}</td>
   </tr>`;
+};
 
 /** Full-bleed black footer, shared by both emails. */
 function siteFooter(a: Assets) {
@@ -184,11 +211,12 @@ function siteFooter(a: Assets) {
 
   return `
   <tr>
-    <td class="foot" bgcolor="${INK}" style="background:${INK};padding:38px 40px 34px">
+    <td class="foot" bgcolor="${INK}" style="background:${INK};padding:44px 56px 38px">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%">
         <tr>
           <td class="foot-cell" valign="top" style="padding:0 16px 32px 0">
-            ${wordmark(Boolean(a.logo), 120)}
+            <div class="d-only">${wordmark(Boolean(a.logo), 120)}</div>
+            <!--[if !mso]><!--><div class="m-block" style="display:none">${wordmark(Boolean(a.logoBlack), 120, "logoBlack", INK)}</div><!--<![endif]-->
             <p style="margin:14px 0 0;font-family:${BODY};font-size:13px;line-height:1.6;color:${MUTED_DARK}">${esc(footerContent.services.join(", "))}.</p>
           </td>
           <td class="foot-cell foot-social" valign="top" align="right" style="text-align:right;padding:0 0 32px">
@@ -215,7 +243,7 @@ const cutBottom = (available: boolean, key: "cutfoot" | "cutfootfull" = "cutfoot
     ? `
   <tr>
     <td class="cut-bottom" bgcolor="${INK}" style="background:${INK};font-size:0;line-height:0">
-      <img src="cid:${key}" width="${W}" alt="" style="display:block;width:100%;max-width:${W}px;height:auto;border:0;outline:none">
+      <img src="cid:${key}" width="100%" alt="" style="display:block;width:100%;height:auto;border:0;outline:none">
     </td>
   </tr>`
     : "";
@@ -240,7 +268,7 @@ function shell({
 <style>
   /* Stacks the split on a phone, where a 225px column is unreadable. Gmail,
      Apple Mail, iOS Mail and Outlook.com honour this; the few clients that
-     strip it scale the 640px table to fit, which stays legible. */
+     strip it show the full-width desktop split instead. */
   @media only screen and (max-width:640px) {
     .col { display:block !important; width:100% !important; max-width:100% !important; }
     .pad-ink { padding:36px 28px 40px !important; }
@@ -250,6 +278,14 @@ function shell({
     .foot { padding:32px 28px !important; }
     .foot-cell { display:block !important; width:100% !important; text-align:left !important; padding:0 !important; }
     .foot-social { padding-top:28px !important; }
+    .grid, .grid tbody, .grid tr, .grid td { display:block !important; width:100% !important; }
+    .pair-l { padding-right:0 !important; }
+    .m-only { display:table-row !important; }
+    .m-block { display:block !important; }
+    .d-only { display:none !important; }
+    .ink-h1 { margin-top:0 !important; }
+    .ack-head { padding:0 0 30px !important; }
+    .ack-body { padding:30px 0 0 !important; border-left:0 !important; border-top:1px solid ${RULE_LIGHT} !important; }
   }
 </style>
 </head>
@@ -260,7 +296,7 @@ function shell({
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="${INK}" style="background:${INK};margin:0;padding:0">
     <tr>
       <td align="center" style="padding:0">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${W}" style="width:100%;max-width:${W}px">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%">
 ${content}
         </table>
       </td>
@@ -272,9 +308,11 @@ ${content}
 
 /* --- the studio's copy --------------------------------------------------- */
 
-export async function leadEmail(brief: Brief, ref: string) {
+export async function leadEmail(brief: Brief) {
   const { a, attachments } = await loadAssets([
     "logo",
+    "logoWhite",
+    "logoBlack",
     "cut",
     "cutfoot",
     "instagram",
@@ -285,19 +323,31 @@ export async function leadEmail(brief: Brief, ref: string) {
   const tel = (brief.phone ?? "").replace(/[^\d+]/g, "");
   const first = brief.name.split(" ")[0];
 
+  const fields = [
+    brief.company ? field("Company", brief.company) : "",
+    field("Email", brief.email, `mailto:${brief.email}`),
+    field("Phone", brief.phone || "—", tel ? `tel:${tel}` : undefined),
+    field("Needs", brief.needs),
+    field("Timeline", brief.timeline),
+  ].filter(Boolean);
+  const fieldRows: string[] = [];
+  for (let i = 0; i < fields.length; i += 2) {
+    fieldRows.push(fieldRow(fields.slice(i, i + 2), i + 2 >= fields.length));
+  }
+
   const cutBg = a.cut
     ? `background-image:url('cid:cut');background-repeat:no-repeat;background-position:top left;background-size:${W - SPLIT}px ${CUT_H}px;`
     : "";
 
-  const content = `
+  const content = `${phoneLogo(Boolean(a.logoWhite))}
   <tr>
     <td style="padding:0">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;table-layout:fixed">
         <tr>
-          <td class="col" width="${SPLIT}" valign="top" bgcolor="${INK}" style="width:${SPLIT}px;background:${INK}">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%"><tr><td class="pad-ink" style="padding:44px 24px 48px 40px">
-            ${wordmark(Boolean(a.logo), 150)}
-            <h1 style="margin:54px 0 0;font-family:${DISPLAY};font-size:27px;line-height:1.12;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:#ffffff;${BREAK}">New brief<br>submitted</h1>
+          <td class="col" width="${INK_COL}" valign="top" bgcolor="${INK}" style="width:${INK_COL};background:${INK}">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%"><tr><td class="pad-ink" style="padding:56px 48px 60px 56px">
+            <div class="d-only">${wordmark(Boolean(a.logo), 150)}</div>
+            <h1 class="ink-h1" style="margin:54px 0 0;font-family:${DISPLAY};font-size:27px;line-height:1.12;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:#ffffff;${BREAK}">New brief<br>submitted</h1>
             <p style="margin:16px 0 0;font-family:${BODY};font-size:14px;line-height:1.65;color:${MUTED_DARK}">You have received a new brief submission. Here are the details shared by the client.</p>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%">
               <tr><td height="34" style="height:34px;font-size:0;line-height:0">&nbsp;</td></tr>
@@ -309,7 +359,7 @@ export async function leadEmail(brief: Brief, ref: string) {
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:36px">
               <tr>
                 <td bgcolor="#ffffff" style="background:#ffffff">
-                  <a href="mailto:${esc(brief.email)}?subject=${encodeURIComponent(`Re: your brief — ${site.name} [${ref}]`)}"
+                  <a href="mailto:${esc(brief.email)}?subject=${encodeURIComponent(`Re: your brief — ${site.name}`)}"
                      style="display:inline-block;padding:15px 18px;font-family:${MONO};font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;text-decoration:none;color:${INK};${BREAK}">Reply to ${esc(first)} &rarr;</a>
                 </td>
               </tr>
@@ -318,16 +368,12 @@ export async function leadEmail(brief: Brief, ref: string) {
           </td>
 
           <td class="col col-paper-bg" valign="top" bgcolor="${PAPER}" background="cid:cut" style="background-color:${PAPER};${cutBg}">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%"><tr><td class="pad-paper" style="padding:44px 37px 52px 104px">
-            ${slate(["New brief", ref, stamp()], MUTED_LIGHT, 10, ".1em")}
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%"><tr><td class="pad-paper" style="padding:56px 56px 60px 120px">
+            ${slate(["New brief", stamp()], MUTED_LIGHT, 10, ".1em")}
             <h2 style="margin:30px 0 22px;font-family:${DISPLAY};font-size:24px;line-height:1.1;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:${INK};${BREAK}">${esc(brief.name)}</h2>
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;table-layout:fixed">
-              <tr><td style="border-top:1px solid ${RULE_LIGHT};font-size:0;line-height:0">&nbsp;</td></tr>
-              ${brief.company ? field("Company", brief.company) : ""}
-              ${field("Email", brief.email, `mailto:${brief.email}`)}
-              ${field("Phone", brief.phone || "—", tel ? `tel:${tel}` : undefined)}
-              ${field("Needs", brief.needs)}
-              ${field("Timeline", brief.timeline, undefined, true)}
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="grid" style="width:100%;border-collapse:collapse;table-layout:fixed">
+              <tr><td colspan="2" style="border-top:1px solid ${RULE_LIGHT};font-size:0;line-height:0">&nbsp;</td></tr>
+              ${fieldRows.join("")}
             </table>
             </td></tr></table>
           </td>
@@ -337,7 +383,7 @@ export async function leadEmail(brief: Brief, ref: string) {
   </tr>${cutBottom(Boolean(a.cutfoot))}${siteFooter(a)}`;
 
   const text = [
-    `NEW BRIEF SUBMITTED · ${ref} · ${stamp()}`,
+    `NEW BRIEF SUBMITTED · ${stamp()}`,
     "",
     who,
     "",
@@ -353,7 +399,7 @@ export async function leadEmail(brief: Brief, ref: string) {
   ].join("\n");
 
   return {
-    subject: `New brief — ${who} [${ref}]`,
+    subject: `New brief — ${who}`,
     html: shell({
       preheader: `${who} — ${brief.needs} · ${brief.timeline}`,
       title: "New brief submitted",
@@ -366,36 +412,42 @@ export async function leadEmail(brief: Brief, ref: string) {
 
 /* --- the sender's copy --------------------------------------------------- */
 
-export async function ackEmail(brief: Brief, ref: string) {
+export async function ackEmail() {
   const { a, attachments } = await loadAssets([
     "logo",
+    "logoWhite",
+    "logoBlack",
     "cutfootfull",
     "instagram",
     "linkedin",
     "whatsapp",
   ]);
 
-  const content = `
-  <tr>
-    <td bgcolor="${INK}" style="background:${INK};padding:44px 44px 40px">
+  const content = `${phoneLogo(Boolean(a.logoWhite))}
+  <tr class="d-only">
+    <td bgcolor="${INK}" style="background:${INK};padding:44px 56px 40px">
       ${wordmark(Boolean(a.logo), 150)}
     </td>
   </tr>
   <tr>
-    <td class="pad-paper" bgcolor="${PAPER}" style="background:${PAPER};padding:46px 44px 54px">
-      ${slate(["Brief received", ref, stamp()], MUTED_LIGHT)}
-      <h1 style="margin:24px 0 0;font-family:${DISPLAY};font-size:34px;line-height:1.08;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:${INK};${BREAK}">Brief<br>received.</h1>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%">
-        <tr><td height="30" style="height:30px;font-size:0;line-height:0">&nbsp;</td></tr>
-        <tr><td style="border-top:1px solid ${RULE_LIGHT};font-size:0;line-height:0">&nbsp;</td></tr>
+    <td class="pad-paper" bgcolor="${PAPER}" style="background:${PAPER};padding:56px 56px 64px">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;table-layout:fixed">
+        <tr>
+          <td class="col ack-head" width="${INK_COL}" valign="top" style="width:${INK_COL};padding:0 48px 0 0">
+            ${slate(["Brief received", stamp()], MUTED_LIGHT)}
+            <h1 style="margin:24px 0 0;font-family:${DISPLAY};font-size:34px;line-height:1.08;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:${INK};${BREAK}">Brief<br>received.</h1>
+          </td>
+          <td class="col ack-body" valign="top" style="padding:4px 0 0 48px;border-left:1px solid ${RULE_LIGHT}">
+            <p style="margin:0;font-family:${BODY};font-size:17px;line-height:1.7;color:${INK};${BREAK}">Thank you for reaching out to ${esc(site.name)}.</p>
+            <p style="margin:18px 0 0;font-family:${BODY};font-size:17px;line-height:1.7;color:${MUTED_LIGHT};${BREAK}">We&rsquo;ve successfully received your brief, and our team will be in touch with you soon regarding the next steps.</p>
+          </td>
+        </tr>
       </table>
-      <p style="margin:30px 0 0;font-family:${BODY};font-size:17px;line-height:1.7;color:${INK};${BREAK}">Thank you for reaching out to ${esc(site.name)}.</p>
-      <p style="margin:18px 0 0;font-family:${BODY};font-size:17px;line-height:1.7;color:${MUTED_LIGHT};${BREAK}">We&rsquo;ve successfully received your brief, and our team will be in touch with you soon regarding the next steps.</p>
     </td>
   </tr>${cutBottom(Boolean(a.cutfootfull), "cutfootfull")}${siteFooter(a)}`;
 
   const text = [
-    `BRIEF RECEIVED · ${ref} · ${stamp()}`,
+    `BRIEF RECEIVED · ${stamp()}`,
     "",
     `Thank you for reaching out to ${site.name}.`,
     "",
@@ -406,7 +458,7 @@ export async function ackEmail(brief: Brief, ref: string) {
   ].join("\n");
 
   return {
-    subject: `Brief received — ${site.name} [${ref}]`,
+    subject: `Brief received — ${site.name}`,
     html: shell({
       preheader: "We've received your brief. Our team will be in touch soon.",
       title: "Brief received",

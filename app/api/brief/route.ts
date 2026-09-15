@@ -117,7 +117,7 @@ export async function POST(req: Request) {
   const clean = { ...brief, phone };
 
   try {
-    const lead = await leadEmail(clean, ref);
+    const lead = await leadEmail(clean);
     const { data, error } = await resend.emails.send({
       from,
       to,
@@ -139,7 +139,7 @@ export async function POST(req: Request) {
   // The acknowledgement is a courtesy; the lead is the thing that matters and
   // it has already gone. A failure here is logged, never surfaced.
   try {
-    const ack = await ackEmail(clean, ref);
+    const ack = await ackEmail();
     await resend.emails.send({
       from,
       to: [clean.email],
