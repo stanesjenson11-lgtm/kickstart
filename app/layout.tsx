@@ -54,12 +54,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#050505",
   colorScheme: "dark",
-  /* Pinch-zoom off. iOS Safari has ignored userScalable since iOS 10, so
-     maximumScale is what actually holds there. Desktop browser zoom is a user
-     setting and stays reachable. */
+  /* Pinch-zoom stays available. Capping maximumScale or clearing userScalable
+     takes zoom away from anyone who needs it to read the page — a WCAG 1.4.4
+     failure, and what Lighthouse flags on this element. */
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 /* WebSite is what Google reads for the site name shown above the result;

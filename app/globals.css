@@ -205,6 +205,29 @@ button {
   cursor: pointer;
 }
 
+/* A date input's "mm/dd/yyyy" hint is drawn by the browser, not by ::placeholder,
+   so the field's `placeholder:text-muted-dark/70` never reaches it. These match
+   it to every other field's placeholder. The field is required, so while it is
+   empty it is :invalid — that is what distinguishes hint from chosen date.
+   The :invalid rule carries Firefox, which has no ::-webkit-datetime-edit. */
+input[type="date"]:invalid,
+input[type="date"]:invalid::-webkit-datetime-edit {
+  color: color-mix(in oklab, var(--color-muted-dark) 70%, transparent);
+}
+
+/* The picker glyph ships black, and the card is near-black. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.3s var(--ease-out-expo, ease);
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="date"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
 ::selection {
   background: var(--color-paper);
   color: var(--color-ink);

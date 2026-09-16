@@ -81,6 +81,17 @@ const esc = (s: string) =>
     and would run the whole brief together into one paragraph. */
 const para = (s: string) => esc(s).replace(/\n/g, "<br>");
 
+/** The timeline arrives as YYYY-MM-DD from the form's date input, so no email
+    shows a bare ISO string. Read back in UTC, the zone the schema bounds it in,
+    or the date would slip a day for readers west of Greenwich. Anything
+    unparseable passes through rather than throwing part-way through a render. */
+const longDate = (v: string) => {
+  const d = new Date(`${v}T00:00:00Z`);
+  return Number.isNaN(d.getTime())
+    ? v
+    : d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" });
+};
+
 /** The studio works out of India; a brief stamped in UTC would be filed under
     the wrong day about a quarter of the time. */
 const stamp = () =>
@@ -328,7 +339,7 @@ export async function leadEmail(brief: Brief) {
     field("Email", brief.email, `mailto:${brief.email}`),
     field("Phone", brief.phone || "—", tel ? `tel:${tel}` : undefined),
     field("Needs", brief.needs),
-    field("Timeline", brief.timeline),
+    field("Timeline", longDate(brief.timeline)),
   ].filter(Boolean);
   const fieldRows: string[] = [];
   for (let i = 0; i < fields.length; i += 2) {
@@ -390,7 +401,7 @@ export async function leadEmail(brief: Brief) {
     `Email:    ${brief.email}`,
     `Phone:    ${brief.phone || "—"}`,
     `Needs:    ${brief.needs}`,
-    `Timeline: ${brief.timeline}`,
+    `Timeline: ${longDate(brief.timeline)}`,
     "",
     "THE BRIEF",
     brief.details,
@@ -401,7 +412,7 @@ export async function leadEmail(brief: Brief) {
   return {
     subject: `New brief — ${who}`,
     html: shell({
-      preheader: `${who} — ${brief.needs} · ${brief.timeline}`,
+      preheader: `${who} — ${brief.needs} · ${longDate(brief.timeline)}`,
       title: "New brief submitted",
       content,
     }),

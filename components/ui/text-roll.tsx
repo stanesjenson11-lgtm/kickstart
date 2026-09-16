@@ -13,8 +13,9 @@ const STAGGER = 0.035;
  * `center` staggers outward from the middle of the word instead of left to
  * right, which reads better on short labels.
  *
- * Both layers hold the same text, so the accessible name lives on the wrapper
- * and the layers are hidden — otherwise every label is announced twice.
+ * Both layers hold the same text and are split per character, so both stay
+ * hidden and the accessible name is a visually-hidden copy of the word.
+ * Otherwise the label is announced twice, or spelled out one letter at a time.
  */
 export default function TextRoll({
   children,
@@ -48,9 +49,11 @@ export default function TextRoll({
     <motion.span
       initial="initial"
       whileHover="hovered"
-      aria-label={children}
       className={cn("relative block overflow-hidden", className)}
     >
+      {/* A bare span's role is `generic`, which prohibits aria-label, so the
+          name is real text instead. */}
+      <span className="sr-only">{children}</span>
       <span aria-hidden="true" className="block">
         {layer("0%", "-100%")}
       </span>

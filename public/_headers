@@ -17,3 +17,24 @@
 # so a day fresh and then revalidated in the background, not immutable.
 /_img/*
   Cache-Control: public,max-age=86400,stale-while-revalidate=2592000
+
+# Everything else under public/ — the showreel, the raster sources, the icons —
+# was being served with Cloudflare's default `max-age=0, must-revalidate`, so a
+# returning visitor revalidated the whole lot on every load. A month fresh, then
+# revalidated in the background; no content hash in the names, so not immutable.
+#
+# Matching rules COMBINE rather than override, and their values are joined with
+# a comma, so no pattern below may also match /_img/* — everything there is
+# .webp, which is why .webp is deliberately absent from this list.
+/*.mp4
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800
+/*.png
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800
+/*.jpg
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800
+/*.jpeg
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800
+/*.svg
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800
+/*.ico
+  Cache-Control: public,max-age=2592000,stale-while-revalidate=604800

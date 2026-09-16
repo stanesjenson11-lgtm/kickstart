@@ -5,7 +5,7 @@ import { flushSync } from "react-dom";
 import Script from "next/script";
 import { PlusIcon } from "lucide-react";
 import { contact, form, site } from "@/lib/content";
-import { briefSchema, keepAllowed, LIMITS, TIMELINES, type LimitedField } from "@/lib/brief-schema";
+import { briefSchema, keepAllowed, LIMITS, type LimitedField } from "@/lib/brief-schema";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Plate from "@/components/ui/Plate";
 
@@ -357,8 +357,8 @@ export default function Contact() {
                 <Field
                   label="Timeline"
                   name="timeline"
-                  placeholder="Select a timeline"
-                  options={TIMELINES}
+                  type="date"
+                  placeholder="Pick a date"
                   required
                   error={errors.timeline}
                 />
