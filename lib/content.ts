@@ -22,11 +22,13 @@ export const site = {
   linkedin: "https://www.linkedin.com/company/kickstart-creativestudio/",
   /** Cloudflare Turnstile site key. Public by design (it ships in every page), so it
       lives here instead of a build variable a missed dashboard setting leaves empty.
-      A NEXT_PUBLIC_TURNSTILE_SITE_KEY variable still overrides it, e.g. test keys locally. */
-  turnstileSiteKey: "0x4AAAAAAEzczOccb6UM3j-D",
-  /** The Turnstile bot check on the contact form. Off for now; set true to turn it
-      back on once TURNSTILE_SECRET_KEY is set on the Worker as a Secret. */
-  turnstile: false as boolean,
+      Must stay paired with the TURNSTILE_SECRET_KEY Secret on the Worker — a key from
+      a different widget verifies as a failure, so every brief would 403.
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY still overrides it, e.g. test keys locally. */
+  turnstileSiteKey: "0x4AAAAAAEzk8ZnvA-izyZ17",
+  /** The Turnstile bot check on the contact form. Requires TURNSTILE_SECRET_KEY on
+      the Worker as a Secret; without it the brief route answers 500, not a bypass. */
+  turnstile: true as boolean,
 } as const;
 
 export const nav = {
