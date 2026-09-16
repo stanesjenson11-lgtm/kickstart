@@ -56,6 +56,11 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
           },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          // Browser-enforced hotlink protection: another site embedding our
+          // images or showreel as a subresource gets a blocked load. Social
+          // previews are unaffected — crawlers fetch the OG image server-side,
+          // where CORP does not apply.
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
         ],
       },
     ];
