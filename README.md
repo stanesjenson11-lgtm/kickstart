@@ -55,8 +55,9 @@ npm run build && npm run start
 
 7. **Supply a vector logo.** The wordmarks in use (`public/logo-*.png`,
    `public/ks *.png`) are PNG exports. The bolt used through the site
-   (`app/icon.svg`, the loader, the footer watermark) is hand-drawn vector and
-   needs no replacement.
+   (the loader, the footer watermark) is hand-drawn vector and
+   needs no replacement. The favicons in `app/` are rasters of the KS mark
+   (`kick start logo.PNG`).
 
 ## Deploy
 
