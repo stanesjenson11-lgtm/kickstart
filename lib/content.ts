@@ -12,9 +12,10 @@
 export const site = {
   name: "Kickstart Creative Studio",
   legalName: "Kickstart Creative Studio Pvt Ltd",
-  title: "Kickstart Creative Studio | Media Production & Social Media",
+  /* title and description only reach search results and link previews, never the page. */
+  title: "Kickstart Creative Studio | Media Production, Marketing & Events",
   description:
-    "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
+    "Kickstart Creative Studio is a Bangalore media and production company: corporate photography, brand films, advertising, digital marketing, social media and event management.",
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
   whatsapp: "919677827166",
