@@ -536,6 +536,28 @@ input[type="date"]:focus::-webkit-calendar-picker-indicator {
 }
 
 /* ==========================================================================
+   Loader — painted by the server HTML so the page never flashes before it.
+   No-JS and reduced-motion visitors never see it; if JS fails to arrive, the
+   failsafe clears it rather than leaving a black screen.
+   ========================================================================== */
+
+.ks-loader {
+  animation: ks-loader-failsafe 0s 6s forwards;
+}
+
+@keyframes ks-loader-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .ks-loader {
+    display: none;
+  }
+}
+
+/* ==========================================================================
    FAQ — native <details> animating to/from height:auto, no JS accordion.
    Unsupported browsers simply open instantly, which is a fine floor.
    ========================================================================== */
