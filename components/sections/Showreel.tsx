@@ -15,9 +15,11 @@ import { useGsap, gsap } from "@/lib/motion";
  * `preload="metadata"` and an observer starts it a viewport early, so the
  * homepage never pays for the file before the section is in reach.
  *
- * Two encodes exist: a 1920 plate from `md:` up, a 1280 one below it. The
- * phone one is held to ~1.6 Mbps: at 3 Mbps a 4G link barely kept ahead of
- * playback, so the reel sat black while it buffered and stalled after.
+ * The encodes are `<source>`s in the server HTML (see `showreel.sources`), so
+ * the browser picks one and reads its metadata while the page parses. Setting
+ * `src` from an effect meant nothing loaded until the whole page had hydrated,
+ * which on a slow phone left the reel black for seconds after it scrolled in.
+ * `media` is only checked once, at load — which is all the effect did too.
  *
  * Phones letterbox rather than cover. The footage is 16:9 and a portrait
  * viewport is not, so covering it would crop the sides off every shot and
@@ -31,15 +33,6 @@ export default function Showreel() {
   useEffect(() => {
     const el = video.current;
     if (!el) return;
-
-    // Source is picked here rather than with `<source media>`, which browsers
-    // evaluate once at parse time and never re-check. Set before observing, so
-    // the first intersection can never call play() on an empty element.
-    // 768px matches the `md:` breakpoint the object-fit switch below uses, so
-    // tablets get the full plate at the same moment they start cover-cropping.
-    el.src = window.matchMedia("(min-width: 768px)").matches
-      ? showreel.src
-      : showreel.srcSmall;
 
     // A refused play() — iOS Low Power Mode blocks even muted autoplay — is
     // lifted by any tap on the page, so arm the next one to try again. Only
@@ -118,7 +111,13 @@ export default function Showreel() {
           aria-hidden="true"
           className="h-full w-full object-contain md:object-cover"
           style={{ filter: "contrast(1.1) brightness(0.82)" }}
-        />
+        >
+          {/* Phones stop at 767px, the site's real `bar:` breakpoint (`md:`
+              here is 1px, so the reel covers at every width). */}
+          {showreel.sources.map((s) => (
+            <source key={s.src} {...s} />
+          ))}
+        </video>
       </div>
 
       <div className="relative z-[var(--z-content)] flex h-full flex-col justify-between px-gutter py-24">
