@@ -24,18 +24,16 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: site.title,
   description: site.description,
-  // ponytail: Google ignores meta keywords; rankings come from the visible copy and title.
   keywords: [
-    "Kickstart Creative Studio",
-    "media company",
-    "media production company",
-    "digital marketing agency",
-    "event management company",
-    "corporate event management",
+    "creative production studio",
     "corporate photography",
+    "corporate headshots",
+    "corporate event photography",
     "corporate videography",
     "advertising production",
     "social media marketing",
+    "brand content",
+    "event videography",
   ],
   alternates: { canonical: "/" },
   openGraph: {
@@ -64,10 +62,6 @@ export const viewport: Viewport = {
 
 /* WebSite is what Google reads for the site name shown above the result;
    the business entry carries the logo and the brand's other profiles. */
-/* The registered name in full, as people search it. The page itself keeps
-   site.legalName's "Pvt Ltd". */
-const LEGAL_NAME = "Kickstart Creative Studio Private Limited";
-
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -75,7 +69,7 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": `${site.url}/#website`,
       name: site.name,
-      alternateName: ["Kickstart", "Kickstart Creative", LEGAL_NAME],
+      alternateName: "Kickstart",
       url: site.url,
       publisher: { "@id": `${site.url}/#business` },
     },
@@ -83,29 +77,17 @@ const jsonLd = {
       "@type": "ProfessionalService",
       "@id": `${site.url}/#business`,
       name: site.name,
-      legalName: LEGAL_NAME,
-      alternateName: ["Kickstart", "Kickstart Creative", site.legalName],
+      legalName: site.legalName,
+      alternateName: "Kickstart",
       url: site.url,
       logo: `${site.url}/logo-black.png`,
       image: `${site.url}/opengraph-image`,
       email: site.email,
-      telephone: `+${site.whatsapp}`,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Bengaluru",
-        addressRegion: "Karnataka",
-        addressCountry: "IN",
-      },
       description: site.description,
       founder: { "@type": "Person", name: "Jerry Joshan" },
       foundingDate: "2025-08",
       areaServed: "IN",
       serviceType: [
-        "Media production",
-        "Video production",
-        "Digital marketing",
-        "Event management",
-        "Corporate event management",
         "Corporate photography",
         "Corporate videography",
         "Corporate headshots",
