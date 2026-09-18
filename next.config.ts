@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 import { WIDTHS } from "./lib/image-loader";
-import { site } from "./lib/content";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -41,25 +40,6 @@ const nextConfig: NextConfig = {
     // Matches nothing. OpenNext's worker answers /_next/image whatever the
     // loader, and an open resizer would let anyone spend the Images quota.
     localPatterns: [{ pathname: "/__no-image-optimizer__/**", search: "" }],
-  },
-  // One host, one scheme. www and plain http each answered 200 with the same
-  // page, so Google had four copies of every URL to pick a canonical from.
-  // Values are anchored on purpose: OpenNext tests them as unanchored regexes,
-  // and a bare "http" also matches "https" — an endless redirect.
-  async redirects() {
-    const canonical = { destination: `${site.url}/:path*`, permanent: true as const };
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host" as const, value: "^www[.]kickstartcreativestudio[.]com$" }],
-        ...canonical,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "header" as const, key: "x-forwarded-proto", value: "^http$" }],
-        ...canonical,
-      },
-    ];
   },
   async headers() {
     return [

@@ -19,9 +19,6 @@ export const site = {
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
   whatsapp: "919677827166",
-  /* One address everywhere: the schema in app/layout.tsx and the privacy page.
-     Google's local results need the name, address and phone to match. */
-  address: { street: "Essel Gardens", city: "Bengaluru", region: "Karnataka", postalCode: "560077" },
   instagram: "https://www.instagram.com/kickstartcreativestudio/",
   linkedin: "https://www.linkedin.com/company/kickstart-creativestudio/",
   /** Cloudflare Turnstile site key. Public by design (it ships in every page), so it

@@ -6,15 +6,10 @@ export const metadata: Metadata = {
   title: `Privacy Policy | ${site.name}`,
   description: `How ${site.legalName} collects, uses, shares and protects personal data, and how to exercise your rights.`,
   alternates: { canonical: "/privacy" },
-  // Google was answering the brand search with this page instead of the home
-  // page: it names the company more often than the home page does. Out of the
-  // index, still crawled, still linked from every footer.
-  robots: { index: false, follow: true },
 };
 
 const UPDATED = "14 September 2026";
 const PHONE = `+${site.whatsapp.slice(0, 2)} ${site.whatsapp.slice(2, 7)} ${site.whatsapp.slice(7)}`;
-const ADDRESS = `${site.address.street}, ${site.address.city}, ${site.address.region} ${site.address.postalCode}, India`;
 const EMAIL = <a href={`mailto:${site.email}`} className="text-paper underline! underline-offset-4">{site.email}</a>;
 
 /** Numbered block. Spacing is grid gap throughout: globals.css zeroes every
@@ -83,7 +78,7 @@ export default function PrivacyPage() {
 
           <Section n="01" title="Who we are">
             <p>
-              {site.legalName}, {ADDRESS}. You can reach us at {EMAIL} or on{" "}
+              {site.legalName}, Tirunelveli, Tamil Nadu, India. You can reach us at {EMAIL} or on{" "}
               <Em>{PHONE}</Em>.
             </p>
           </Section>
@@ -209,7 +204,7 @@ export default function PrivacyPage() {
             <address className="grid gap-1 not-italic">
               <Em>Jerry Joshan</Em>
               <span>Founder, {site.legalName}</span>
-              <span>{ADDRESS}</span>
+              <span>Tirunelveli, Tamil Nadu, India</span>
               <span>Email: {EMAIL}</span>
               <span>Phone / WhatsApp: {PHONE}</span>
             </address>
