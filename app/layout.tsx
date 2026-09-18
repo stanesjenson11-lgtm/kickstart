@@ -92,8 +92,10 @@ const jsonLd = {
       telephone: `+${site.whatsapp}`,
       address: {
         "@type": "PostalAddress",
-        addressLocality: "Bengaluru",
-        addressRegion: "Karnataka",
+        streetAddress: site.address.street,
+        addressLocality: site.address.city,
+        addressRegion: site.address.region,
+        postalCode: site.address.postalCode,
         addressCountry: "IN",
       },
       description: site.description,
