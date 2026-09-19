@@ -1,6 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
+	// OpenNext's generated worker, wrapped to serve video byte ranges.
+	"main": "worker.ts",
 	// Must match the Worker name in the Cloudflare dashboard, and so must the
 	// self-reference below. Left to the migrate command, both came from the
 	// package.json name and the binding pointed at a Worker that doesn't exist.
@@ -13,7 +14,10 @@
 	"keep_vars": true,
 	"assets": {
 		"directory": ".open-next/assets",
-		"binding": "ASSETS"
+		"binding": "ASSETS",
+		// Videos go through worker.ts, which answers Range with a 206. Static
+		// assets on their own always send the whole file.
+		"run_worker_first": ["/*.mp4"]
 	},
 	"services": [
 		{

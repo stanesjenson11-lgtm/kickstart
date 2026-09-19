@@ -12,8 +12,10 @@ import { useGsap, gsap } from "@/lib/motion";
  *
  * The reel runs muted on a loop as ambient footage — autoplay only survives
  * muted, so the file carries no audio track at all. It stays at
- * `preload="metadata"` and an observer starts it a viewport early, so the
- * homepage never pays for the file before the section is in reach.
+ * `preload="metadata"` and an observer starts it a viewport early (two on
+ * touch screens), so the homepage never pays for the file before the section
+ * is in reach. The files are served with byte ranges (see `worker.ts`), which
+ * iOS needs to start a video before the whole file has downloaded.
  *
  * The encodes are `<source>`s in the server HTML (see `showreel.sources`), so
  * the browser picks one and reads its metadata while the page parses. Setting
@@ -47,18 +49,38 @@ export default function Showreel() {
       if (near) el.play().catch(arm);
     };
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        // play() pulls the media down; pausing offscreen keeps a decoder off
-        // the main thread for the rest of the page.
-        near = entry.isIntersecting;
-        if (near) play();
-        else el.pause();
-      },
-      { rootMargin: "100% 0px" },
-    );
-    io.observe(el);
+    // play() pulls the media down; pausing offscreen keeps a decoder off the
+    // main thread for the rest of the page.
+    const watch = (rootMargin: string) => {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          near = entry.isIntersecting;
+          if (near) play();
+          else el.pause();
+        },
+        { rootMargin },
+      );
+      io.observe(el);
+      return io;
+    };
+    let io = watch("100% 0px");
+
+    // Phones and tablets get two viewports' notice rather than one: iOS only
+    // starts fetching on play(), and a range probe plus the first second of
+    // footage has to land before the pinned section scrolls past. Widened on
+    // the first scroll, not at mount: until the pins above are built the
+    // section reads two viewports higher than it sits, and the wider margin
+    // caught it there and pulled megabytes of reel during page load.
+    const widen = () => {
+      io.disconnect();
+      io = watch("200% 0px");
+    };
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      window.addEventListener("scroll", widen, { once: true, passive: true });
+    }
+
     return () => {
+      window.removeEventListener("scroll", widen);
       io.disconnect();
       document.removeEventListener("touchend", play);
       document.removeEventListener("click", play);

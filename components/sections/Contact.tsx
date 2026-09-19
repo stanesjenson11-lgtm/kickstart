@@ -358,7 +358,7 @@ export default function Contact() {
                   label="Timeline"
                   name="timeline"
                   type="date"
-                  placeholder="Pick a date"
+                  placeholder="mm/dd/yyyy"
                   required
                   error={errors.timeline}
                 />

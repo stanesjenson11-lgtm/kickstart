@@ -225,8 +225,36 @@ input[type="date"] {
   appearance: none;
 }
 
+/* min-height: iOS collapses the empty value to nothing without the native
+   appearance, which left the empty field shorter than its neighbours. */
 input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
+  min-height: 1lh;
+}
+
+/* Phones and tablets draw no mm/dd/yyyy at all: iOS/iPadOS Safari and Android
+   Chrome leave an empty date field blank until a date is picked. So on touch
+   screens the hint is drawn from the placeholder while the field is empty.
+   Any native segments under it are hidden, or Chrome's device emulation (which
+   keeps desktop segments) would show the hint twice. */
+@media (pointer: coarse) {
+  input[type="date"] {
+    position: relative;
+  }
+
+  input[type="date"]:invalid:not(:focus)::-webkit-datetime-edit {
+    visibility: hidden;
+  }
+
+  input[type="date"]:invalid:not(:focus)::before {
+    content: attr(placeholder);
+    position: absolute;
+    inset: 0;
+    padding: inherit;
+    display: flex;
+    align-items: center;
+    color: color-mix(in oklab, var(--color-muted-dark) 70%, transparent);
+  }
 }
 
 /* The browser's own glyph follows the color-scheme, so no filter can match it
