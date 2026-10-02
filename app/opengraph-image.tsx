@@ -1,12 +1,13 @@
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/content";
+import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
 export const alt = `${site.name} — media production, advertising and social media`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * The share card, in the site's own language: drenched black, the bolt cut
+ * The share card, in the site's own language: drenched black, the KS mark cut
  * through the corner, slate metadata along the bottom.
  *
  * Deliberately no remote font fetch — a share card that fails to render because
@@ -28,14 +29,14 @@ export default function OpengraphImage() {
           position: "relative",
         }}
       >
-        {/* The bolt, cut by the right edge. */}
+        {/* The KS mark, cut by the right edge. */}
         <svg
-          viewBox="0 0 100 160"
-          width="420"
+          viewBox={`0 0 ${MARK_W} ${MARK_H}`}
+          width={Math.round((672 * MARK_W) / MARK_H)}
           height="672"
           style={{ position: "absolute", right: -60, top: -30, opacity: 0.07 }}
         >
-          <path d="M62 0 L12 88 L40 82 L32 160 L88 68 L58 74 Z" fill="#ffffff" />
+          <path d={MARK} fill="#ffffff" fillRule="evenodd" />
         </svg>
 
         <div style={{ display: "flex", fontSize: 26, letterSpacing: 6, opacity: 0.62 }}>

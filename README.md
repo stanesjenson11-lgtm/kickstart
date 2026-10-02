@@ -54,10 +54,9 @@ npm run build && npm run start
    the sitemap and the Open Graph card point at production.
 
 7. **Supply a vector logo.** The wordmarks in use (`public/logo-*.png`,
-   `public/ks *.png`) are PNG exports. The bolt used through the site
-   (the loader, the footer watermark) is hand-drawn vector and
-   needs no replacement. The favicons in `app/` are rasters of the KS mark
-   (`kick start logo.PNG`).
+   `public/ks *.png`) are PNG exports. The KS mark used through the site
+   (the loader, the footer watermark, the share card) is a vector trace of `ks logo/3.png` in `lib/mark.ts`, and needs
+   no replacement. The favicons in `app/` are rasters of that same file.
 
 ## Deploy
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { prefersReduced } from "@/lib/motion";
+import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
 declare global {
   interface Window {
@@ -10,9 +11,6 @@ declare global {
   }
 }
 
-/** The KS mark, traced from ks logo/3.png. viewBox 0 0 865 1173. */
-const MARK =
-  "M145 4C99 7 60 28 33 64C22 78 9 106 8 117C8 120 10 122 60 159C88 181 129 212 150 228C216 277 238 294 239 294C239 294 240 292 241 290C253 259 288 241 322 248C338 251 342 253 388 290C408 306 431 324 440 330C449 337 467 351 481 362C495 373 515 389 525 397C555 420 614 467 676 516C762 584 766 587 772 590C781 594 788 595 799 595C844 596 875 548 856 508C849 494 847 492 802 456C761 423 691 369 675 356C671 354 657 343 643 332C629 321 610 306 600 299C591 292 574 279 563 271C540 254 454 189 438 177C433 174 423 166 416 161C409 156 396 147 388 141C360 120 247 37 237 30C217 16 190 6 167 5C151 3 150 3 145 4M4 556C4 785 4 974 5 976C5 980 6 980 9 974C18 961 32 946 89 888C183 795 206 769 223 734C228 722 231 714 233 702C235 696 235 672 235 503L235 312 203 288C172 264 138 239 76 192C11 143 6 139 5 139C4 139 4 327 4 556M432 448C413 451 399 464 394 483C391 491 391 923 394 933C396 942 400 949 408 957C427 976 456 980 486 968C491 966 503 959 516 951C528 943 543 933 549 929C555 925 568 917 578 910C588 904 602 895 610 890C618 885 636 872 652 863C667 853 691 837 705 828C779 779 788 773 791 769C807 750 805 722 787 707C784 705 759 684 730 662C700 639 675 619 673 618C670 616 656 605 642 594C627 582 610 569 604 564C592 555 539 513 512 492C503 485 489 474 481 468C465 455 458 451 452 449C445 448 437 447 432 448M232 746C229 755 212 779 196 797C171 827 153 845 87 911C30 967 24 974 14 995C7 1010 5 1020 5 1037C5 1098 49 1152 109 1167C117 1169 121 1169 138 1169C174 1169 178 1167 278 1104C284 1100 298 1091 309 1084C320 1077 343 1062 362 1051C380 1039 398 1028 402 1025C406 1023 412 1019 415 1017C447 996 454 992 456 991C459 990 456 989 447 989C425 987 406 978 392 961C390 958 387 956 387 956C386 956 373 964 342 983C318 998 310 1001 294 1000C268 998 248 982 238 956L236 949 235 846C235 789 235 743 234 743C234 743 233 745 232 746";
 
 /**
  * The whole show on one canvas, timed as the GSAP version was: the outline
@@ -37,8 +35,8 @@ const SCRIPT = `(function () {
     var W = (canvas.width = o.w), H = (canvas.height = o.h);
     var parts = o.mark.split("M").slice(1).map(function (d) { return new Path2D("M" + d); });
     var whole = new Path2D(o.mark);
-    var s = (96 * o.dpr) / 1173; // 96px tall, as h-24 was
-    var x = (W - 865 * s) / 2, y = (H - 1173 * s) / 2;
+    var s = (96 * o.dpr) / o.mh; // 96px tall, as h-24 was
+    var x = (W - o.mw * s) / 2, y = (H - o.mh * s) / 2;
     var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
     var t0, cutAt, wanted = false, frames = 0;
 
@@ -101,6 +99,8 @@ const SCRIPT = `(function () {
     ink: style.backgroundColor,
     paper: style.color,
     mark: mark,
+    mw: ${MARK_W},
+    mh: ${MARK_H},
     lens: mark.split("M").slice(1).map(function (d) {
       var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
       p.setAttribute("d", "M" + d);

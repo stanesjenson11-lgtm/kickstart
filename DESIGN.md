@@ -78,7 +78,7 @@ One motif, five uses. A ~12° diagonal derived from the monogram's bolt.
 2. **Image reveals** — photographs unmask along the cut, not up from the bottom
 3. **Work hover** — the image splits along the cut and the halves offset
 4. **Link underline** — a hairline sweeping in at the cut angle
-5. **Loader** — the bolt draws itself, then the cut opens the hero
+5. **Loader** — the KS mark draws itself, then the cut opens the hero
 
 A second ornamental motif would read as decoration. There isn't one.
 

@@ -15,8 +15,9 @@ async function* walk(dir) {
     const p = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       if (p !== OUT) yield* walk(p);
-    } else if (RASTER.test(entry.name) && !entry.name.startsWith("email-")) {
-      // email-* stay out: mail clients get the original PNGs inlined.
+    } else if (RASTER.test(entry.name) && !/^(email|icon)-/.test(entry.name)) {
+      // email-* stay out: mail clients get the original PNGs inlined. So do
+      // icon-*: the web app manifest serves them as they are.
       yield p;
     }
   }

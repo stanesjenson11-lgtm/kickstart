@@ -1,17 +1,18 @@
 import Image from "next/image";
 import { footer, nav, site } from "@/lib/content";
+import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-[var(--rule-on-dark)] bg-ink">
-      {/* The bolt, oversized and cut by the viewport edge. */}
+      {/* The KS mark, oversized and cut by the viewport edge. */}
       <span
         aria-hidden="true"
         className="pointer-events-none absolute -right-[6%] -bottom-[10%] block h-[118%] w-auto text-paper/[0.045]"
-        style={{ aspectRatio: "100 / 160" }}
+        style={{ aspectRatio: `${MARK_W} / ${MARK_H}` }}
       >
-        <svg viewBox="0 0 100 160" className="h-full w-full" fill="currentColor">
-          <path d="M62 0 L12 88 L40 82 L32 160 L88 68 L58 74 Z" />
+        <svg viewBox={`0 0 ${MARK_W} ${MARK_H}`} className="h-full w-full" fill="currentColor">
+          <path d={MARK} fillRule="evenodd" />
         </svg>
       </span>
 
