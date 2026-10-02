@@ -91,8 +91,18 @@ export default function Clients() {
       }
     };
     fit();
-    window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
+    // Refit when the page's width settles, not on the window's resize event:
+    // switching the device toolbar to a phone fires that once, mid-switch, at
+    // the old desktop width, and left the names at desktop size.
+    const root = document.documentElement;
+    let width = root.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (root.clientWidth === width) return;
+      width = root.clientWidth;
+      fit();
+    });
+    ro.observe(root);
+    return () => ro.disconnect();
   }, [pair.to, pair.from]);
 
   /**

@@ -28,14 +28,27 @@ export default function ZoomLock() {
   useEffect(() => {
     // Non-passive, or the browser ignores preventDefault on wheel and touch.
     const opts = { passive: false } as const;
+    const root = document.documentElement;
+
+    /**
+     * A page already zoomed in must let the visitor pinch back out, or the lock
+     * holds them there: iOS zooming into a form field did exactly that, and
+     * Safari carries the zoom over a reload. Pinch goes through, and the CSS
+     * half of the lock (touch-action in globals.css) steps aside, until the
+     * page is back at 1x.
+     */
+    const zoomedIn = () => (window.visualViewport?.scale ?? 1) > 1.01;
+    const onViewport = () => root.style.setProperty("touch-action", zoomedIn() ? "manipulation" : "");
 
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) e.preventDefault();
     };
-    const onGesture = (e: Event) => e.preventDefault();
+    const onGesture = (e: Event) => {
+      if (!zoomedIn()) e.preventDefault();
+    };
     const onTouchMove = (e: TouchEvent) => {
       // Nothing here needs two fingers, so a second one is always a pinch.
-      if (e.touches.length > 1) e.preventDefault();
+      if (e.touches.length > 1 && !zoomedIn()) e.preventDefault();
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && ZOOM_KEYS.has(e.key)) e.preventDefault();
@@ -54,16 +67,26 @@ export default function ZoomLock() {
      * to separate "browser is at 150%" from "this is a 1.5x display", so a
      * visitor who arrives already zoomed keeps that — only *changes* are undone.
      *
-     * ponytail: a window dragged between monitors of different DPI also moves
-     * devicePixelRatio and will be counter-scaled as if it were zoom. Cheapest
-     * fix if that ever bites: also require window.outerWidth to have held still.
+     * Browser zoom moves devicePixelRatio but leaves the window's size in device
+     * pixels where it was. When that size moves with it, the screen changed
+     * instead — DevTools' device toolbar switching to a phone, or a monitor of
+     * another density — and that becomes the new baseline. Undoing it as zoom
+     * shrank the page to a third on a 3x phone until a reload.
      */
-    const base = window.devicePixelRatio || 1;
-    const root = document.documentElement;
+    let base = window.devicePixelRatio || 1;
+    let last = { dpr: base, w: window.innerWidth * base, h: window.innerHeight * base };
     let applied = 1;
 
     const counterScale = () => {
-      const factor = (window.devicePixelRatio || 1) / base;
+      const dpr = window.devicePixelRatio || 1;
+      const w = window.innerWidth * dpr;
+      const h = window.innerHeight * dpr;
+      // Whole CSS pixels times the ratio: rounding alone moves this by about dpr.
+      const held = (a: number, b: number) => Math.abs(a - b) <= Math.max(dpr, last.dpr) + 1;
+      if (dpr !== last.dpr && !(held(w, last.w) && held(h, last.h))) base = dpr;
+      last = { dpr, w, h };
+
+      const factor = dpr / base;
       // 4dp — devicePixelRatio arrives as 1.100000023841858 and similar.
       const next = Math.round((1 / factor) * 1e4) / 1e4;
       if (next === applied) return;
@@ -76,6 +99,8 @@ export default function ZoomLock() {
     window.addEventListener("wheel", onWheel, opts);
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", counterScale);
+    window.visualViewport?.addEventListener("resize", onViewport);
+    onViewport();
     document.addEventListener("touchmove", onTouchMove, opts);
     GESTURES.forEach((type) => window.addEventListener(type, onGesture, opts));
 
@@ -83,9 +108,11 @@ export default function ZoomLock() {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("resize", counterScale);
+      window.visualViewport?.removeEventListener("resize", onViewport);
       document.removeEventListener("touchmove", onTouchMove);
       GESTURES.forEach((type) => window.removeEventListener(type, onGesture));
       root.style.removeProperty("zoom");
+      root.style.removeProperty("touch-action");
     };
   }, []);
 

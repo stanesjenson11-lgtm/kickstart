@@ -117,10 +117,15 @@ export default function HeroCanvas({
 
     /* --- textures ----------------------------------------------------- */
     let loaded = 0;
+    // Set on teardown. A plate landing after it (React's dev double mount, or a
+    // device switch mid-load) would otherwise attach this run's dead canvas
+    // beside, or over, the live one.
+    let gone = false;
     plateSet.forEach((src, i) => {
       const img = new Image();
       img.decoding = "async";
       img.onload = () => {
+        if (gone) return;
         textures[i].image = img;
         sizes[i] = [img.naturalWidth, img.naturalHeight];
         // In only once there is a plate to draw: an empty canvas is black, and
@@ -216,6 +221,7 @@ export default function HeroCanvas({
     raf = requestAnimationFrame(frame);
 
     return () => {
+      gone = true;
       cancelAnimationFrame(raf);
       io.disconnect();
       ro.disconnect();

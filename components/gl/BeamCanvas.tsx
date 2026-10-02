@@ -57,12 +57,20 @@ export default function BeamCanvas() {
     const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
 
     const resize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      const { width, height } = el.getBoundingClientRect();
+      // Read again each time: DevTools' device toolbar changes it with no reload.
+      renderer.dpr = 0.5 * Math.min(window.devicePixelRatio, 1.5);
+      renderer.setSize(width, height);
       program.uniforms.uRes.value = [gl.canvas.width, gl.canvas.height];
-      program.uniforms.uScale.value = gl.canvas.width / window.innerWidth;
+      program.uniforms.uScale.value = gl.canvas.width / width;
     };
     resize();
-    window.addEventListener("resize", resize);
+    // The host is fixed to the viewport, so it resizes with it. Not the window's
+    // resize event: switching the device toolbar to a phone fires that once,
+    // mid-switch, at the old width and the phone's shape, and never again — the
+    // beam was left drawn for a 1265 x 2743 screen.
+    const ro = new ResizeObserver(resize);
+    ro.observe(el);
 
     let raf = 0;
     let idle = false;
@@ -99,7 +107,7 @@ export default function BeamCanvas() {
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
+      ro.disconnect();
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       gl.canvas.remove();
     };

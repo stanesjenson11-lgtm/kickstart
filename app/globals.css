@@ -209,6 +209,24 @@ button {
   cursor: pointer;
 }
 
+/* iOS Safari zooms the page into any field it focuses that is set below 16px
+   (the brief's fields are text-sm, 14px), and never zooms back out. Touch
+   screens type at 16px, so the page stays at its own scale. Only the field's
+   own size counts, so the hints stay at 14px: the narrow two-column fields
+   read as they did, and the date hint still clears its calendar glyph. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  ::placeholder,
+  input[type="date"]:invalid:not(:focus)::before {
+    font-size: 0.875rem;
+  }
+}
+
 /* A date input's "mm/dd/yyyy" hint is drawn by the browser, not by ::placeholder,
    so the field's `placeholder:text-muted-dark/70` never reaches it. These match
    it to every other field's placeholder. The field is required, so while it is
