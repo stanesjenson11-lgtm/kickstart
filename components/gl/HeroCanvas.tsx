@@ -80,7 +80,6 @@ export default function HeroCanvas({
 
     const gl = renderer.gl;
     gl.canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block";
-    el.appendChild(gl.canvas);
 
     const textures = plateSet.map(() => new Texture(gl, { generateMipmaps: false }));
     // Black until it loads, which reads as "nothing vacated" — the right default.
@@ -124,7 +123,12 @@ export default function HeroCanvas({
       img.onload = () => {
         textures[i].image = img;
         sizes[i] = [img.naturalWidth, img.naturalHeight];
-        if (++loaded === 1) setLive(true);
+        // In only once there is a plate to draw: an empty canvas is black, and
+        // over the still it read as the hero blinking out as the loader opened.
+        if (++loaded === 1) {
+          el.appendChild(gl.canvas);
+          setLive(true);
+        }
       };
       img.src = imagePath(src, portrait ? PLATE_W.portrait : PLATE_W.landscape);
     });

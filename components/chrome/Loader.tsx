@@ -1,12 +1,148 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap, prefersReduced } from "@/lib/motion";
+import { prefersReduced } from "@/lib/motion";
+
+declare global {
+  interface Window {
+    /** Set by the loader's inline script: open the cut, and when it has finished. */
+    ksLoader?: { go: () => void; done: Promise<void> };
+  }
+}
+
+/** The KS mark, traced from ks logo/3.png. viewBox 0 0 865 1173. */
+const MARK =
+  "M145 4C99 7 60 28 33 64C22 78 9 106 8 117C8 120 10 122 60 159C88 181 129 212 150 228C216 277 238 294 239 294C239 294 240 292 241 290C253 259 288 241 322 248C338 251 342 253 388 290C408 306 431 324 440 330C449 337 467 351 481 362C495 373 515 389 525 397C555 420 614 467 676 516C762 584 766 587 772 590C781 594 788 595 799 595C844 596 875 548 856 508C849 494 847 492 802 456C761 423 691 369 675 356C671 354 657 343 643 332C629 321 610 306 600 299C591 292 574 279 563 271C540 254 454 189 438 177C433 174 423 166 416 161C409 156 396 147 388 141C360 120 247 37 237 30C217 16 190 6 167 5C151 3 150 3 145 4M4 556C4 785 4 974 5 976C5 980 6 980 9 974C18 961 32 946 89 888C183 795 206 769 223 734C228 722 231 714 233 702C235 696 235 672 235 503L235 312 203 288C172 264 138 239 76 192C11 143 6 139 5 139C4 139 4 327 4 556M432 448C413 451 399 464 394 483C391 491 391 923 394 933C396 942 400 949 408 957C427 976 456 980 486 968C491 966 503 959 516 951C528 943 543 933 549 929C555 925 568 917 578 910C588 904 602 895 610 890C618 885 636 872 652 863C667 853 691 837 705 828C779 779 788 773 791 769C807 750 805 722 787 707C784 705 759 684 730 662C700 639 675 619 673 618C670 616 656 605 642 594C627 582 610 569 604 564C592 555 539 513 512 492C503 485 489 474 481 468C465 455 458 451 452 449C445 448 437 447 432 448M232 746C229 755 212 779 196 797C171 827 153 845 87 911C30 967 24 974 14 995C7 1010 5 1020 5 1037C5 1098 49 1152 109 1167C117 1169 121 1169 138 1169C174 1169 178 1167 278 1104C284 1100 298 1091 309 1084C320 1077 343 1062 362 1051C380 1039 398 1028 402 1025C406 1023 412 1019 415 1017C447 996 454 992 456 991C459 990 456 989 447 989C425 987 406 978 392 961C390 958 387 956 387 956C386 956 373 964 342 983C318 998 310 1001 294 1000C268 998 248 982 238 956L236 949 235 846C235 789 235 743 234 743C234 743 233 745 232 746";
 
 /**
- * The bolt draws itself, then the cut opens the page.
+ * The whole show on one canvas, timed as the GSAP version was: the outline
+ * draws (0.62s), the fill comes up under it (0.28s), and the cut opens (0.72s)
+ * once React says the page has hydrated.
  *
- * Kept to ~1.3s — the brief bans long loading animations, and this exists to
+ * Inlined into the server HTML, so it starts with the first paint instead of
+ * waiting for hydration. Where it can, it draws from a worker through an
+ * OffscreenCanvas: hydration, the hero's WebGL setup and Turnstile all hold the
+ * main thread during these 1.5s, and a worker's frames reach the screen without
+ * it. Elsewhere `run` draws on the main thread instead.
+ *
+ * A string, not a function, so the server and client render the same bytes.
+ */
+const SCRIPT = `(function () {
+  var canvas = document.currentScript.previousElementSibling;
+  var box = canvas.parentNode;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  function run(canvas, o, raf, post) {
+    var ctx = canvas.getContext("2d");
+    var W = (canvas.width = o.w), H = (canvas.height = o.h);
+    var parts = o.mark.split("M").slice(1).map(function (d) { return new Path2D("M" + d); });
+    var whole = new Path2D(o.mark);
+    var s = (96 * o.dpr) / 1173; // 96px tall, as h-24 was
+    var x = (W - 865 * s) / 2, y = (H - 1173 * s) / 2;
+    var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+    var t0, cutAt, wanted = false, frames = 0;
+
+    function frame(now) {
+      if (t0 === undefined) t0 = now;
+      var t = now - t0;
+      if (wanted && cutAt === undefined) cutAt = Math.max(t, 840);
+
+      var d = clamp(t / 620); d = d < 0.5 ? 2 * d * d : 1 - Math.pow(2 - 2 * d, 2) / 2; // power2.inOut
+      var f = clamp((t - 500) / 280); f = 1 - (1 - f) * (1 - f); // power2.out
+      var c = cutAt === undefined ? 0 : clamp((t - cutAt) / 720); // expo.inOut
+      c = c === 0 || c === 1 ? c : c < 0.5 ? Math.pow(2, 20 * c - 10) / 2 : (2 - Math.pow(2, 10 - 20 * c)) / 2;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      // Out along the cut: the same polygon the clip-path used to animate.
+      ctx.beginPath();
+      ctx.moveTo(0, -0.3 * H);
+      ctx.lineTo(W, -0.42 * H);
+      ctx.lineTo(W, (1.3 - 1.6 * c) * H);
+      ctx.lineTo(0, (1.18 - 1.36 * c) * H);
+      ctx.fillStyle = o.ink;
+      ctx.fill();
+      ctx.clip();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      ctx.fillStyle = ctx.strokeStyle = o.paper;
+      if (f > 0) {
+        ctx.globalAlpha = f;
+        ctx.fill(whole, "evenodd");
+        ctx.globalAlpha = 1;
+      }
+      ctx.lineWidth = 11;
+      ctx.lineJoin = "round";
+      // Each piece over its own length, so all four finish together.
+      parts.forEach(function (p, i) {
+        var len = o.lens[i];
+        ctx.setLineDash(d < 1 ? [len, len] : []);
+        ctx.lineDashOffset = len * (1 - d);
+        ctx.stroke(p);
+      });
+      ctx.restore();
+
+      if (++frames === 2) post("painted");
+      if (cutAt !== undefined && t >= cutAt + 720) return post("done");
+      raf(frame);
+    }
+    raf(frame);
+    return function () { wanted = true; };
+  }
+
+  var style = getComputedStyle(box);
+  var rect = canvas.getBoundingClientRect();
+  var dpr = Math.min(devicePixelRatio || 1, 2);
+  var mark = ${JSON.stringify(MARK)};
+  var o = {
+    w: Math.round((rect.width || innerWidth) * dpr),
+    h: Math.round((rect.height || innerHeight) * dpr),
+    dpr: dpr,
+    ink: style.backgroundColor,
+    paper: style.color,
+    mark: mark,
+    lens: mark.split("M").slice(1).map(function (d) {
+      var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", "M" + d);
+      return p.getTotalLength();
+    }),
+  };
+
+  var finish;
+  var ks = (window.ksLoader = { done: new Promise(function (r) { finish = r; }) });
+  function on(msg) {
+    // The canvas paints the ink from its second frame on, so the box's own
+    // fill steps aside. Through the Animations API: it leaves the attributes
+    // React is about to hydrate untouched.
+    if (msg === "painted") box.animate({ backgroundColor: "transparent" }, { fill: "forwards" });
+    if (msg === "done") finish();
+  }
+
+  try {
+    if (!canvas.transferControlToOffscreen || !window.Worker) throw 0;
+    var worker = new Worker(URL.createObjectURL(new Blob([
+      "var go, run = " + run + ";" +
+      "onmessage = function (e) {" +
+      "  if (e.data === 'go') return go();" +
+      "  go = run(e.data.canvas, e.data," +
+      "    self.requestAnimationFrame ? requestAnimationFrame.bind(self) : function (f) { setTimeout(function () { f(performance.now()); }, 16); }," +
+      "    function (m) { postMessage(m); if (m === 'done') close(); });" +
+      "};"
+    ], { type: "text/javascript" })));
+    worker.onmessage = function (e) { on(e.data); };
+    worker.onerror = finish; // a worker that never starts must not strand the page
+    o.canvas = canvas.transferControlToOffscreen();
+    worker.postMessage(o, [o.canvas]);
+    ks.go = function () { worker.postMessage("go"); };
+  } catch (e) {
+    ks.go = run(canvas, o, requestAnimationFrame, on);
+  }
+})();`;
+
+/**
+ * The KS mark draws itself, then the cut opens the page.
+ *
+ * Kept to ~1.5s — the brief bans long loading animations, and this exists to
  * introduce the motif, not to make anyone wait.
  *
  * It is visible in the server HTML, so a first load or refresh never shows the
@@ -18,48 +154,29 @@ export default function Loader() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    const el = root.current;
+    const ks = window.ksLoader;
     // Hidden already means the CSS failsafe fired before hydration: skip the show.
-    if (prefersReduced() || !root.current || getComputedStyle(root.current).visibility === "hidden") {
+    // No ksLoader means the inline script never ran (a client-side navigation here).
+    if (prefersReduced() || !el || !ks || getComputedStyle(el).visibility === "hidden") {
       return setDone(true);
     }
 
-    const el = root.current;
     el.style.animation = "none"; // JS owns it from here; the failsafe is only for no JS
-    const path = el.querySelector<SVGPathElement>("path");
-    const len = path?.getTotalLength() ?? 0;
+    const html = document.documentElement;
+    html.style.overflow = "hidden";
 
-    document.documentElement.style.overflow = "hidden";
-    if (path) gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 1 });
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        document.documentElement.style.overflow = "";
-        setDone(true);
-      },
+    let live = true;
+    ks.go();
+    ks.done.then(() => {
+      if (!live) return;
+      html.style.overflow = "";
+      setDone(true);
     });
 
-    if (path) {
-      tl.to(path, { strokeDashoffset: 0, duration: 0.62, ease: "power2.inOut" }).to(
-        path,
-        { fillOpacity: 1, duration: 0.28, ease: "power2.out" },
-        "-=0.12",
-      );
-    }
-
-    tl.to(
-      el,
-      {
-        // Out along the cut — the same diagonal as every other transition.
-        clipPath: "polygon(0 -30%, 100% -42%, 100% -30%, 0 -18%)",
-        duration: 0.72,
-        ease: "expo.inOut",
-      },
-      "+=0.06",
-    );
-
     return () => {
-      document.documentElement.style.overflow = "";
-      tl.kill();
+      live = false;
+      html.style.overflow = "";
     };
   }, []);
 
@@ -69,22 +186,12 @@ export default function Loader() {
     <div
       ref={root}
       aria-hidden="true"
-      className="ks-loader fixed inset-0 z-[var(--z-loader)] grid place-items-center bg-ink"
-      style={{ clipPath: "polygon(0 -30%, 100% -42%, 100% 130%, 0 118%)" }}
+      className="ks-loader fixed inset-0 z-[var(--z-loader)] bg-ink text-paper"
     >
-      <svg viewBox="0 0 100 160" className="h-24 w-auto text-paper" aria-hidden="true">
-        {/* Transparent in the server HTML so the bolt doesn't flash before JS
-            starts drawing it. */}
-        <path
-          fillOpacity={0}
-          strokeOpacity={0}
-          d="M62 0 L12 88 L40 82 L32 160 L88 68 L58 74 Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {/* Sized by the inline script before hydration, so its width and height
+          attributes never match the server's bare tag. */}
+      <canvas suppressHydrationWarning className="absolute inset-0 block h-full w-full" />
+      <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
     </div>
   );
 }

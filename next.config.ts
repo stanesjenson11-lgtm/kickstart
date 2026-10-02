@@ -12,6 +12,9 @@ const isDev = process.env.NODE_ENV === "development";
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
+  // script-src's worker sources, plus blob: — the loader draws from a worker
+  // built by its own inline script (Loader.tsx).
+  "worker-src 'self' blob: https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "media-src 'self'",

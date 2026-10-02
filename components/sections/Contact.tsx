@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import Script from "next/script";
 import { PlusIcon } from "lucide-react";
@@ -148,6 +148,18 @@ export default function Contact() {
   // A double click lands before React has re-rendered the button as disabled.
   const busy = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Turnstile's check is a burst of heavy script, and on iPhone and iPad its
+  // frame shares the page's main thread. Held until the loader has opened the
+  // page, so it cannot land on the intro.
+  const [checkReady, setCheckReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    (window.ksLoader?.done ?? Promise.resolve()).then(() => live && setCheckReady(true));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   /** Back to an empty form. It stayed mounted while hidden, so reset() clears
       it and Turnstile's widget is still there to issue a fresh token. flushSync
@@ -394,10 +406,12 @@ export default function Contact() {
                     data-size="flexible"
                     data-appearance="interaction-only"
                   />
-                  <Script
-                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                    strategy="lazyOnload"
-                  />
+                  {checkReady && (
+                    <Script
+                      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                      strategy="lazyOnload"
+                    />
+                  )}
                 </>
               )}
 
