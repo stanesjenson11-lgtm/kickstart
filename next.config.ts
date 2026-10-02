@@ -17,7 +17,8 @@ const csp = [
   "worker-src 'self' blob: https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
-  "media-src 'self'",
+  // blob: — touch screens play the showreel from a downloaded copy (Showreel.tsx).
+  "media-src 'self' blob:",
   "font-src 'self'",
   "connect-src 'self'",
   "frame-src https://challenges.cloudflare.com",

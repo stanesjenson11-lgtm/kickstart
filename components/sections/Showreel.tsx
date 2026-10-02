@@ -12,10 +12,12 @@ import { useGsap, gsap } from "@/lib/motion";
  *
  * The reel runs muted on a loop as ambient footage — autoplay only survives
  * muted, so the file carries no audio track at all. It stays at
- * `preload="metadata"` and an observer starts it a viewport early (two on
- * touch screens), so the homepage never pays for the file before the section
- * is in reach. The files are served with byte ranges (see `worker.ts`), which
- * iOS needs to start a video before the whole file has downloaded.
+ * `preload="metadata"` and an observer starts it a viewport early, so a
+ * desktop never pays for the file before the section is in reach. Touch
+ * screens download it on the first scroll instead and play it from memory
+ * (see `prefetch` below). The files are served with byte ranges (see
+ * `worker.ts`), which iOS needs to start a video before the whole file has
+ * downloaded.
  *
  * The encodes are `<source>`s in the server HTML (see `showreel.sources`), so
  * the browser picks one and reads its metadata while the page parses. Setting
@@ -75,12 +77,52 @@ export default function Showreel() {
       io.disconnect();
       io = watch("200% 0px");
     };
+
+    /**
+     * The notice was not enough on an iPhone: Safari fetches no footage before
+     * play(), and plays a muted video only once it is on screen, so the reel
+     * was still buffering as the pinned section went by and started sections
+     * later. Touch screens now download the whole file on the first scroll and
+     * play it from memory, which starts the moment it is shown. If the reel has
+     * already started from the network by then, it is left alone. A visitor
+     * who has asked to save data streams it as before.
+     */
+    const abort = new AbortController();
+    let local = "";
+    const prefetch = () => {
+      const { connection } = navigator as Navigator & { connection?: { saveData?: boolean } };
+      if (!el.currentSrc || connection?.saveData) return;
+      fetch(el.currentSrc, { signal: abort.signal })
+        .then((r) => (r.ok ? r.blob() : Promise.reject()))
+        .then((blob) => {
+          if (el.played.length) return;
+          local = URL.createObjectURL(blob);
+          el.src = local;
+          play();
+        })
+        .catch(() => {});
+    };
+
+    // Started from the network first: stop the download, so the stream has the
+    // connection to itself.
+    const onPlaying = () => {
+      if (!local) abort.abort();
+    };
+    el.addEventListener("playing", onPlaying, { once: true });
+
+    const onFirstScroll = () => {
+      widen();
+      prefetch();
+    };
     if (window.matchMedia("(pointer: coarse)").matches) {
-      window.addEventListener("scroll", widen, { once: true, passive: true });
+      window.addEventListener("scroll", onFirstScroll, { once: true, passive: true });
     }
 
     return () => {
-      window.removeEventListener("scroll", widen);
+      window.removeEventListener("scroll", onFirstScroll);
+      el.removeEventListener("playing", onPlaying);
+      abort.abort();
+      if (local) URL.revokeObjectURL(local);
       io.disconnect();
       document.removeEventListener("touchend", play);
       document.removeEventListener("click", play);
