@@ -1,8 +1,10 @@
 import Image from "next/image";
-import { footer, nav, site } from "@/lib/content";
+import { footer, nav, servicePages, site } from "@/lib/content";
 import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
-export default function Footer() {
+/** `home` prefixes the in-page links, so a page other than "/" points back into
+    the home page's sections ("/#work") rather than at anchors it lacks. */
+export default function Footer({ home = "" }: { home?: string }) {
   return (
     <footer className="relative overflow-hidden border-t border-[var(--rule-on-dark)] bg-ink">
       {/* The KS mark, oversized and cut by the viewport edge. */}
@@ -21,7 +23,7 @@ export default function Footer() {
             it. From `bar` up: all three on one row. Follow sits in the right
             corner at every width. */}
         <div className="grid grid-cols-2 gap-x-grid gap-y-5 bar:grid-cols-12 bar:gap-y-0">
-          <div className="col-span-2 bar:col-span-5">
+          <div className="col-span-2 bar:col-span-4">
             {/* White mark — the footer is always on ink. Height clamp tracks
                 the cap height of the text-h2 this replaced. */}
             <Image
@@ -46,13 +48,27 @@ export default function Footer() {
           {/* The rows are flex so each is as tall as its small mono link. As
               plain blocks they took the body text's line height, 16-18px type
               at 1.6, and that strut was most of the gap between rows. */}
-          <nav aria-label="Footer" className="bar:col-span-4">
+          <nav aria-label="Footer" className="bar:col-span-2">
             <h2 className="u-meta text-muted-dark">Site</h2>
             <ul className="mt-3 flex flex-col gap-2 max-phone:mt-2 max-phone:gap-1.5">
               {nav.links.map((l) => (
                 <li key={l.href} className="flex">
-                  <a href={l.href} className="cut-link u-meta">
+                  <a href={home + l.href} className="cut-link u-meta">
                     {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Phone: last, across both columns, the three links on one line. */}
+          <nav aria-label="Services" className="max-bar:order-last max-bar:col-span-2 bar:col-span-3">
+            <h2 className="u-meta text-muted-dark">Services</h2>
+            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 max-phone:mt-2 bar:flex-col bar:gap-2">
+              {servicePages.map((p) => (
+                <li key={p.slug} className="flex">
+                  <a href={`/services/${p.slug}`} className="cut-link u-meta">
+                    {p.name}
                   </a>
                 </li>
               ))}

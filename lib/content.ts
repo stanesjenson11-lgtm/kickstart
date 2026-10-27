@@ -12,9 +12,9 @@
 export const site = {
   name: "Kickstart Creative Studio",
   legalName: "Kickstart Creative Studio Pvt Ltd",
-  title: "Kickstart Creative Studio | Media Production & Social Media",
+  title: "Video Production, Web Design & AI | Bangalore & Coimbatore | Kickstart",
   description:
-    "Creative production studio for corporate photography, brand films, event coverage, advertising and social media. We make brands look remarkable.",
+    "Media production company in Bangalore and Coimbatore: corporate films, ad films, event photography, social media, website design and development, and AI integration.",
   url: "https://kickstartcreativestudio.com",
   email: "business@kickstartcreativestudio.com",
   whatsapp: "919677827166",
@@ -31,10 +31,24 @@ export const site = {
   turnstile: true as boolean,
 } as const;
 
+/** Schema.org areaServed, shared by the business and every service page.
+    sameAs pins each name to the one city it means. */
+export const areaServed = [
+  {
+    "@type": "City",
+    name: "Bengaluru",
+    alternateName: "Bangalore",
+    sameAs: "https://en.wikipedia.org/wiki/Bengaluru",
+  },
+  { "@type": "City", name: "Coimbatore", sameAs: "https://en.wikipedia.org/wiki/Coimbatore" },
+  { "@type": "Country", name: "India" },
+];
+
 export const nav = {
   links: [
     { label: "Work", href: "#work" },
     { label: "Services", href: "#services" },
+    { label: "Web & AI", href: "#web" },
     { label: "About", href: "#about" },
     { label: "Contact", href: "#contact" },
   ],
@@ -44,7 +58,8 @@ export const nav = {
 /* 01 — HERO ------------------------------------------------------------- */
 export const hero = {
   headline: ["We make brands", "look remarkable."],
-  support: "Premium visual storytelling, media production & social media for ambitious brands.",
+  support:
+    "Media production, social media, websites and AI for ambitious brands in Bangalore, Coimbatore and across India.",
   primary: { label: "View our work", href: "#work" },
   secondary: { label: "Work with Us", href: "#contact" },
   disciplines: ["Media production", "Corporate", "Advertising", "Events", "Social"],
@@ -180,6 +195,248 @@ export const services = {
     },
   ],
 } as const;
+
+/* 06 — WEBSITES ----------------------------------------------------------- */
+export const web = {
+  label: "Website design & development",
+  headline: "Your website is the first frame.",
+  body: "We design and develop websites for brands in Bangalore, Coimbatore and across India. Fast, built for search, and filled with photography and film we shoot ourselves, so the site looks as good as the work it sells.",
+  items: [
+    "Corporate & brand websites",
+    "Campaign landing pages",
+    "E-commerce",
+    "Web apps & client portals",
+    "SEO, speed & analytics",
+  ],
+  link: { label: "Website design services", href: "/services/website-design" },
+  /** The site in the mock-up is fictional. Stock: Unsplash, Puscas Adryan. */
+  mock: {
+    src: "/placeholders/web-launch.jpg",
+    url: "yourbrand.in",
+    brand: "Obsidian",
+    links: ["Shop", "Story", "Stockists"],
+    headline: ["Bottled", "after dark."],
+    cta: "Shop the launch",
+  },
+} as const;
+
+/* 07 — AI INTEGRATION ------------------------------------------------------ */
+export const ai = {
+  label: "AI integration",
+  headline: "AI that earns its keep.",
+  body: "We wire AI into the way your business already works, for teams in Bangalore, Coimbatore and across India: assistants that answer customers, automations that clear the busywork, and content tools run by the crew that shoots your brand.",
+  items: [
+    {
+      title: "Assistants",
+      text: "Website and WhatsApp assistants that answer questions, qualify leads and book calls, in your customer's language.",
+    },
+    {
+      title: "Automation",
+      text: "Enquiries, invoices and reports moved between the tools you already use, without the copy and paste.",
+    },
+    {
+      title: "Content",
+      text: "AI-assisted edits, captions and product imagery, made by the same team that shoots your brand.",
+    },
+    {
+      title: "Custom tools",
+      text: "Search and answers built on your own documents, so your team stops digging through folders.",
+    },
+  ],
+  /** Demo transcript: what an assistant on a client's site does with an enquiry. */
+  transcript: [
+    { who: "Visitor", text: "Can you shoot our product launch in Coimbatore on the 14th?" },
+    {
+      who: "Assistant",
+      text: "Yes, we cover Coimbatore and Bangalore. Roughly how many guests, and do you need photos, film or both?",
+    },
+    { who: "Visitor", text: "Both. Around 200 guests." },
+    { who: "Assistant", text: "Done. Your date, city and headcount are with the team as a brief." },
+  ],
+  /** What happened behind that last line — a real sequence, so it is ordered. */
+  route: ["Brief created", "CRM updated", "Team notified"],
+  link: { label: "AI integration services", href: "/services/ai-integration" },
+  /** Stock: Unsplash, Denny Müller. Graded to monochrome in the section. */
+  bg: "/placeholders/ai-fibre.jpg",
+} as const;
+
+/* SERVICE PAGES ------------------------------------------------------------ */
+/**
+ * One page per search intent, at /services/<slug>. The home page cannot be the
+ * best answer to "video production company in Bangalore" and "website design
+ * company in Coimbatore" at once; each of these can.
+ *
+ * Stock (Unsplash): web-desk by Mohammad Rahmani, ai-board by Jorge Salvador.
+ */
+export const servicePages = [
+  {
+    slug: "video-production",
+    name: "Video production",
+    metaTitle: "Video Production Company in Bangalore & Coimbatore | Kickstart",
+    description:
+      "Corporate films, ad films, brand films, event coverage and reels, produced by Kickstart Creative Studio for brands in Bangalore, Coimbatore and across India.",
+    h1: "Video production in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart is a media production company making corporate films, ad films and event coverage for brands in Bangalore, Coimbatore and across India. One crew takes the work from script to final grade, then cuts the reels from the same footage.",
+    image: {
+      src: "/gallery/conferences/img-8437.webp",
+      alt: "A panel on stage seen over the heads of a packed national conference audience",
+    },
+    offer: [
+      "Corporate films",
+      "Ad films & commercials",
+      "Brand films",
+      "Product videos",
+      "Event & conference coverage",
+      "Reels & short-form video",
+      "Corporate photography & headshots",
+    ],
+    steps: [
+      { title: "Brief", text: "You tell us the audience, the message, the date and the budget." },
+      {
+        title: "Pre-production",
+        text: "Script, shot list, locations, crew and schedule, signed off before a camera moves.",
+      },
+      {
+        title: "Shoot",
+        text: "A lean crew on set or on site, in Bangalore, Coimbatore or wherever the story is.",
+      },
+      {
+        title: "Post",
+        text: "Edit, grade, sound and captions, plus cut-downs for every platform you publish on.",
+      },
+    ],
+    faq: [
+      {
+        q: "How much does a corporate video cost in Bangalore or Coimbatore?",
+        a: "It depends on shoot days, crew size, locations and how many edits you need. Send a brief with your budget and timeline and we will reply with a quote built around it, not a rate card.",
+      },
+      {
+        q: "Do you travel for shoots?",
+        a: "Yes. We shoot across Bangalore and Coimbatore and travel anywhere in India, with travel costed in the quote up front.",
+      },
+      {
+        q: "Can one shoot give us social media content too?",
+        a: "Yes. We plan the reels and short edits at the script stage, so one production day gives you the main film and a run of social cuts.",
+      },
+      {
+        q: "How long does a video take?",
+        a: "Event highlight films can turn around within days. A scripted brand film needs time for pre-production, the shoot and post, usually a few weeks. We agree the schedule before we start.",
+      },
+    ],
+  },
+  {
+    slug: "website-design",
+    name: "Website design",
+    metaTitle: "Website Design & Development Company in Coimbatore & Bangalore | Kickstart",
+    description:
+      "Custom website design and development for brands in Coimbatore, Bangalore and across India: corporate sites, landing pages, e-commerce and web apps, fast and search-ready.",
+    h1: "Website design and development in Coimbatore and Bangalore.",
+    intro:
+      "We design and build websites for brands in Coimbatore, Bangalore and across India. Custom design, not templates, built on modern frameworks so pages load fast, rank well and stay easy for your team to update. Because we are also a production studio, your site can launch with photography and film made for it.",
+    image: {
+      src: "/placeholders/web-desk.jpg",
+      alt: "A developer at a desk in a dark room, code across two monitors",
+    },
+    offer: [
+      "Corporate & brand websites",
+      "Campaign landing pages",
+      "E-commerce stores",
+      "Web apps & client portals",
+      "Website redesigns",
+      "SEO, speed & analytics setup",
+      "Content management your team can run",
+    ],
+    steps: [
+      { title: "Brief", text: "Goals, audience, pages and integrations, agreed in writing as a fixed scope." },
+      {
+        title: "Design",
+        text: "Layouts and visual design for desktop and phone, reviewed with you before any code.",
+      },
+      {
+        title: "Build",
+        text: "Development, content, forms and integrations, tested on real devices and browsers.",
+      },
+      {
+        title: "Launch",
+        text: "Domain, hosting, analytics and search setup, then support after go-live.",
+      },
+    ],
+    faq: [
+      {
+        q: "How much does a website cost in Coimbatore or Bangalore?",
+        a: "It depends on the number of pages, custom features and integrations: a focused brand site costs far less than an online store or a web app. Tell us what you need in a brief and we will quote a fixed scope.",
+      },
+      {
+        q: "How long does it take to build a website?",
+        a: "A focused brand or landing-page site usually takes a few weeks. Larger sites and web apps are planned in phases. You get the timeline with the quote.",
+      },
+      {
+        q: "Will my website be SEO-friendly?",
+        a: "Yes. Every site ships with clean page structure, fast load times, metadata, a sitemap and structured data, so search engines can read it from day one.",
+      },
+      {
+        q: "Can you redesign our existing website?",
+        a: "Yes. We redesign on your current platform or rebuild it, and keep your existing search rankings with proper redirects from the old URLs.",
+      },
+    ],
+  },
+  {
+    slug: "ai-integration",
+    name: "AI integration",
+    metaTitle: "AI Integration & Automation Company in Bangalore & Coimbatore | Kickstart",
+    description:
+      "AI integration for businesses in Bangalore and Coimbatore: website and WhatsApp assistants, workflow automation, AI-assisted content and custom tools built on your own data.",
+    h1: "AI integration in Bangalore and Coimbatore.",
+    intro:
+      "We help businesses in Bangalore, Coimbatore and across India put AI to work where it pays: assistants that answer customers, automations that take busywork off your team, and content tools that get more from every shoot. We build on established AI models and connect them to the tools you already use.",
+    image: {
+      src: "/placeholders/ai-board.jpg",
+      alt: "Close-up of a computer motherboard in black and white",
+    },
+    offer: [
+      "Website & WhatsApp chat assistants",
+      "Lead capture & qualification",
+      "Workflow automation",
+      "CRM, email & spreadsheet integrations",
+      "AI-assisted content production",
+      "Custom tools on your own documents",
+    ],
+    steps: [
+      {
+        title: "Audit",
+        text: "We find the tasks where AI saves real hours or wins real leads, and skip the ones where it doesn't.",
+      },
+      { title: "Prototype", text: "A working version on your own data, so you judge results, not slides." },
+      {
+        title: "Integrate",
+        text: "Connected to your website, WhatsApp, CRM or internal tools, with access controls in place.",
+      },
+      {
+        title: "Improve",
+        text: "We review answers and usage, and tune the system as your business changes.",
+      },
+    ],
+    faq: [
+      {
+        q: "What does AI integration mean for a small or mid-sized business?",
+        a: "Using AI inside the tools you already run: a website assistant that answers enquiries at night, an automation that files leads into your CRM, or a search tool over your own documents. It starts with one task that costs you time today.",
+      },
+      {
+        q: "Is our data safe?",
+        a: "We connect only the data a task needs, limit access to your team, and agree in writing where your data is stored and processed.",
+      },
+      {
+        q: "Can an assistant reply in Tamil, Kannada or Hindi?",
+        a: "Yes. Current AI models handle Indian languages well, so an assistant can reply in the language your customer writes in.",
+      },
+      {
+        q: "How much does AI integration cost?",
+        a: "A single assistant or automation is a small, fixed-scope project; larger systems are scoped in phases. Send a brief and we will quote against your use case.",
+      },
+    ],
+  },
+] as const;
 
 /* 09 — EVENT GALLERY ----------------------------------------------------- */
 /** Real client work. Photos live in `public/gallery/<slug>`,
@@ -371,8 +628,12 @@ export const faq = [
     a: "Corporates, funded startups, agencies and established consumer brands anyone who needs their visual output to look as considered as the rest of their business. We work with teams of five and teams of five thousand.",
   },
   {
-    q: "Do you travel for shoots and events?",
-    a: "Yes. We cover multi-city shoots and events regularly, and we budget travel transparently in the quote rather than surfacing it afterwards.",
+    q: "Which cities do you work in?",
+    a: "Bangalore and Coimbatore, and anywhere in India a shoot or event takes us. We budget travel transparently in the quote rather than surfacing it afterwards. Websites and AI projects run remotely, wherever you are.",
+  },
+  {
+    q: "Do you build websites and AI tools too?",
+    a: "Yes. Alongside media production we design and develop websites and integrate AI into businesses, so your film, your site and your customer assistant come from one team.",
   },
   {
     q: "Do you offer monthly social media packages?",

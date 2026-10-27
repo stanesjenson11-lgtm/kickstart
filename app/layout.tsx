@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Martian_Mono } from "next/font/google";
-import { site } from "@/lib/content";
+import { areaServed, servicePages, site } from "@/lib/content";
+import { ldJson } from "@/lib/utils";
 import "./globals.css";
 
 /* Archivo carries a width axis (62–125). Headlines gain scale from width
@@ -25,15 +26,19 @@ export const metadata: Metadata = {
   title: site.title,
   description: site.description,
   keywords: [
-    "creative production studio",
+    "media production company Bangalore",
+    "media production company Coimbatore",
+    "video production company Bangalore",
+    "video production company Coimbatore",
+    "corporate video production",
+    "website design company Coimbatore",
+    "website design company Bangalore",
+    "web development company Coimbatore",
+    "AI integration company Bangalore",
+    "AI integration company Coimbatore",
     "corporate photography",
-    "corporate headshots",
     "corporate event photography",
-    "corporate videography",
-    "advertising production",
     "social media marketing",
-    "brand content",
-    "event videography",
   ],
   alternates: { canonical: "/" },
   openGraph: {
@@ -83,19 +88,30 @@ const jsonLd = {
       logo: `${site.url}/logo-black.png`,
       image: `${site.url}/opengraph-image`,
       email: site.email,
+      telephone: `+${site.whatsapp}`,
       description: site.description,
       founder: { "@type": "Person", name: "Jerry Joshan" },
       foundingDate: "2025-08",
-      areaServed: "IN",
+      areaServed,
       serviceType: [
+        "Video production",
         "Corporate photography",
-        "Corporate videography",
         "Corporate headshots",
         "Event photography",
         "Advertising production",
         "Brand films",
         "Social media marketing",
+        "Website design and development",
+        "AI integration",
       ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Services",
+        itemListElement: servicePages.map((p) => ({
+          "@type": "Offer",
+          itemOffered: { "@type": "Service", name: p.name, url: `${site.url}/services/${p.slug}` },
+        })),
+      },
       // ponytail: skips the bare instagram.com/linkedin.com placeholders in
       // lib/content.ts; real profile URLs there flow in with no change here.
       sameAs: [site.instagram, site.linkedin].filter((u) => new URL(u).pathname.length > 1),
@@ -120,7 +136,7 @@ export default function RootLayout({
         {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+          dangerouslySetInnerHTML={ldJson(jsonLd)}
         />
       </body>
     </html>

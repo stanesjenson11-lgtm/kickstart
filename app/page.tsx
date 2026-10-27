@@ -9,12 +9,28 @@ import Hero from "@/components/sections/Hero";
 import Statement from "@/components/sections/Statement";
 import Showreel from "@/components/sections/Showreel";
 import Services from "@/components/sections/Services";
+import Web from "@/components/sections/Web";
+import Ai from "@/components/sections/Ai";
 import Gallery from "@/components/sections/Gallery";
 import Clients from "@/components/sections/Clients";
 import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
 import Faq from "@/components/sections/Faq";
 import Contact from "@/components/sections/Contact";
+import { faq } from "@/lib/content";
+import { ldJson } from "@/lib/utils";
+
+/* Here, not in the layout: FAQ markup has to match questions visible on the
+   page it is on, and these are only on the home page. */
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 
 /**
  * Order follows the brief's hierarchy: IMPACT → TRUST → SERVICES → PROCESS →
@@ -33,6 +49,8 @@ export default function Home() {
         <Statement />
         <Showreel />
         <Services />
+        <Web />
+        <Ai />
         <Testimonials />
         <Gallery />
         <Clients />
@@ -41,6 +59,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <script type="application/ld+json" dangerouslySetInnerHTML={ldJson(faqLd)} />
     </>
   );
 }

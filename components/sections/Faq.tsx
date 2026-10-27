@@ -6,7 +6,11 @@ import { faq } from "@/lib/content";
  * height:auto in CSS alone — no JS accordion, no measuring, and it still works
  * with search-in-page, keyboard, and screen readers for free.
  */
-export default function Faq() {
+export default function Faq({
+  items = faq,
+}: {
+  items?: readonly { q: string; a: string }[];
+}) {
   return (
     <section className="bg-ink px-gutter py-section">
       <div className="bar:grid bar:grid-cols-12 bar:gap-grid">
@@ -18,7 +22,7 @@ export default function Faq() {
         </h2>
 
         <div className="mt-12 bar:col-span-7 bar:mt-0 wide:col-span-8">
-          {faq.map((item) => (
+          {items.map((item) => (
             <details
               key={item.q}
               name="faq"

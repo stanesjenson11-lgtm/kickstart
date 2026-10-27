@@ -372,6 +372,41 @@ input[type="date"]:focus::-webkit-calendar-picker-indicator {
   );
 }
 
+/* 3: a wipe across along the cut, left to right. --s: 0 hidden → 1 revealed.
+   Both read from the nearest ancestor that sets them, so one --s can drive the
+   wipe and the light on its edge (.cut-edge) together. --dx is the cut's run
+   across the element's full height as a share of its width — tan(12°) × h / w —
+   so the edge leans at the monogram's angle whatever the box's shape. */
+.cut-sweep {
+  clip-path: polygon(
+    0 0,
+    calc(var(--s, 1) * (100% + var(--dx, 10%))) 0,
+    calc(var(--s, 1) * (100% + var(--dx, 10%)) - var(--dx, 10%)) 100%,
+    0 100%
+  );
+}
+
+/* The light riding that edge. Hidden at rest; the timeline that moves --s
+   fades it in for the pass. */
+.cut-edge {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--s, 1) * (100% + var(--dx, 10%)) - var(--dx, 10%) / 2);
+  width: 1px;
+  opacity: 0;
+  background: var(--color-paper);
+  box-shadow: 0 0 1.25rem 0.2rem oklch(1 0 0 / 0.28);
+  transform: skewX(calc(var(--cut-angle) * -1));
+  pointer-events: none;
+}
+
+/* A headline's draft: the same words in outline only, stacked under the real
+   heading while the cut fills it in. */
+.u-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px oklch(1 0 0 / 0.4);
+}
+
 /* 4: link underline sweeping in at the cut angle. */
 .cut-link {
   position: relative;
@@ -457,8 +492,10 @@ input[type="date"]:focus::-webkit-calendar-picker-indicator {
   }
 
   /* Everything resolves to its end state rather than disappearing. */
-  .cut-reveal {
+  .cut-reveal,
+  .cut-sweep {
     --p: 1 !important;
+    --s: 1 !important;
     clip-path: none !important;
   }
 

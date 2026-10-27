@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { site } from "@/lib/content";
 import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
-export const alt = `${site.name} — media production, advertising and social media`;
+export const alt = `${site.name} — media production, websites and AI in Bangalore and Coimbatore`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
