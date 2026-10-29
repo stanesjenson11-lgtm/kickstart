@@ -65,21 +65,24 @@ export default function Showreel() {
       io.observe(el);
       return io;
     };
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    let io = watch("100% 0px");
 
-    // On touch devices, switch to preload="auto" so Safari starts buffering
-    // footage immediately instead of waiting for play().
-    if (isTouch) el.preload = "auto";
-
-    // Touch screens get two viewports' notice right away so iOS has time to
-    // buffer before the pinned section scrolls past.
-    let io = watch(isTouch ? "200% 0px" : "100% 0px");
+    // Phones and tablets get two viewports' notice rather than one: iOS only
+    // starts fetching on play(), and a range probe plus the first second of
+    // footage has to land before the pinned section scrolls past. Widened on
+    // the first scroll, not at mount: until the pins above are built the
+    // section reads two viewports higher than it sits, and the wider margin
+    // caught it there and pulled megabytes of reel during page load.
+    const widen = () => {
+      io.disconnect();
+      io = watch("200% 0px");
+    };
 
     /**
      * The notice was not enough on an iPhone: Safari fetches no footage before
      * play(), and plays a muted video only once it is on screen, so the reel
      * was still buffering as the pinned section went by and started sections
-     * later. Touch screens now download the whole file eagerly and
+     * later. Touch screens now download the whole file on the first scroll and
      * play it from memory, which starts the moment it is shown. If the reel has
      * already started from the network by then, it is left alone. A visitor
      * who has asked to save data streams it as before.
@@ -107,18 +110,16 @@ export default function Showreel() {
     };
     el.addEventListener("playing", onPlaying, { once: true });
 
-    // On touch devices, start the prefetch as soon as the browser is idle
-    // so the video is ready before the section scrolls into view, instead of
-    // waiting for the first scroll which is often too late on slow phones.
-    if (isTouch) {
-      if ("requestIdleCallback" in window) {
-        (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(prefetch);
-      } else {
-        setTimeout(prefetch, 200);
-      }
+    const onFirstScroll = () => {
+      widen();
+      prefetch();
+    };
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      window.addEventListener("scroll", onFirstScroll, { once: true, passive: true });
     }
 
     return () => {
+      window.removeEventListener("scroll", onFirstScroll);
       el.removeEventListener("playing", onPlaying);
       abort.abort();
       if (local) URL.revokeObjectURL(local);
