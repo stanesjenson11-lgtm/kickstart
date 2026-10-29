@@ -243,10 +243,10 @@ export const ai = {
     { who: "Visitor", text: "Can you shoot our product launch in Coimbatore on the 14th?" },
     {
       who: "Assistant",
-      text: "Yes, we cover Coimbatore and Bangalore. Roughly how many guests, and do you need photos, film or both?",
+      text: "Yes, we cover both Coimbatore and Bangalore. Could you please let us know the approximate number of guests and whether you need photos, film or both?",
     },
     { who: "Visitor", text: "Both. Around 200 guests." },
-    { who: "Assistant", text: "Done. Your date, city and headcount are with the team as a brief." },
+    { who: "Assistant", text: "Done. Your date, city, and guest count have been shared with the team as a brief." },
   ],
   /** What happened behind that last line — a real sequence, so it is ordered. */
   route: ["Brief created", "CRM updated", "Team notified"],
