@@ -2,6 +2,13 @@ import Image from "next/image";
 import { footer, nav, servicePages, site } from "@/lib/content";
 import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
+const PAGES = [
+  { label: "Blog", href: "/blog" },
+  { label: "Bangalore", href: "/bangalore" },
+  { label: "Coimbatore", href: "/coimbatore" },
+  { label: "Sitemap", href: "/sitemap" },
+];
+
 /** `home` prefixes the in-page links, so a page other than "/" points back into
     the home page's sections ("/#work") rather than at anchors it lacks. */
 export default function Footer({ home = "" }: { home?: string }) {
@@ -58,10 +65,19 @@ export default function Footer({ home = "" }: { home?: string }) {
                   </a>
                 </li>
               ))}
+              {/* The pages beyond the home page, so every one of them is a
+                  single click from anywhere: crawl depth stays at two. */}
+              {PAGES.map((l) => (
+                <li key={l.href} className="flex">
+                  <a href={l.href} className="cut-link u-meta">
+                    {l.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
 
-          {/* Phone: last, across both columns, the three links on one line. */}
+          {/* Phone: last, across both columns, the links wrapping in a row. */}
           <nav aria-label="Services" className="max-bar:order-last max-bar:col-span-2 bar:col-span-3">
             <h2 className="u-meta text-muted-dark">Services</h2>
             <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 max-phone:mt-2 bar:flex-col bar:gap-2">

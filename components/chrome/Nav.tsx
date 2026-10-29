@@ -3,13 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
-import { nav, site } from "@/lib/content";
+import { nav, servicePages, site } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
 
-export default function Nav() {
+/** What drops down from "Web & AI": the web and software services, by short name. */
+const webServices = servicePages.filter((s) => s.group === "web");
+
+/**
+ * `home` is the prefix for every link: "" on the home page, where they are
+ * in-page anchors, and "/" on any other page, where they lead back into the
+ * home page's sections ("/#work") and the wordmark leads home.
+ */
+export default function Nav({ home = "" }: { home?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [onLight, setOnLight] = useState(false);
   const [open, setOpen] = useState(false);
+  // Escape dismisses the services dropdown while the pointer or focus is still
+  // on it (WCAG 1.4.13). Leaving it re-arms the hover.
+  const [dropDismissed, setDropDismissed] = useState(false);
   const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,7 +82,11 @@ export default function Nav() {
         >
           {/* Both marks ship and cross-fade; the link carries the name, so the
               images are decorative and stay out of the accessibility tree. */}
-          <a href="#top" className="ks-logo" aria-label={`${site.name} — back to top`}>
+          <a
+            href={home ? "/" : "#top"}
+            className="ks-logo"
+            aria-label={home ? `${site.name} — home` : `${site.name} — back to top`}
+          >
             <Image
               src="/logo-white.png"
               alt=""
@@ -91,12 +106,50 @@ export default function Nav() {
             />
           </a>
 
-          <nav aria-label="Primary" className="hidden items-center gap-10 bar:flex">
-            {nav.links.map((l) => (
-              <a key={l.href} href={l.href} className="u-meta cut-link">
-                {l.label}
-              </a>
-            ))}
+          {/* gap-5 until `wide`: six links plus the wordmark do not fit a 768px pill at gap-10. */}
+          <nav aria-label="Primary" className="hidden items-center gap-5 bar:flex wide:gap-10">
+            {nav.links.map((l) =>
+              "menu" in l ? (
+                /* "Web & AI" still goes to its section; pointing at it, or
+                   tabbing onto it, opens the six services under it (globals.css,
+                   .ks-drop). Not hover-only: keyboard focus opens it too. */
+                <div
+                  key={l.href}
+                  // flex: the link becomes a flex item like its siblings, so it
+                  // sits on their line rather than on this div's text baseline.
+                  className="ks-drop relative flex"
+                  data-dismissed={dropDismissed}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Escape") return;
+                    setDropDismissed(true);
+                    e.currentTarget.querySelector("a")?.focus();
+                  }}
+                  onPointerLeave={() => setDropDismissed(false)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropDismissed(false);
+                  }}
+                >
+                  <a href={home + l.href} className="u-meta cut-link">
+                    {l.label}
+                  </a>
+                  <div className="ks-drop-panel">
+                    <ul className="ks-drop-list">
+                      {webServices.map((s) => (
+                        <li key={s.slug}>
+                          <a href={`/services/${s.slug}`} className="u-meta cut-link w-full px-3 py-2.5">
+                            {s.short}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <a key={l.href} href={home + l.href} className="u-meta cut-link">
+                  {l.label}
+                </a>
+              ),
+            )}
           </nav>
 
           <button
@@ -121,10 +174,14 @@ export default function Nav() {
       </header>
 
       {/* Mobile sheet — opens along the cut, matching the site's one motif. */}
+      {/* Scrolls on its own when a short phone cannot hold it all; Lenis is
+          told to keep out (data-lenis-prevent) so the touch scrolls the sheet,
+          not the page locked behind it. */}
       <div
         id="mobile-menu"
         hidden={!open}
-        className="fixed inset-0 z-[var(--z-overlay)] bg-ink px-gutter pt-28 bar:hidden"
+        data-lenis-prevent
+        className="fixed inset-0 z-[var(--z-overlay)] overflow-y-auto overscroll-contain bg-ink px-gutter pt-28 bar:hidden"
         style={{
           clipPath: open
             ? "polygon(0 -20%, 100% -20%, 100% 100%, 0 112%)"
@@ -146,18 +203,35 @@ export default function Nav() {
 
         <nav aria-label="Mobile" className="flex flex-col">
           {nav.links.map((l, i) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="u-display border-b border-[var(--rule-on-dark)] py-6 text-h2"
-              style={{ ["--wdth" as string]: 96, transitionDelay: `${i * 40}ms` }}
-            >
-              {l.label}
-            </a>
+            <div key={l.href} className="border-b border-[var(--rule-on-dark)]">
+              <a
+                href={home + l.href}
+                onClick={() => setOpen(false)}
+                // Row height follows the screen's: roomy on a tall phone, tight
+                // enough on an iPhone SE that the sheet still fits.
+                className="u-display block py-[clamp(0.8rem,2.8svh,1.5rem)] text-h2"
+                style={{ ["--wdth" as string]: 96, transitionDelay: `${i * 40}ms` }}
+              >
+                {l.label}
+              </a>
+              {/* No hover on a phone, so the services under "Web & AI" sit in
+                  the sheet itself, as one slate line like the home section's. */}
+              {"menu" in l && (
+                <ul className="u-meta -mt-3 flex flex-wrap gap-x-2.5 gap-y-1 pb-5 text-muted-dark">
+                  {webServices.map((s, j) => (
+                    <li key={s.slug} className="flex items-center gap-2.5">
+                      {j > 0 && <span aria-hidden="true" className="text-paper/45">/</span>}
+                      <a href={`/services/${s.slug}`} onClick={() => setOpen(false)} className="cut-link py-1">
+                        {s.short}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ))}
           <div className="pt-10">
-            <MagneticButton href={nav.cta.href} variant="solid">
+            <MagneticButton href={home + nav.cta.href} variant="solid">
               {nav.cta.label}
             </MagneticButton>
           </div>

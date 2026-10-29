@@ -17,11 +17,27 @@ import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
 import Faq from "@/components/sections/Faq";
 import Contact from "@/components/sections/Contact";
-import { faq } from "@/lib/content";
+import { faq, site } from "@/lib/content";
 import { ldJson } from "@/lib/utils";
 
 /* Here, not in the layout: FAQ markup has to match questions visible on the
    page it is on, and these are only on the home page. */
+/* The showreel as a video search result. It has no audio, so the
+   description stands in for a transcript. Thumbnail: a frame at 0:04. */
+const videoLd = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: `${site.name} showreel`,
+  description:
+    "A 33-second showreel of corporate event, conference, launch and party coverage by Kickstart Creative Studio, a Bangalore media production studio. The web cut has no audio.",
+  thumbnailUrl: `${site.url}/showreel-poster.jpg`,
+  uploadDate: "2026-08-28",
+  duration: "PT33S",
+  contentUrl: `${site.url}/showreel.mp4`,
+  embedUrl: `${site.url}/#work`,
+  publisher: { "@id": `${site.url}/#business` },
+};
+
 const faqLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -59,7 +75,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
-      <script type="application/ld+json" dangerouslySetInnerHTML={ldJson(faqLd)} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={ldJson([faqLd, videoLd])} />
     </>
   );
 }

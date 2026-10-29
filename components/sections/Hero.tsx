@@ -93,7 +93,9 @@ export default function Hero() {
             /* The mask is clipped, so it carries padding the glyphs can descend
                into — otherwise the full stop on "remarkable." is sheared off. */
             <span key={line} className="hero-line block overflow-hidden pb-[0.16em] -mb-[0.13em]">
-              <span className="block">{line}</span>
+              {/* The trailing space is for text extraction only: block lines
+                  render apart anyway, but crawlers read "brandslook" without it. */}
+              <span className="block">{line} </span>
             </span>
           ))}
         </h1>

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { footer, site } from "@/lib/content";
+import { alternates } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: `Privacy Policy | ${site.name}`,
   description: `How ${site.legalName} collects, uses, shares and protects personal data, and how to exercise your rights.`,
-  alternates: { canonical: "/privacy" },
+  alternates: alternates("/privacy"),
 };
 
 const UPDATED = "14 September 2026";
@@ -46,7 +47,7 @@ export default function PrivacyPage() {
   return (
     <>
       <header className="px-gutter pt-8">
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full
+        {/* A plain link, not <Link>: a full
             load on purpose: the home page's pinned scroll scenes measure on load. */}
         <a href="/" aria-label={`${site.name} — home`} className="inline-block">
           <Image
@@ -222,7 +223,7 @@ export default function PrivacyPage() {
       <footer className="border-t border-[var(--rule-on-dark)] px-gutter py-6">
         <div className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-between gap-3">
           <p className="u-meta text-muted-dark">{footer.copyright}</p>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full load, as above. */}
+          {/* Full load, as above. */}
           <a href="/" className="cut-link u-meta">
             Back to site
           </a>

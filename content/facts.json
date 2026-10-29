@@ -1,0 +1,34 @@
+{
+  "_note": "The fact gate's truth file (seo-agent-kit seo-engine). A blog post may only state things about Kickstart that appear here. Outside facts must be cited with a link. Keep it current; never add a fact that is not true.",
+  "company": "Kickstart Creative Studio Pvt Ltd, a media production studio based in Bangalore (Bengaluru), India, that also builds websites, apps, custom software and AI integrations.",
+  "founded": "17 March 2026 (founded and incorporated as Kickstart Creative Studio Pvt Ltd)",
+  "founder": "Jerry Joshan",
+  "base": "Bangalore. Coimbatore is served remotely for web, software and AI work, and in person for shoots and events. The studio travels anywhere in India for shoots.",
+  "services": [
+    "Corporate films, ad films, brand films, product videos, event and conference coverage, reels and short-form video",
+    "Corporate photography, headshots and event photography (corporate events, conferences, launches, award nights, corporate parties)",
+    "Social media: content strategy, monthly content production, reels, campaigns, management and paid ads",
+    "Website design and development (Next.js, Astro, React, Tailwind CSS, WordPress)",
+    "E-commerce development (Shopify, WooCommerce, custom Next.js; Razorpay, Stripe, UPI)",
+    "Mobile apps for iOS and Android (Flutter, React Native, Swift)",
+    "Custom software, web applications, dashboards, CRMs and automation",
+    "Cloud and DevOps (AWS, Docker, Kubernetes, GitHub Actions, Terraform)",
+    "API and systems integration (REST, GraphQL, ERP and CRM sync, webhooks)",
+    "AI agents and automation: chatbots, WhatsApp assistants, AI calling and voice agents, LLM integration with OpenAI and Anthropic"
+  ],
+  "clients": ["Swiggy", "CRED", "Hilton", "WeWork", "Micron", "Absolut", "CGI", "Toast", "Cushman & Wakefield", "Embassy", "Kennametal", "Sattva", "Sigmoid", "Spark by Hilton", "Stonehill", "Superhealth", "Vizipa", "WSA", "Institute of Internal Auditors", "080 Lounges"],
+  "process": "Projects start from a written brief with need, timeline and budget. Kickstart replies with a quote built around the brief, not a rate card.",
+  "urls": {
+    "home": "https://kickstartcreativestudio.com",
+    "brief": "https://kickstartcreativestudio.com/#contact"
+  },
+  "allowed_prices": [],
+  "banned": ["guaranteed", "guarantee", "#1", "number one", "best in", "cheapest", "100%", "world-class", "lorem"],
+  "todo": [
+    "Real numbers Kickstart can publish: projects or events delivered, cities shot in, typical turnaround times",
+    "Kickstart's own price ranges, if any are to be public (add them to allowed_prices)",
+    "Jerry Joshan's bio: background, years of experience, what he leads; and his LinkedIn URL",
+    "Quotes from Jerry or the team for posts, and client testimonials with permission",
+    "Original data: e.g. an anonymised summary of briefs received (budgets, timelines, formats)"
+  ]
+}

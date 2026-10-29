@@ -19,7 +19,7 @@ monthly content retainer. The Social Media section exists to plant that idea.
 
 ## Product Purpose
 
-A single-page site for Kickstart Creative Studio Pvt Ltd (founded August 2025, incorporated March
+A single-page site for Kickstart Creative Studio Pvt Ltd (founded and incorporated 17 March
 2026) — a creative production studio doing corporate photography and film, headshots, events,
 advertising, and social media.
 
@@ -30,6 +30,8 @@ project the easiest action on the page.
 Success looks like: a visitor understands who Kickstart is, what they make, and how to start a
 project within roughly five seconds; the qualified ones send a project brief with budget and
 timeline attached, so the first reply can be a real conversation instead of a discovery call.
+
+Since October 2026 the studio also sells web, software and AI work (websites, e-commerce, mobile apps, custom software, cloud and DevOps, API integration, AI agents). The home page stays one scroll; search traffic lands on server-rendered subpages instead: one page per service at /services/<slug>, /blog (Markdown in content/blog, fact-gated by scripts/blog.mjs; deliberately not in the navbar), and /bangalore and /coimbatore. Every subpage uses the home page's navbar, with its links prefixed "/". The studio is based in Bangalore and serves Coimbatore remotely and for shoots.
 
 ## Brand Personality
 

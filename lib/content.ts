@@ -46,9 +46,11 @@ export const areaServed = [
 
 export const nav = {
   links: [
+    { label: "Home", href: "#top" },
     { label: "Work", href: "#work" },
     { label: "Services", href: "#services" },
-    { label: "Web & AI", href: "#web" },
+    // menu: the web and software services drop down from it (Nav.tsx).
+    { label: "Web & AI", href: "#web", menu: true },
     { label: "About", href: "#about" },
     { label: "Contact", href: "#contact" },
   ],
@@ -198,17 +200,10 @@ export const services = {
 
 /* 06 — WEBSITES ----------------------------------------------------------- */
 export const web = {
-  label: "Website design & development",
+  label: "Websites, apps & software",
   headline: "Your website is the first frame.",
-  body: "We design and develop websites for brands in Bangalore, Coimbatore and across India. Fast, built for search, and filled with photography and film we shoot ourselves, so the site looks as good as the work it sells.",
-  items: [
-    "Corporate & brand websites",
-    "Campaign landing pages",
-    "E-commerce",
-    "Web apps & client portals",
-    "SEO, speed & analytics",
-  ],
-  link: { label: "Website design services", href: "/services/website-design" },
+  body: "We design and develop websites, online stores, apps and custom software for brands in Bangalore, Coimbatore and across India. Fast, built for search, and filled with photography and film we shoot ourselves.",
+  /* The service line beside the mock-up is the `web` group of servicePages below. */
   /** The site in the mock-up is fictional. Stock: Unsplash, Puscas Adryan. */
   mock: {
     src: "/placeholders/web-launch.jpg",
@@ -266,21 +261,39 @@ export const ai = {
  * best answer to "video production company in Bangalore" and "website design
  * company in Coimbatore" at once; each of these can.
  *
- * Stock (Unsplash): web-desk by Mohammad Rahmani, ai-board by Jorge Salvador.
+ * Every page's copy is its own: near-identical pages with the service name
+ * swapped are what Google demotes as doorways. `image` is the first screen's
+ * photograph and `detail` the second's. `short` is the label for the
+ * home page's service line. `line` is the one-sentence
+ * summary the hub, the home page and llms.txt reuse. `updated` is shown on the
+ * page and fed to the sitemap, so change it when the copy changes.
+ *
+ * Stock (Unsplash): web-desk and svc-software by Mohammad Rahmani, ai-board by
+ * Jorge Salvador, svc-mobile by Rami Al-zayat, svc-cloud by Domaintechnik,
+ * svc-api by Manuel Luikenga, web-launch by Puscas Adryan, svc-ecommerce by
+ * Vitaly Gariev.
  */
+
 export const servicePages = [
   {
     slug: "video-production",
     name: "Video production",
-    metaTitle: "Video Production Company in Bangalore & Coimbatore | Kickstart",
+    short: "Video",
+    group: "media",
+    line: "Corporate films, ad films, event coverage and reels, shot and cut by one crew.",
+    metaTitle: "Corporate Video Production Company in Bangalore & Coimbatore | Kickstart",
     description:
-      "Corporate films, ad films, brand films, event coverage and reels, produced by Kickstart Creative Studio for brands in Bangalore, Coimbatore and across India.",
+      "Corporate films, ad films, brand films, event coverage and reels, produced by Kickstart Creative Studio in Bangalore for brands in Bangalore, Coimbatore and across India.",
     h1: "Video production in Bangalore and Coimbatore.",
     intro:
-      "Kickstart is a media production company making corporate films, ad films and event coverage for brands in Bangalore, Coimbatore and across India. One crew takes the work from script to final grade, then cuts the reels from the same footage.",
+      "Kickstart is a Bangalore video production company making corporate films, ad films and event coverage for brands in Bangalore, Coimbatore and across India. One crew takes the work from script to final grade, then cuts the reels from the same footage.",
     image: {
       src: "/gallery/conferences/img-8437.webp",
       alt: "A panel on stage seen over the heads of a packed national conference audience",
+    },
+    detail: {
+      src: "/placeholders/services-2.jpg",
+      alt: "A video edit on a monitor, clips and audio tracks laid out along the timeline",
     },
     offer: [
       "Corporate films",
@@ -291,150 +304,227 @@ export const servicePages = [
       "Reels & short-form video",
       "Corporate photography & headshots",
     ],
-    steps: [
-      { title: "Brief", text: "You tell us the audience, the message, the date and the budget." },
-      {
-        title: "Pre-production",
-        text: "Script, shot list, locations, crew and schedule, signed off before a camera moves.",
-      },
-      {
-        title: "Shoot",
-        text: "A lean crew on set or on site, in Bangalore, Coimbatore or wherever the story is.",
-      },
-      {
-        title: "Post",
-        text: "Edit, grade, sound and captions, plus cut-downs for every platform you publish on.",
-      },
-    ],
-    faq: [
-      {
-        q: "How much does a corporate video cost in Bangalore or Coimbatore?",
-        a: "It depends on shoot days, crew size, locations and how many edits you need. Send a brief with your budget and timeline and we will reply with a quote built around it, not a rate card.",
-      },
-      {
-        q: "Do you travel for shoots?",
-        a: "Yes. We shoot across Bangalore and Coimbatore and travel anywhere in India, with travel costed in the quote up front.",
-      },
-      {
-        q: "Can one shoot give us social media content too?",
-        a: "Yes. We plan the reels and short edits at the script stage, so one production day gives you the main film and a run of social cuts.",
-      },
-      {
-        q: "How long does a video take?",
-        a: "Event highlight films can turn around within days. A scripted brand film needs time for pre-production, the shoot and post, usually a few weeks. We agree the schedule before we start.",
-      },
-    ],
+    stack: [],
+    updated: "2026-10-27",
   },
   {
     slug: "website-design",
-    name: "Website design",
+    name: "Website development",
+    short: "Websites",
+    group: "web",
+    line: "Fast, search-ready websites, designed in-house and easy for your team to update.",
     metaTitle: "Website Design & Development Company in Coimbatore & Bangalore | Kickstart",
     description:
-      "Custom website design and development for brands in Coimbatore, Bangalore and across India: corporate sites, landing pages, e-commerce and web apps, fast and search-ready.",
+      "Custom website design and development for brands in Bangalore, Coimbatore and across India: responsive, fast, search-ready sites on Next.js, Astro or WordPress.",
     h1: "Website design and development in Coimbatore and Bangalore.",
     intro:
-      "We design and build websites for brands in Coimbatore, Bangalore and across India. Custom design, not templates, built on modern frameworks so pages load fast, rank well and stay easy for your team to update. Because we are also a production studio, your site can launch with photography and film made for it.",
+      "Kickstart designs and builds websites for brands in Bangalore, Coimbatore and across India. Custom design, not templates, built so pages load fast, rank well and stay easy for your team to update. Because we are also a production studio, your site can launch with photography and film made for it.",
     image: {
       src: "/placeholders/web-desk.jpg",
       alt: "A developer at a desk in a dark room, code across two monitors",
     },
+    detail: {
+      src: "/placeholders/web-launch.jpg",
+      alt: "A dark perfume bottle lit on a stone pedestal, shot for a product launch",
+    },
     offer: [
       "Corporate & brand websites",
       "Campaign landing pages",
-      "E-commerce stores",
-      "Web apps & client portals",
+      "Responsive design for every screen",
+      "Content management your team can edit",
+      "SEO metadata & structured data",
+      "Accessibility & Core Web Vitals",
       "Website redesigns",
-      "SEO, speed & analytics setup",
-      "Content management your team can run",
     ],
-    steps: [
-      { title: "Brief", text: "Goals, audience, pages and integrations, agreed in writing as a fixed scope." },
-      {
-        title: "Design",
-        text: "Layouts and visual design for desktop and phone, reviewed with you before any code.",
-      },
-      {
-        title: "Build",
-        text: "Development, content, forms and integrations, tested on real devices and browsers.",
-      },
-      {
-        title: "Launch",
-        text: "Domain, hosting, analytics and search setup, then support after go-live.",
-      },
+    stack: ["Next.js", "Astro", "React", "Tailwind CSS", "WordPress"],
+    updated: "2026-10-27",
+  },
+  {
+    slug: "ecommerce-development",
+    name: "E-commerce development",
+    short: "E-commerce",
+    group: "web",
+    line: "Online stores with dependable checkout, payments and an admin your team can run.",
+    metaTitle: "E-commerce Website Development Company in Bangalore & Coimbatore | Kickstart",
+    description:
+      "E-commerce website development in Bangalore and Coimbatore: Shopify, WooCommerce and custom Next.js stores with Indian payment gateways, order management and mobile-first checkout.",
+    h1: "E-commerce development in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart builds online stores for brands in Bangalore, Coimbatore and across India, on Shopify, WooCommerce or a custom Next.js build. You get a catalogue that is easy to browse, a checkout that works on any phone, and an admin your team can run without calling a developer.",
+    image: {
+      src: "/placeholders/web-launch.jpg",
+      alt: "A dark perfume bottle lit on a stone pedestal, shot for a product launch",
+    },
+    detail: {
+      src: "/placeholders/svc-ecommerce.jpg",
+      alt: "A shopper at a laptop paying for an order on her phone with a card",
+    },
+    offer: [
+      "Product catalogue & filters",
+      "Payment gateway integration",
+      "Orders, inventory & invoices",
+      "Admin dashboard",
+      "Mobile-first checkout",
+      "Product photography & video",
     ],
-    faq: [
-      {
-        q: "How much does a website cost in Coimbatore or Bangalore?",
-        a: "It depends on the number of pages, custom features and integrations: a focused brand site costs far less than an online store or a web app. Tell us what you need in a brief and we will quote a fixed scope.",
-      },
-      {
-        q: "How long does it take to build a website?",
-        a: "A focused brand or landing-page site usually takes a few weeks. Larger sites and web apps are planned in phases. You get the timeline with the quote.",
-      },
-      {
-        q: "Will my website be SEO-friendly?",
-        a: "Yes. Every site ships with clean page structure, fast load times, metadata, a sitemap and structured data, so search engines can read it from day one.",
-      },
-      {
-        q: "Can you redesign our existing website?",
-        a: "Yes. We redesign on your current platform or rebuild it, and keep your existing search rankings with proper redirects from the old URLs.",
-      },
+    stack: ["Shopify", "WooCommerce", "Next.js", "Razorpay", "Stripe", "PostgreSQL"],
+    updated: "2026-10-27",
+  },
+  {
+    slug: "mobile-app-development",
+    name: "Mobile app development",
+    short: "Mobile apps",
+    group: "web",
+    line: "iOS and Android apps from one codebase, designed, built and published to the stores.",
+    metaTitle: "Mobile App Development Company in Bangalore & Coimbatore | Kickstart",
+    description:
+      "iOS and Android app development in Bangalore and Coimbatore: one Flutter or React Native codebase, UI/UX design, API integration, push notifications and store submission.",
+    h1: "Mobile app development in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart builds iOS and Android apps for businesses in Bangalore, Coimbatore and across India, usually from one Flutter or React Native codebase so both platforms ship together. We design the app, build it, connect it to your systems and take it through App Store and Play Store review.",
+    image: {
+      src: "/placeholders/svc-mobile.jpg",
+      alt: "A smartphone lying in the dark, its home screen of apps lit up",
+    },
+    detail: {
+      src: "/placeholders/services-3.jpg",
+      alt: "A phone in one hand and a laptop open on a café table",
+    },
+    offer: [
+      "iOS & Android from one codebase",
+      "UI/UX design",
+      "API & backend integration",
+      "Push notifications",
+      "App Store & Play Store submission",
+      "Fixes and updates after launch",
     ],
+    stack: ["Flutter", "React Native", "Swift", "Firebase", "Node.js"],
+    updated: "2026-10-27",
+  },
+  {
+    slug: "custom-software-development",
+    name: "Custom software & automation",
+    short: "Custom software",
+    group: "web",
+    line: "Web apps, dashboards, CRMs and internal tools built around how your business works.",
+    metaTitle: "Custom Software & Web Application Development in Bangalore | Kickstart",
+    description:
+      "Custom software and web application development in Bangalore and Coimbatore: dashboards, CRMs, client portals, internal tools and automation, built in sprints and fully tested.",
+    h1: "Custom software and web apps in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart builds custom software for businesses in Bangalore, Coimbatore and across India: web applications, dashboards, CRMs, client portals and internal tools that replace spreadsheets and copy-paste. We design the system with you, build it in short sprints and document it so it outlives the project.",
+    image: {
+      src: "/placeholders/svc-software.jpg",
+      alt: "A developer working late at two monitors, a web page on one and code on the other",
+    },
+    detail: {
+      src: "/placeholders/web-desk.jpg",
+      alt: "A developer at a desk in a dark room, code across two monitors",
+    },
+    offer: [
+      "Requirements & architecture",
+      "Web applications & client portals",
+      "Dashboards & CRMs",
+      "API & webhook integrations",
+      "AI & automation pipelines",
+      "QA, testing & documentation",
+    ],
+    stack: ["React", "Node.js", "Python", "PostgreSQL", "AWS", "OpenAI"],
+    updated: "2026-10-27",
+  },
+  {
+    slug: "cloud-devops",
+    name: "Cloud & DevOps",
+    short: "Cloud & DevOps",
+    group: "web",
+    line: "Hosting, deployments, monitoring and backups set up so releases are routine.",
+    metaTitle: "Cloud & DevOps Services in Bangalore & Coimbatore | Kickstart",
+    description:
+      "Cloud and DevOps services in Bangalore and Coimbatore: AWS architecture, CI/CD pipelines, Docker and Kubernetes, monitoring, automated backups and security hardening.",
+    h1: "Cloud and DevOps in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart sets up and runs cloud infrastructure for businesses in Bangalore, Coimbatore and across India: hosting, automated deployments, monitoring, backups and access control. The aim is plain: releases that are routine, outages you hear about first, and data you can always restore.",
+    image: {
+      src: "/placeholders/svc-cloud.jpg",
+      alt: "A rack of servers in a dark data centre, status lights glowing green",
+    },
+    detail: {
+      src: "/placeholders/svc-api.jpg",
+      alt: "Network cables plugged into the back of a server",
+    },
+    offer: [
+      "Cloud architecture & setup",
+      "CI/CD pipelines",
+      "Containers & orchestration",
+      "Monitoring, logs & alerts",
+      "Automated backups & recovery",
+      "Security hardening & access control",
+    ],
+    stack: ["AWS", "Docker", "Kubernetes", "GitHub Actions", "Terraform", "Nginx"],
+    updated: "2026-10-27",
+  },
+  {
+    slug: "api-integration",
+    name: "API & systems integration",
+    short: "API integration",
+    group: "web",
+    line: "Your CRM, ERP, payments and other tools connected so data moves on its own.",
+    metaTitle: "API & Systems Integration Services in Bangalore & Coimbatore | Kickstart",
+    description:
+      "API development and systems integration in Bangalore and Coimbatore: REST and GraphQL APIs, payment gateways, ERP and CRM sync, webhooks and legacy modernisation.",
+    h1: "API and systems integration in Bangalore and Coimbatore.",
+    intro:
+      "Kickstart connects the systems businesses in Bangalore, Coimbatore and across India already run on: CRMs, ERPs, payment gateways, accounting tools and WhatsApp. We build the APIs and sync jobs between them, so an order, a lead or an invoice is entered once and appears everywhere it should.",
+    image: {
+      src: "/placeholders/svc-api.jpg",
+      alt: "Network cables plugged into the back of a server",
+    },
+    detail: {
+      src: "/placeholders/svc-cloud.jpg",
+      alt: "A rack of servers in a dark data centre, status lights glowing green",
+    },
+    offer: [
+      "REST & GraphQL APIs",
+      "Payment gateway integration",
+      "ERP & CRM data sync",
+      "Webhooks & event pipelines",
+      "Legacy system modernisation",
+      "API documentation & versioning",
+    ],
+    stack: ["Node.js", "Python", "GraphQL", "REST", "PostgreSQL", "Redis"],
+    updated: "2026-10-27",
   },
   {
     slug: "ai-integration",
-    name: "AI integration",
-    metaTitle: "AI Integration & Automation Company in Bangalore & Coimbatore | Kickstart",
+    name: "AI agents & automation",
+    short: "AI agents",
+    group: "ai",
+    line: "AI agents, chat and voice assistants, and automations wired into the tools you use.",
+    metaTitle: "AI Integration, Agents & Automation Company in Bangalore & Coimbatore | Kickstart",
     description:
-      "AI integration for businesses in Bangalore and Coimbatore: website and WhatsApp assistants, workflow automation, AI-assisted content and custom tools built on your own data.",
-    h1: "AI integration in Bangalore and Coimbatore.",
+      "AI integration in Bangalore and Coimbatore: custom AI agents, WhatsApp and website chatbots, AI calling and voice agents, LLM integration with OpenAI and Anthropic, and automated workflows.",
+    h1: "AI integration and agents in Bangalore and Coimbatore.",
     intro:
-      "We help businesses in Bangalore, Coimbatore and across India put AI to work where it pays: assistants that answer customers, automations that take busywork off your team, and content tools that get more from every shoot. We build on established AI models and connect them to the tools you already use.",
+      "Kickstart builds and integrates AI for businesses in Bangalore, Coimbatore and across India: custom agents, website and WhatsApp chatbots, AI calling and voice agents, and automated workflows. We build on established models from OpenAI and Anthropic, connect them to the tools you already use, and monitor them once they are live.",
     image: {
       src: "/placeholders/ai-board.jpg",
       alt: "Close-up of a computer motherboard in black and white",
     },
+    detail: {
+      src: "/placeholders/ai-fibre.jpg",
+      alt: "Strands of fibre-optic light streaming through the dark",
+    },
     offer: [
-      "Website & WhatsApp chat assistants",
-      "Lead capture & qualification",
-      "Workflow automation",
-      "CRM, email & spreadsheet integrations",
+      "Custom AI agents",
+      "AI calling & voice agents",
+      "Website & WhatsApp chatbots",
+      "LLM integration (OpenAI, Anthropic)",
+      "Automated workflows & pipelines",
       "AI-assisted content production",
-      "Custom tools on your own documents",
+      "Monitoring & tuning",
     ],
-    steps: [
-      {
-        title: "Audit",
-        text: "We find the tasks where AI saves real hours or wins real leads, and skip the ones where it doesn't.",
-      },
-      { title: "Prototype", text: "A working version on your own data, so you judge results, not slides." },
-      {
-        title: "Integrate",
-        text: "Connected to your website, WhatsApp, CRM or internal tools, with access controls in place.",
-      },
-      {
-        title: "Improve",
-        text: "We review answers and usage, and tune the system as your business changes.",
-      },
-    ],
-    faq: [
-      {
-        q: "What does AI integration mean for a small or mid-sized business?",
-        a: "Using AI inside the tools you already run: a website assistant that answers enquiries at night, an automation that files leads into your CRM, or a search tool over your own documents. It starts with one task that costs you time today.",
-      },
-      {
-        q: "Is our data safe?",
-        a: "We connect only the data a task needs, limit access to your team, and agree in writing where your data is stored and processed.",
-      },
-      {
-        q: "Can an assistant reply in Tamil, Kannada or Hindi?",
-        a: "Yes. Current AI models handle Indian languages well, so an assistant can reply in the language your customer writes in.",
-      },
-      {
-        q: "How much does AI integration cost?",
-        a: "A single assistant or automation is a small, fixed-scope project; larger systems are scoped in phases. Send a brief and we will quote against your use case.",
-      },
-    ],
+    stack: ["OpenAI", "Anthropic", "Python", "Node.js", "LangChain", "Vapi", "ElevenLabs"],
+    updated: "2026-10-27",
   },
 ] as const;
 
@@ -620,6 +710,85 @@ export const about = {
   src: "/jerry-joshan.png",
   alt: "Jerry Joshan, founder of Kickstart Creative Studio, arms folded in a tailored suit",
 } as const;
+
+/* COMPANY FACTS ------------------------------------------------------------ */
+/**
+ * Checkable facts only. llms.txt, entitymap.json and the site-wide JSON-LD read
+ * them, so a search engine or an AI assistant gets the same answer everywhere.
+ * `null` is data the studio has not supplied yet; every consumer leaves those
+ * out rather than guess. content/facts.json is the blog's copy of the same truth.
+ */
+export const company = {
+  /* Founded and incorporated the same day: Kickstart Creative Studio Pvt Ltd. */
+  founded: "17 March 2026",
+  foundedIso: "2026-03-17",
+  areas: [
+    "Bangalore, where the studio is based",
+    "Coimbatore, remotely for web, software and AI, in person for shoots and events",
+    "Anywhere in India for shoots and events",
+  ],
+  founder: {
+    name: "Jerry Joshan",
+    role: "Founder",
+    id: "jerry-joshan",
+    // TODO(studio): Jerry's LinkedIn profile URL. Feeds the Person entity's sameAs.
+    linkedin: null as string | null,
+  },
+  // TODO(studio): add each profile once it exists. These are the knowledge-graph links.
+  profiles: {
+    youtube: null as string | null,
+    googleBusiness: null as string | null,
+    crunchbase: null as string | null,
+    wikidata: null as string | null,
+  },
+} as const;
+
+/* CITY PAGES --------------------------------------------------------------- */
+/**
+ * /bangalore and /coimbatore. Honest about where the studio is: Bangalore is
+ * home, Coimbatore is served remotely and visited for shoots. Two pages with
+ * their own copy, not a service-by-city grid of near-duplicates.
+ */
+export const cities = [
+  {
+    slug: "bangalore",
+    name: "Bangalore",
+    metaTitle: "Video Production, Web Design & AI Company in Bangalore | Kickstart",
+    description:
+      "Kickstart Creative Studio is a Bangalore media production and technology studio: corporate video, event photography, websites, apps, software and AI integration.",
+    h1: "Kickstart in Bangalore.",
+    intro:
+      "Kickstart Creative Studio is based in Bangalore. From here we shoot corporate films, ads and events, and design and build websites, apps, software and AI tools for companies across the city.",
+    paragraphs: [
+      "Being in the city means a shoot can be scouted, lit and wrapped without travel days on the invoice, and a website or software project can start with a workshop in your office rather than a video call.",
+      "Brands we have worked with include Swiggy, CRED, Hilton, WeWork, Micron, Embassy and Sattva. The work runs from corporate events, conferences and award nights to brand films, headshots and monthly social content.",
+      "On the technology side we build websites, online stores, mobile apps, custom software and AI agents for Bangalore teams, and we often pair the two: the site launches with photography and film we shot for it.",
+    ],
+    image: {
+      src: "/gallery/corporate-events/toast-63.webp",
+      alt: "A speaker addressing the room from the stage against an illuminated brand wall",
+    },
+  },
+  {
+    slug: "coimbatore",
+    name: "Coimbatore",
+    metaTitle: "Website Design, App Development & AI Company for Coimbatore | Kickstart",
+    description:
+      "Kickstart builds websites, e-commerce stores, apps, software and AI integrations for Coimbatore businesses, and travels to Coimbatore for corporate video and event shoots.",
+    h1: "Kickstart for Coimbatore.",
+    intro:
+      "Kickstart works with Coimbatore businesses from our Bangalore studio. Websites, online stores, apps, software and AI projects run remotely, and our crew travels to Coimbatore for shoots and events.",
+    paragraphs: [
+      "Coimbatore's manufacturers, textile and engineering firms, hospitals, colleges and startups need the same things a Bangalore company does: a website that wins enquiries, systems that talk to each other, and video that explains what they make.",
+      "Remote does not mean distant. Projects run on scheduled calls, shared boards and working previews you can open on your phone, and we come to Coimbatore when a shoot, an event or a workshop needs us in the room.",
+      "Travel for shoots is costed in the quote up front, so there are no surprises after the event. Send a brief with your city, date and budget and the reply starts from there.",
+    ],
+    image: {
+      src: "/gallery/launches/micron-27.webp",
+      alt: "Leadership cutting a branded ribbon at the opening of a new facility",
+    },
+  },
+] as const;
 
 /* 14 — FAQ --------------------------------------------------------------- */
 export const faq = [

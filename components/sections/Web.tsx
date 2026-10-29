@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { web } from "@/lib/content";
+import { servicePages, web } from "@/lib/content";
 import { useGsap, gsap } from "@/lib/motion";
+
+const webServices = servicePages.filter((s) => s.group === "web");
 
 const WIRE = "fill-none stroke-paper/30 [vector-effect:non-scaling-stroke]";
 const LABEL = "fill-paper/45 font-mono text-[22px] tracking-[0.16em]";
@@ -83,9 +85,17 @@ export default function Web() {
     const phone = mock.querySelector<HTMLElement>(".web-phone-view")!;
     gsap
       .timeline({
-        // Ends while the mock's foot is still a quarter up the screen, so the
-        // sweep plays with the whole page in view even on a short laptop.
-        scrollTrigger: { trigger: mock, start: "top 90%", end: "bottom 75%", scrub: 0.6 },
+        // Finishes before the frame lands, so a snap never parks the build
+        // half-swept. From `bar` up the mock sits beside the copy and lands
+        // with its top at 14-23% of the screen; on a phone it sits under the
+        // copy, and the build runs as it rises into view, done once its foot
+        // is on screen, which a landed frame always shows.
+        scrollTrigger: {
+          trigger: mock,
+          start: "top 90%",
+          end: () => (window.matchMedia("(min-width: 48rem)").matches ? "top 30%" : "bottom bottom"),
+          scrub: 0.6,
+        },
         defaults: { ease: "none" },
       })
       .fromTo(view.querySelectorAll(".wf"), { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.3, stagger: 0.012 }, 0)
@@ -117,7 +127,7 @@ export default function Web() {
       },
     );
 
-    // The list wipes in along the same direction as the cut.
+    // The service names wipe in along the same direction as the cut.
     gsap.fromTo(
       self.querySelectorAll(".web-item"),
       { clipPath: "inset(0 100% 0 0)" },
@@ -132,37 +142,72 @@ export default function Web() {
   }, []);
 
   return (
-    <section ref={scope} id="web" className="cut-top relative overflow-hidden bg-ink">
-      <div className="relative z-[var(--z-content)] px-gutter pt-section-lg pb-section">
+    <section
+      ref={scope}
+      id="web"
+      data-frame
+      // A frame, like About: 100svh PLUS the cut, because the snap lands below
+      // the diagonal, so the visible frame is exactly one screen of this
+      // section. Everything inside is sized to that screen, the headline and
+      // the mock-up by height as well as width. A phone tops the copy instead,
+      // just clear of the nav pill.
+      className="cut-top relative flex min-h-[calc(100svh+var(--cut-drop))] items-start overflow-hidden bg-ink bar:items-center"
+    >
+      <div className="relative z-[var(--z-content)] w-full px-gutter pt-[5.5rem] pb-4 bar:pb-6">
         <div className="bar:grid bar:grid-cols-12 bar:items-center bar:gap-grid">
           <div className="bar:col-span-5">
             <p className="u-meta text-muted-dark">{web.label}</p>
             {/* The real heading fills in over its own outline. Same cell, same
                 wrap (the twin is a div, so it gets balance explicitly), so the
-                two copies register exactly. */}
-            <div className="web-head mt-4 grid [--dx:8%]" style={{ ["--wdth" as string]: 104 }}>
+                two copies register exactly. Capped at 8.5svh so its four lines
+                fit a short laptop screen; on a phone the clamp is the smaller. */}
+            <div
+              className="web-head mt-3 grid [--dx:8%]"
+              style={{ ["--wdth" as string]: 104, fontSize: "min(var(--text-h1), 8.5svh)" }}
+            >
               <div
                 aria-hidden="true"
-                className="u-outline u-display text-h1 opacity-0 [grid-area:1/1] [text-wrap:balance]"
+                className="u-outline u-display opacity-0 [grid-area:1/1] [text-wrap:balance]"
               >
                 {web.headline}
               </div>
-              <h2 className="cut-sweep u-display text-h1 [grid-area:1/1]">{web.headline}</h2>
+              <h2 className="cut-sweep u-display [grid-area:1/1]">{web.headline}</h2>
             </div>
-            <p className="u-measure pt-6 text-body leading-[1.65] text-muted-dark">{web.body}</p>
-            <a href={web.link.href} className="cut-link u-meta mt-8">
-              {web.link.label}
-            </a>
+            <p className="u-measure pt-4 text-[0.95rem] leading-[1.55] text-muted-dark bar:pt-5 bar:text-body bar:leading-[1.6]">
+              {web.body}
+            </p>
+
+            {/* The six services as one slate line, each to its own page: the same
+                vocabulary as the hero's disciplines, and short enough to keep
+                the section to one screen. A phone sets it smaller and tighter,
+                as the hero's slate does, so the short labels wrap to two or
+                three lines. */}
+            <ul className="web-list u-meta mt-4 flex flex-wrap gap-x-2.5 gap-y-1.5 max-phone:gap-x-2 max-phone:tracking-[0.06em]! max-phone:[--text-meta:0.7rem] bar:mt-6">
+              {webServices.map((s, i) => (
+                <li key={s.slug} className="web-item flex items-center gap-2.5 max-phone:gap-2">
+                  {i > 0 && <span aria-hidden="true" className="text-paper/45">/</span>}
+                  <a href={`/services/${s.slug}`} className="cut-link">
+                    {s.short}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* The mock-up is decoration; the copy beside it says the same thing
-              in words. mb leaves room for the phone hanging off its foot. */}
+              in words. Its width is capped by the screen's height, so its
+              16:10 page plus the phone hanging off its foot always fit the
+              frame: 16rem on a laptop is the nav, the padding, the browser bar,
+              the overhang and the margin that holds it; 32rem on a phone is
+              the copy above it and the margins around it. */}
           <div
             aria-hidden="true"
-            className="web-mock relative mt-12 mb-[14%] bar:col-span-7 bar:mt-0 bar:mb-[6%]"
+            className="web-mock relative mx-auto mt-8 mb-5 w-full max-w-[max(12rem,calc((100svh_-_32rem)_*_1.6))] bar:col-span-7 bar:mt-0 bar:mr-0 bar:mb-10 bar:max-w-[max(20rem,calc((100svh_-_16rem)_*_1.6))]"
           >
             <div className="overflow-hidden rounded-lg border border-[var(--rule-on-dark)] bg-ink-raised shadow-[0_2.5rem_5rem_-1.5rem_oklch(0_0_0/0.8)]">
-              <div className="relative flex items-center justify-center border-b border-[var(--rule-on-dark)] px-4 py-2.5">
+              {/* Address left on a phone: the mock can be narrow enough there that a
+                  centred address runs into the status at the right. */}
+              <div className="relative flex items-center justify-start border-b border-[var(--rule-on-dark)] px-4 py-2.5 bar:justify-center">
                 <span className="rounded-full border border-[var(--rule-on-dark)] px-4 py-1 font-mono text-[0.625rem] tracking-[0.08em] text-muted-dark">
                   {m.url}
                 </span>
@@ -220,7 +265,7 @@ export default function Web() {
             {/* The same site on a phone, hanging off the corner. */}
             {/* Off the right-hand corner: the left one is the copy's side, and
                 hanging there it covered the end of the paragraph. */}
-            <div className="web-phone absolute -right-[2%] -bottom-[16%] w-[27%] rounded-[1.1rem] border border-[var(--rule-on-dark)] bg-ink p-[2.5%] shadow-[0_2rem_4rem_-1rem_oklch(0_0_0/0.9)] bar:-right-[4%] bar:-bottom-[10%] bar:w-[20%]">
+            <div className="web-phone absolute -right-[2%] -bottom-[8%] w-[24%] rounded-[1.1rem] border border-[var(--rule-on-dark)] bg-ink p-[2.5%] shadow-[0_2rem_4rem_-1rem_oklch(0_0_0/0.9)] bar:-right-[4%] bar:w-[20%]">
               <div className="web-phone-view relative aspect-[9/19] overflow-hidden rounded-[0.8rem] bg-ink-raised [container-type:inline-size] [--dx:45%]">
                 <PhoneWire />
                 <div className="cut-sweep absolute inset-0">
@@ -256,18 +301,6 @@ export default function Web() {
             </div>
           </div>
         </div>
-
-        <ul className="web-list mt-6 grid grid-cols-2 border-t border-[var(--rule-on-dark)] bar:mt-14 bar:grid-cols-5">
-          {web.items.map((item) => (
-            <li
-              key={item}
-              className="web-item border-b border-[var(--rule-on-dark)] py-4 pr-4 u-display text-[length:clamp(0.95rem,1.35vw,1.2rem)] leading-tight bar:border-b-0 bar:border-l bar:px-5 bar:py-6 bar:first:border-l-0 bar:first:pl-0"
-              style={{ ["--wdth" as string]: 100 }}
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );

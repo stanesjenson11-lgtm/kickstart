@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Martian_Mono } from "next/font/google";
-import { areaServed, servicePages, site } from "@/lib/content";
-import { ldJson } from "@/lib/utils";
+import { areaServed, company, servicePages, site } from "@/lib/content";
+import { alternates, ldJson } from "@/lib/utils";
 import "./globals.css";
 
 /* Archivo carries a width axis (62–125). Headlines gain scale from width
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "corporate event photography",
     "social media marketing",
   ],
-  alternates: { canonical: "/" },
+  alternates: alternates("/"),
   openGraph: {
     type: "website",
     url: site.url,
@@ -53,7 +53,16 @@ export const metadata: Metadata = {
     title: site.title,
     description: site.description,
   },
-  robots: { index: true, follow: true },
+  /* Snippets unlimited and large image previews: answer engines and rich results
+     may quote and show as much of a page as they like. */
+  robots: {
+    index: true,
+    follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 },
+  },
 };
 
 export const viewport: Viewport = {
@@ -90,8 +99,16 @@ const jsonLd = {
       email: site.email,
       telephone: `+${site.whatsapp}`,
       description: site.description,
-      founder: { "@type": "Person", name: "Jerry Joshan" },
-      foundingDate: "2025-08",
+      founder: { "@id": `${site.url}/#${company.founder.id}` },
+      foundingDate: company.foundedIso,
+      // Locality only: the studio works from Bangalore. A street address goes
+      // here once it matches the Google Business Profile exactly.
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Bengaluru",
+        addressRegion: "Karnataka",
+        addressCountry: "IN",
+      },
       areaServed,
       serviceType: [
         "Video production",
@@ -101,20 +118,33 @@ const jsonLd = {
         "Advertising production",
         "Brand films",
         "Social media marketing",
-        "Website design and development",
-        "AI integration",
+        ...servicePages.filter((p) => p.group !== "media").map((p) => p.name),
       ],
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: "Services",
         itemListElement: servicePages.map((p) => ({
           "@type": "Offer",
-          itemOffered: { "@type": "Service", name: p.name, url: `${site.url}/services/${p.slug}` },
+          itemOffered: { "@id": `${site.url}/services/${p.slug}#service`, "@type": "Service", name: p.name },
         })),
       },
-      // ponytail: skips the bare instagram.com/linkedin.com placeholders in
-      // lib/content.ts; real profile URLs there flow in with no change here.
-      sameAs: [site.instagram, site.linkedin].filter((u) => new URL(u).pathname.length > 1),
+      // Every profile elsewhere: the knowledge-graph links. Bare-domain
+      // placeholders and the empty company.profiles slots (YouTube, Google
+      // Business, Crunchbase, Wikidata) are skipped until they hold real URLs.
+      sameAs: [site.instagram, site.linkedin, ...Object.values(company.profiles)].filter(
+        (u): u is string => !!u && new URL(u).pathname.length > 1,
+      ),
+    },
+    // The founder, so `founder` above and the blog's author box resolve to a
+    // real entity. His LinkedIn joins sameAs once company.founder.linkedin is set.
+    {
+      "@type": "Person",
+      "@id": `${site.url}/#${company.founder.id}`,
+      name: company.founder.name,
+      jobTitle: company.founder.role,
+      image: `${site.url}/jerry-joshan.png`,
+      worksFor: { "@id": `${site.url}/#business` },
+      ...(company.founder.linkedin ? { sameAs: [company.founder.linkedin] } : {}),
     },
   ],
 };

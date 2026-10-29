@@ -29,7 +29,7 @@ export default function Faq({
               className="ks-faq group border-t border-[var(--rule-on-dark)] last:border-b"
             >
               <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 text-h3 u-display marker:content-none">
-                <span style={{ ["--wdth" as string]: 96 }}>{item.q}</span>
+                <h3 style={{ ["--wdth" as string]: 96 }}>{item.q}</h3>
                 <span
                   aria-hidden="true"
                   className="relative mt-2 block h-3 w-3 shrink-0 text-muted-dark"

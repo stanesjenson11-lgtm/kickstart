@@ -132,8 +132,16 @@ export default function SmoothScroll() {
       // Absolute values rather than addElement: the snap point is offset from the
       // element box by the cut, which addElement has no way to express. Rebuilt
       // on every ScrollTrigger refresh below, which covers resize.
+      //
+      // data-frame="phone" / "desktop" is a frame at that size only (split at
+      // `bar`, 48rem): a section that is one screen on a laptop can be two on a
+      // phone. Re-read on each rebuild, so the device toolbar switching between
+      // them picks the right set.
+      const phone = window.matchMedia("(width < 48rem)").matches;
       document
-        .querySelectorAll<HTMLElement>("[data-frame]")
+        .querySelectorAll<HTMLElement>(
+          phone ? '[data-frame]:not([data-frame="desktop"])' : '[data-frame]:not([data-frame="phone"])',
+        )
         .forEach((el) => snap!.add(frameStart(el)));
       // A rebuild mid-shot (a refresh on resize) must not quietly re-arm it.
       if (!snapOn) snap.stop();
