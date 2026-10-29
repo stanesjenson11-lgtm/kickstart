@@ -3,9 +3,6 @@ import { footer, nav, servicePages, site } from "@/lib/content";
 import { MARK, MARK_H, MARK_W } from "@/lib/mark";
 
 const PAGES = [
-  { label: "Blog", href: "/blog" },
-  { label: "Bangalore", href: "/bangalore" },
-  { label: "Coimbatore", href: "/coimbatore" },
   { label: "Sitemap", href: "/sitemap" },
 ];
 
