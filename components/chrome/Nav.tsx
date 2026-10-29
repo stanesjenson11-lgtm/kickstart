@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { nav, servicePages, site } from "@/lib/content";
 import MagneticButton from "@/components/ui/MagneticButton";
 
@@ -21,6 +21,7 @@ export default function Nav({ home = "" }: { home?: string }) {
   // Escape dismisses the services dropdown while the pointer or focus is still
   // on it (WCAG 1.4.13). Leaving it re-arms the hover.
   const [dropDismissed, setDropDismissed] = useState(false);
+  const [webOpen, setWebOpen] = useState(false);
   const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -204,29 +205,54 @@ export default function Nav({ home = "" }: { home?: string }) {
         <nav aria-label="Mobile" className="flex flex-col">
           {nav.links.map((l, i) => (
             <div key={l.href} className="border-b border-[var(--rule-on-dark)]">
-              <a
-                href={home + l.href}
-                onClick={() => setOpen(false)}
-                // Row height follows the screen's: roomy on a tall phone, tight
-                // enough on an iPhone SE that the sheet still fits.
-                className="u-display block py-[clamp(0.8rem,2.8svh,1.5rem)] text-h2"
-                style={{ ["--wdth" as string]: 96, transitionDelay: `${i * 40}ms` }}
-              >
-                {l.label}
-              </a>
-              {/* No hover on a phone, so the services under "Web & AI" sit in
-                  the sheet itself, as one slate line like the home section's. */}
-              {"menu" in l && (
-                <ul className="u-meta -mt-3 flex flex-wrap gap-x-2.5 gap-y-1 pb-5 text-muted-dark">
-                  {webServices.map((s, j) => (
-                    <li key={s.slug} className="flex items-center gap-2.5">
-                      {j > 0 && <span aria-hidden="true" className="text-paper/45">/</span>}
-                      <a href={`/services/${s.slug}`} onClick={() => setOpen(false)} className="cut-link py-1">
-                        {s.short}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+              {"menu" in l ? (
+                /* "Web & AI" row: link + chevron toggle for sub-services. */
+                <>
+                  <div className="flex items-center justify-between">
+                    <a
+                      href={home + l.href}
+                      onClick={() => setOpen(false)}
+                      className="u-display block py-[clamp(0.8rem,2.8svh,1.5rem)] text-h2"
+                      style={{ ["--wdth" as string]: 96, transitionDelay: `${i * 40}ms` }}
+                    >
+                      {l.label}
+                    </a>
+                    <button
+                      type="button"
+                      aria-expanded={webOpen}
+                      aria-label={webOpen ? "Collapse services" : "Expand services"}
+                      onClick={() => setWebOpen((v) => !v)}
+                      className="flex h-11 w-11 items-center justify-center text-muted-dark"
+                    >
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 transition-transform duration-300"
+                        style={{ transform: webOpen ? "rotate(180deg)" : "none" }}
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  </div>
+                  {webOpen && (
+                    <ul className="u-meta flex flex-col gap-2 pb-5 text-muted-dark">
+                      {webServices.map((s) => (
+                        <li key={s.slug}>
+                          <a href={`/services/${s.slug}`} onClick={() => setOpen(false)} className="cut-link py-1">
+                            {s.short}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <a
+                  href={home + l.href}
+                  onClick={() => setOpen(false)}
+                  className="u-display block py-[clamp(0.8rem,2.8svh,1.5rem)] text-h2"
+                  style={{ ["--wdth" as string]: 96, transitionDelay: `${i * 40}ms` }}
+                >
+                  {l.label}
+                </a>
               )}
             </div>
           ))}
