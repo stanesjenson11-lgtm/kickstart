@@ -43,12 +43,17 @@ export default function Showreel() {
     // while the reel is in reach: an AbortError from pausing mid-play() lands
     // in the catch too, and must not start it offscreen later.
     let near = false;
+    // True while a touch screen is downloading the whole reel (see `prefetch`).
+    // play() is held back meanwhile: on an iPhone it would start a second,
+    // streamed copy of the same file, and the two halves of the connection
+    // would each take twice as long as one.
+    let fetching = false;
     const arm = () => {
       document.addEventListener("touchend", play, { once: true, passive: true });
       document.addEventListener("click", play, { once: true });
     };
     const play = () => {
-      if (near) el.play().catch(arm);
+      if (near && !fetching) el.play().catch(arm);
     };
 
     // play() pulls the media down; pausing offscreen keeps a decoder off the
@@ -89,24 +94,41 @@ export default function Showreel() {
      */
     const abort = new AbortController();
     let local = "";
+    // SmoothScroll holds its image warm-up on touch screens until this fires,
+    // so the reel has the connection to itself.
+    const settled = () => window.dispatchEvent(new Event("ks:reel"));
     const prefetch = () => {
       const { connection } = navigator as Navigator & { connection?: { saveData?: boolean } };
-      if (!el.currentSrc || connection?.saveData) return;
-      fetch(el.currentSrc, { signal: abort.signal })
+      if (!el.currentSrc || connection?.saveData) return settled();
+      fetching = !el.played.length;
+      fetch(el.currentSrc, { signal: abort.signal, priority: "high" })
         .then((r) => (r.ok ? r.blob() : Promise.reject()))
         .then((blob) => {
+          fetching = false;
+          settled();
           if (el.played.length) return;
           local = URL.createObjectURL(blob);
           el.src = local;
           play();
         })
-        .catch(() => {});
+        .catch(() => {
+          // A failed download falls back to streaming; an abort is the
+          // component going away, or the stream winning, and needs nothing.
+          if (abort.signal.aborted) return;
+          fetching = false;
+          settled();
+          play();
+        });
     };
 
     // Started from the network first: stop the download, so the stream has the
     // connection to itself.
     const onPlaying = () => {
-      if (!local) abort.abort();
+      if (!local) {
+        abort.abort();
+        fetching = false;
+        settled();
+      }
     };
     el.addEventListener("playing", onPlaying, { once: true });
 

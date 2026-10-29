@@ -144,19 +144,23 @@ export const showreel = {
   headline: "Watch the work.",
   /**
    * Tried in order: the browser plays the first whose `media` matches and whose
-   * `type` it can decode. Phones (under `bar:`) get 720p, touch-first screens —
+   * `type` it can decode. Phones (under `bar:`) get 540p, touch-first screens —
    * tablets — 1080p, everything else the desktop plate. HEVC comes first in each
    * tier: a third to 40% smaller than the H.264 file behind it at a higher VMAF
    * against the master, and the H.264 file plays where HEVC won't decode.
    * ffmpeg -i master.mp4 -an -vf scale=W:H:flags=lanczos -c:v libx265 -preset slow
    *   -crf C -x265-params keyint=50:vbv-maxrate=R:vbv-bufsize=2R -tag:v hvc1
    *   -movflags +faststart
-   * 1920x1080 at C=27, R=6000; 1280x720 at C=31, R=1800 — the phone cap keeps
-   * a 4G link ahead of playback. The codec strings carry the levels x265 picked,
-   * 4.0 and 3.1, so a device that can't decode them skips to the next source.
+   * 1920x1080 at C=27, R=6000; 960x540 at C=30, R=1100 for phones, cut from the
+   * 1080p H.264 file. 540p, not 720p: a phone shows the reel letterboxed about
+   * 1170px wide, where the two look the same, and 540p is a quarter smaller
+   * (3.0 MB) — an iPhone downloads the whole file before it plays, so size is
+   * time. The phone H.264 fallback is libx264 -crf 26 -maxrate 1300k at the same
+   * size (4.7 MB). The codec strings carry the levels x265 picked, 4.0 and 3.0,
+   * so a device that can't decode them skips to the next source.
    */
   sources: [
-    { src: "/showreel-sm-hevc.mp4", type: 'video/mp4; codecs="hvc1.1.6.L93.90"', media: "(max-width: 767px)" },
+    { src: "/showreel-sm-hevc.mp4", type: 'video/mp4; codecs="hvc1.1.6.L90.90"', media: "(max-width: 767px)" },
     { src: "/showreel-sm.mp4", type: "video/mp4", media: "(max-width: 767px)" },
     { src: "/showreel-hevc.mp4", type: 'video/mp4; codecs="hvc1.1.6.L120.90"', media: "(pointer: coarse)" },
     { src: "/showreel.mp4", type: "video/mp4" },

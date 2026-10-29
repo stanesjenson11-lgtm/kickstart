@@ -19,6 +19,13 @@ export default function SmoothScroll() {
    * then, and a scroll meets the gallery already decoded instead of mid-fetch.
    * Outside the reduced-motion early return below: this is about loading, not
    * motion. A visitor who has asked to save data keeps lazy loading.
+   *
+   * On a touch screen with the reel on the page, the warm-up waits for the reel
+   * first (Showreel fires `ks:reel` once its download settles), or fifteen seconds
+   * at most: a phone downloads the whole reel on the first scroll, and the
+   * gallery and logos pulling a megabyte and a half alongside it were what kept
+   * the Work section black. Images about to come into view still load on their
+   * own; only the far-off ones wait.
    */
   useEffect(() => {
     const { connection } = navigator as Navigator & { connection?: { saveData?: boolean } };
@@ -27,18 +34,30 @@ export default function SmoothScroll() {
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
     const cancel = window.cancelIdleCallback ?? window.clearTimeout;
     let id = 0;
+    let wait = 0;
     const warm = () => {
+      window.removeEventListener("ks:reel", warm);
+      window.clearTimeout(wait);
       id = idle(() => {
         document
           .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
           .forEach((img) => (img.loading = "eager"));
       });
     };
+    const start = () => {
+      const reelFirst =
+        window.matchMedia("(pointer: coarse)").matches && document.querySelector("#work video");
+      if (!reelFirst) return warm();
+      window.addEventListener("ks:reel", warm, { once: true });
+      wait = window.setTimeout(warm, 15000);
+    };
 
-    if (document.readyState === "complete") warm();
-    else window.addEventListener("load", warm, { once: true });
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
     return () => {
-      window.removeEventListener("load", warm);
+      window.removeEventListener("load", start);
+      window.removeEventListener("ks:reel", warm);
+      window.clearTimeout(wait);
       cancel(id);
     };
   }, []);
